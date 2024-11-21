@@ -26,7 +26,7 @@ export const exampleObject: ExampleObject = {
 
 export const validPrimitive: FormPrimitive<ExampleObject, ReactNode, ExampleObjectConfig, ReactComponentMap> = {
     key: 'key1', // Matches the `number` type
-    component: 'double-number-box', // `double-primitive` expects `Edm.Double` which is `number`
+    component: 'double-number-field', // `double-primitive` expects `Edm.Double` which is `number`
 };
 
 
@@ -40,7 +40,7 @@ export const exampleForm: FormItems<ExampleObject, ReactNode, ExampleObjectConfi
     items: [
         {
             key: 'key2',
-            component: 'switch'
+            component: 'checkbox'
         },
         {
             direction: 'column',
@@ -50,7 +50,7 @@ export const exampleForm: FormItems<ExampleObject, ReactNode, ExampleObjectConfi
 
                 {
                     key: 'key3',
-                    component: 'multi-line-text-box'
+                    component: 'single-line-text-field'
                 }
             ]
         }
