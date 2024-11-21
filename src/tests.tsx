@@ -2,12 +2,16 @@ import React, { ReactNode } from "react";
 import { SingleComponentType } from "./lib/domain";
 import { Items, Primitive } from "./lib/form";
 import { Switch, TextField } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
 
 // type ComponentKeys = 'double-primitive' | 'boolean-primitive';
 
 type ComponentMappings = {
     'double-primitive': SingleComponentType<ReactNode, 'Edm.Double'>;
     'boolean-primitive': SingleComponentType<ReactNode, 'Edm.Boolean'>;
+    'string-primitive': SingleComponentType<ReactNode, 'Edm.String'>;
+    'date-picker': SingleComponentType<ReactNode, 'Edm.DateTimeOffset'>;
 };
 
 // Firstly make the keys typesafe 
@@ -26,8 +30,18 @@ const componentMap: ComponentMappings = {
         display: (data: boolean) => data ? 'true' : 'false',
         edit: (value: boolean, onChange: (value: boolean) => void) => <Switch checked={value} onClick={x => onChange(!x)} />,
     },
-
-
+    "date-picker":
+    {
+        type: 'Edm.DateTimeOffset',
+        display: (data) => data.toDateString(),
+        edit: (data, onChange) => <TextField value={data.toDateString()} onChange={e => onChange(new Date(e.target.value))} />
+    },
+    "string-primitive":
+    {
+        type: 'Edm.String',
+        display: value => value,
+        edit: (value: string, onChange: (value: string) => void) => <TextField value={value} onChange={e => onChange(e.target.value)} />,
+    }
 
 }
 
@@ -52,13 +66,19 @@ const form: Items<ExampleObject, ReactNode, ComponentMappings> = {
         "key1",
         {
             key: 'key2',
-            component: 'double-primitive'
+            component: 'boolean-primitive'
+        },
+        {
+            direction: 'column',
+            label: 'test',
+            items: [
+                {
+                    key: 'key3',
+                    component: 'string-primitive'
+                }
+            ]
         }
     ]
 }
-
-console.log(form);
-console.log(validPrimitive);
-console.log(componentMap);
 
 
