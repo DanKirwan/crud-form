@@ -40,7 +40,8 @@ export const exampleForm: FormItems<ExampleObject, ReactNode, ExampleObjectConfi
     items: [
         {
             key: 'key2',
-            component: 'checkbox'
+            component: 'checkbox',
+            label: 'Key 2'
         },
         {
             direction: 'column',

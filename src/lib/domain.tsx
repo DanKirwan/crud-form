@@ -40,8 +40,8 @@ export type OdataTypeToValue<K extends ObjectMappings['key']> =
 export type SingleComponentType<RenderT, K extends ObjectMappings['key']> = {
     type: K,
     name: string,
-    display: (data: OdataTypeToValue<K>) => RenderT,
-    edit: (data: OdataTypeToValue<K>, onChange: (value: OdataTypeToValue<K>) => void) => RenderT
+    display: (data: OdataTypeToValue<K>, label?: string) => RenderT,
+    edit: (data: OdataTypeToValue<K>, onChange: (value: OdataTypeToValue<K>) => void, label?: string) => RenderT
 };
 
 export type AllComponentNames<RenderT, MapT extends ComponentMap<RenderT>> = {

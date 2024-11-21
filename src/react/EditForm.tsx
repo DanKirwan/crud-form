@@ -33,7 +33,21 @@ export const EditForm = <T,>({
         REACT_COMPONENT_MAP,
         config,
         // Function to render a container or group
-        (label, contents, direction) => (
+        (label, contents, direction) => !label ? (
+            <Stack
+                direction={direction}
+                spacing={2}
+                alignItems="flex-start"
+                justifyContent="flex-start"
+            >
+                {contents.map((content, index) => (
+                    <Box key={index} width="100%">
+                        {content}
+                    </Box>
+                ))}
+            </Stack>
+        ) : (
+
             <Box p={2}>
                 <Paper elevation={2}>
                     <Box p={2}>

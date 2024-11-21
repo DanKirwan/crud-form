@@ -2,6 +2,7 @@
 
 import { ComponentMap, OdataTypeToValue } from "./domain";
 import { FormDirection, FormItem, FormItems, ObjectConfig } from "./form";
+import { camelToDisplay } from "./stringUtils";
 
 
 
@@ -37,7 +38,9 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectConfig<T>, MappingT ex
             propertyValue as never,
             (newValue) => {
                 onChange({ ...data, [propertyKey]: newValue });
-            })
+            },
+            camelToDisplay(propertyKey)
+        )
     }
 
     if (!(item instanceof Object)) throw new Error("Failed to match form item ")
@@ -54,17 +57,23 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectConfig<T>, MappingT ex
         // Ensure the property type matches the component value type
         const propertyValue = data[propertyKey] as PropertyType & ComponentValueType;
 
-        return componentDef.edit(propertyValue as never, (newValue) => {
-            onChange({ ...data, [propertyKey]: newValue });
-        });
+        return componentDef.edit(
+            propertyValue as never,
+            (newValue) => {
+                onChange({ ...data, [propertyKey]: newValue });
+            },
+            item.label
+        );
     }
 
     if ('display' in item && 'edit' in item) {
         // It's a custom render
         const propertyValue = data[item.key];
-        return item.edit(propertyValue, (newValue) => {
-            onChange({ ...data, [item.key]: newValue });
-        })
+        return item.edit(
+            propertyValue,
+            (newValue) => {
+                onChange({ ...data, [item.key]: newValue });
+            })
     }
 
 

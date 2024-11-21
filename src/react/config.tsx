@@ -1,50 +1,112 @@
-import React, { ReactNode } from 'react';
 import {
-    TextField,
-    Switch,
+    Box,
     Checkbox,
     Slider,
-    Box,
-    InputAdornment,
+    Switch,
+    TextField,
+    Typography
 } from '@mui/material';
 import { DatePicker, DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import { ReactNode } from 'react';
 
 import { ComponentMap } from '../lib/domain';
-
 export const REACT_COMPONENT_MAP = {
     'Edm.Boolean': [
         {
-            name: 'switch' as const,
-            type: 'Edm.Boolean' as const,
-            display: (data: boolean) => (data ? 'True' : 'False'),
-            edit: (value: boolean, onChange: (value: boolean) => void) => (
-                <Switch
-                    checked={value}
-                    onChange={(event) => onChange(event.target.checked)}
-                />
+            name: 'switch',
+            type: 'Edm.Boolean',
+            display: (data: boolean, label?: string) => (
+                <Box display="flex" alignItems="center">
+                    {label && (
+                        <Typography variant="body1" mr={1}>
+                            {label}:
+                        </Typography>
+                    )}
+                    <Typography variant="body1">{data ? 'True' : 'False'}</Typography>
+                </Box>
+            ),
+            edit: (
+                value: boolean,
+                onChange: (value: boolean) => void,
+                label?: string
+            ) => (
+                <Box display="flex" alignItems="center">
+                    {label && (
+                        <Typography variant="body1" mr={1}>
+                            {label}
+                        </Typography>
+                    )}
+                    <Switch
+                        checked={value}
+                        onChange={(event) => onChange(event.target.checked)}
+                        color="primary"
+                    />
+                </Box>
             ),
         },
         {
-            name: 'checkbox' as const,
-            type: 'Edm.Boolean' as const,
-            display: (data: boolean) => (data ? 'True' : 'False'),
-            edit: (value: boolean, onChange: (value: boolean) => void) => (
-                <Checkbox
-                    checked={value}
-                    onChange={(event) => onChange(event.target.checked)}
-                />
+            name: 'checkbox',
+            type: 'Edm.Boolean',
+            display: (data: boolean, label?: string) => (
+                <Box display="flex" alignItems="center">
+                    <Checkbox checked={data} disabled />
+                    {label && (
+                        <Typography variant="body1" ml={1}>
+                            {label}
+                        </Typography>
+                    )}
+                </Box>
+            ),
+            edit: (
+                value: boolean,
+                onChange: (value: boolean) => void,
+                label?: string
+            ) => (
+                <Box display="flex" alignItems="center">
+                    <Checkbox
+                        checked={value}
+                        onChange={(event) => onChange(event.target.checked)}
+                        color="primary"
+                    />
+                    {label && (
+                        <Typography variant="body1" ml={1}>
+                            {label}
+                        </Typography>
+                    )}
+                </Box>
             ),
         },
     ],
     'Edm.DateTimeOffset': [
         {
-            name: 'date-picker' as const,
-            type: 'Edm.DateTimeOffset' as const,
-            display: (data: Date) => data.toLocaleDateString(),
-            edit: (value: Date, onChange: (value: Date) => void) => (
+            name: 'date-picker',
+            type: 'Edm.DateTimeOffset',
+            display: (data: Date, label?: string) => (
+                <Box>
+                    {label && (
+                        <Typography variant="body1">
+                            {label}:{' '}
+                            <Typography variant="body2" component="span">
+                                {data.toLocaleDateString()}
+                            </Typography>
+                        </Typography>
+                    )}
+                    {!label && (
+                        <Typography variant="body2">
+                            {data.toLocaleDateString()}
+                        </Typography>
+                    )}
+                </Box>
+            ),
+            edit: (
+                value: Date,
+                onChange: (value: Date) => void,
+                label?: string
+            ) => (
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <DatePicker
+                        label={label}
                         value={value}
                         onChange={(date) => date && onChange(date)}
                     />
@@ -52,12 +114,31 @@ export const REACT_COMPONENT_MAP = {
             ),
         },
         {
-            name: 'date-time-picker' as const,
-            type: 'Edm.DateTimeOffset' as const,
-            display: (data: Date) => data.toLocaleString(),
-            edit: (value: Date, onChange: (value: Date) => void) => (
+            name: 'date-time-picker',
+            type: 'Edm.DateTimeOffset',
+            display: (data: Date, label?: string) => (
+                <Box>
+                    {label && (
+                        <Typography variant="body1">
+                            {label}:{' '}
+                            <Typography variant="body2" component="span">
+                                {data.toLocaleString()}
+                            </Typography>
+                        </Typography>
+                    )}
+                    {!label && (
+                        <Typography variant="body2">{data.toLocaleString()}</Typography>
+                    )}
+                </Box>
+            ),
+            edit: (
+                value: Date,
+                onChange: (value: Date) => void,
+                label?: string
+            ) => (
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <DateTimePicker
+                        label={label}
                         value={value}
                         onChange={(date) => date && onChange(date)}
                     />
@@ -67,45 +148,105 @@ export const REACT_COMPONENT_MAP = {
     ],
     'Edm.Decimal': [
         {
-            name: 'decimal-text-field' as const,
-            type: 'Edm.Decimal' as const,
-            display: (data: number) => data.toFixed(2),
-            edit: (value: number, onChange: (value: number) => void) => (
+            name: 'decimal-text-field',
+            type: 'Edm.Decimal',
+            display: (data: number, label?: string) => (
+                <Box>
+                    {label && (
+                        <Typography variant="body1">
+                            {label}:{' '}
+                            <Typography variant="body2" component="span">
+                                {data.toFixed(2)}
+                            </Typography>
+                        </Typography>
+                    )}
+                    {!label && (
+                        <Typography variant="body2">{data.toFixed(2)}</Typography>
+                    )}
+                </Box>
+            ),
+            edit: (
+                value: number,
+                onChange: (value: number) => void,
+                label?: string
+            ) => (
                 <TextField
+                    label={label}
                     type="number"
                     value={value}
                     onChange={(e) => onChange(parseFloat(e.target.value))}
                     InputProps={{
                         inputProps: { step: '0.01' },
-                        endAdornment: <InputAdornment position="end">units</InputAdornment>,
                     }}
                     fullWidth
                 />
             ),
         },
         {
-            name: 'decimal-slider' as const,
-            type: 'Edm.Decimal' as const,
-            display: (data: number) => data.toFixed(2),
-            edit: (value: number, onChange: (value: number) => void) => (
-                <Slider
-                    value={value}
-                    min={0}
-                    max={100}
-                    step={0.01}
-                    onChange={(e, newValue) => onChange(newValue as number)}
-                    valueLabelDisplay="auto"
-                />
+            name: 'decimal-slider',
+            type: 'Edm.Decimal',
+            display: (data: number, label?: string) => (
+                <Box>
+                    {label && (
+                        <Typography variant="body1">
+                            {label}:{' '}
+                            <Typography variant="body2" component="span">
+                                {data.toFixed(2)}
+                            </Typography>
+                        </Typography>
+                    )}
+                    {!label && (
+                        <Typography variant="body2">{data.toFixed(2)}</Typography>
+                    )}
+                </Box>
+            ),
+            edit: (
+                value: number,
+                onChange: (value: number) => void,
+                label?: string
+            ) => (
+                <Box width={'100%'}>
+                    {label && (
+                        <Typography variant="body1" gutterBottom>
+                            {label}
+                        </Typography>
+                    )}
+                    <Slider
+                        value={value}
+                        min={0}
+                        max={100}
+                        step={0.01}
+                        onChange={(e, newValue) => onChange(newValue as number)}
+                        valueLabelDisplay="auto"
+                    />
+                </Box>
             ),
         },
     ],
     'Edm.Byte': [
         {
-            name: 'byte-number-field' as const,
-            type: 'Edm.Byte' as const,
-            display: (data: number) => data.toString(),
-            edit: (value: number, onChange: (value: number) => void) => (
+            name: 'byte-number-field',
+            type: 'Edm.Byte',
+            display: (data: number, label?: string) => (
+                <Box>
+                    {label && (
+                        <Typography variant="body1">
+                            {label}:{' '}
+                            <Typography variant="body2" component="span">
+                                {data.toString()}
+                            </Typography>
+                        </Typography>
+                    )}
+                    {!label && <Typography variant="body2">{data.toString()}</Typography>}
+                </Box>
+            ),
+            edit: (
+                value: number,
+                onChange: (value: number) => void,
+                label?: string
+            ) => (
                 <TextField
+                    label={label}
                     type="number"
                     value={value}
                     onChange={(e) => onChange(Math.round(Number(e.target.value)))}
@@ -119,11 +260,28 @@ export const REACT_COMPONENT_MAP = {
     ],
     'Edm.Single': [
         {
-            name: 'single-number-field' as const,
-            type: 'Edm.Single' as const,
-            display: (data: number) => data.toString(),
-            edit: (value: number, onChange: (value: number) => void) => (
+            name: 'single-number-field',
+            type: 'Edm.Single',
+            display: (data: number, label?: string) => (
+                <Box>
+                    {label && (
+                        <Typography variant="body1">
+                            {label}:{' '}
+                            <Typography variant="body2" component="span">
+                                {data.toString()}
+                            </Typography>
+                        </Typography>
+                    )}
+                    {!label && <Typography variant="body2">{data.toString()}</Typography>}
+                </Box>
+            ),
+            edit: (
+                value: number,
+                onChange: (value: number) => void,
+                label?: string
+            ) => (
                 <TextField
+                    label={label}
                     type="number"
                     value={value}
                     onChange={(e) => onChange(parseFloat(e.target.value))}
@@ -134,11 +292,28 @@ export const REACT_COMPONENT_MAP = {
     ],
     'Edm.Int32': [
         {
-            name: 'int-number-field' as const,
-            type: 'Edm.Int32' as const,
-            display: (data: number) => data.toString(),
-            edit: (value: number, onChange: (value: number) => void) => (
+            name: 'int-number-field',
+            type: 'Edm.Int32',
+            display: (data: number, label?: string) => (
+                <Box>
+                    {label && (
+                        <Typography variant="body1">
+                            {label}:{' '}
+                            <Typography variant="body2" component="span">
+                                {data.toString()}
+                            </Typography>
+                        </Typography>
+                    )}
+                    {!label && <Typography variant="body2">{data.toString()}</Typography>}
+                </Box>
+            ),
+            edit: (
+                value: number,
+                onChange: (value: number) => void,
+                label?: string
+            ) => (
                 <TextField
+                    label={label}
                     type="number"
                     value={value}
                     onChange={(e) => onChange(Math.round(Number(e.target.value)))}
@@ -150,28 +325,70 @@ export const REACT_COMPONENT_MAP = {
             ),
         },
         {
-            name: 'int-slider' as const,
-            type: 'Edm.Int32' as const,
-            display: (data: number) => data.toString(),
-            edit: (value: number, onChange: (value: number) => void) => (
-                <Slider
-                    value={value}
-                    min={0}
-                    max={100}
-                    step={1}
-                    onChange={(e, newValue) => onChange(newValue as number)}
-                    valueLabelDisplay="auto"
-                />
+            name: 'int-slider',
+            type: 'Edm.Int32',
+            display: (data: number, label?: string) => (
+                <Box>
+                    {label && (
+                        <Typography variant="body1">
+                            {label}:{' '}
+                            <Typography variant="body2" component="span">
+                                {data.toString()}
+                            </Typography>
+                        </Typography>
+                    )}
+                    {!label && <Typography variant="body2">{data.toString()}</Typography>}
+                </Box>
+            ),
+            edit: (
+                value: number,
+                onChange: (value: number) => void,
+                label?: string
+            ) => (
+                <Box width={'100%'}>
+                    {label && (
+                        <Typography variant="body1" gutterBottom>
+                            {label}
+                        </Typography>
+                    )}
+                    <Slider
+                        value={value}
+                        min={0}
+                        max={100}
+                        step={1}
+                        onChange={(e, newValue) => onChange(newValue as number)}
+                        valueLabelDisplay="auto"
+                    />
+                </Box>
             ),
         },
     ],
     'Edm.Double': [
         {
-            name: 'double-number-field' as const,
-            type: 'Edm.Double' as const,
-            display: (data: number) => data.toFixed(2),
-            edit: (value: number, onChange: (value: number) => void) => (
+            name: 'double-number-field',
+            type: 'Edm.Double',
+            display: (data: number, label?: string) => (
+                <Box>
+                    {label && (
+                        <Typography variant="body1">
+                            {label}:{' '}
+                            <Typography variant="body2" component="span">
+                                {data.toFixed(2)}
+                            </Typography>
+                        </Typography>
+                    )}
+                    {!label && (
+                        <Typography variant="body2">{data.toFixed(2)}</Typography>
+                    )}
+                </Box>
+            ),
+            edit: (
+                value: number,
+                onChange: (value: number) => void,
+                label?: string
+            ) => (
                 <TextField
+                    label={label}
                     type="number"
                     value={value}
                     onChange={(e) => onChange(parseFloat(e.target.value))}
@@ -185,11 +402,28 @@ export const REACT_COMPONENT_MAP = {
     ],
     'Edm.Guid': [
         {
-            name: 'guid-text-field' as const,
-            type: 'Edm.Guid' as const,
-            display: (data: string) => data,
-            edit: (value: string, onChange: (value: string) => void) => (
+            name: 'guid-text-field',
+            type: 'Edm.Guid',
+            display: (data: string, label?: string) => (
+                <Box>
+                    {label && (
+                        <Typography variant="body1">
+                            {label}:{' '}
+                            <Typography variant="body2" component="span">
+                                {data}
+                            </Typography>
+                        </Typography>
+                    )}
+                    {!label && <Typography variant="body2">{data}</Typography>}
+                </Box>
+            ),
+            edit: (
+                value: string,
+                onChange: (value: string) => void,
+                label?: string
+            ) => (
                 <TextField
+                    label={label}
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
                     inputProps={{
@@ -204,11 +438,28 @@ export const REACT_COMPONENT_MAP = {
     ],
     'Edm.String': [
         {
-            name: 'single-line-text-field' as const,
-            type: 'Edm.String' as const,
-            display: (data: string) => data,
-            edit: (value: string, onChange: (value: string) => void) => (
+            name: 'single-line-text-field',
+            type: 'Edm.String',
+            display: (data: string, label?: string) => (
+                <Box>
+                    {label && (
+                        <Typography variant="body1">
+                            {label}:{' '}
+                            <Typography variant="body2" component="span">
+                                {data}
+                            </Typography>
+                        </Typography>
+                    )}
+                    {!label && <Typography variant="body2">{data}</Typography>}
+                </Box>
+            ),
+            edit: (
+                value: string,
+                onChange: (value: string) => void,
+                label?: string
+            ) => (
                 <TextField
+                    label={label}
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
                     fullWidth
@@ -216,11 +467,27 @@ export const REACT_COMPONENT_MAP = {
             ),
         },
         {
-            name: 'multi-line-text-field' as const,
-            type: 'Edm.String' as const,
-            display: (data: string) => data,
-            edit: (value: string, onChange: (value: string) => void) => (
+            name: 'multi-line-text-field',
+            type: 'Edm.String',
+            display: (data: string, label?: string) => (
+                <Box>
+                    {label && (
+                        <Typography variant="body1" gutterBottom>
+                            {label}:
+                        </Typography>
+                    )}
+                    <Typography variant="body2" style={{ whiteSpace: 'pre-wrap' }}>
+                        {data}
+                    </Typography>
+                </Box>
+            ),
+            edit: (
+                value: string,
+                onChange: (value: string) => void,
+                label?: string
+            ) => (
                 <TextField
+                    label={label}
                     multiline
                     rows={4}
                     value={value}
@@ -232,38 +499,57 @@ export const REACT_COMPONENT_MAP = {
     ],
     'Edm.GeographyPoint': [
         {
-            name: 'geography-point-input' as const,
-            type: 'Edm.GeographyPoint' as const,
-            display: (data: { lat: number; long: number }) =>
-                `Latitude: ${data.lat}, Longitude: ${data.long}`,
+            name: 'geography-point-input',
+            type: 'Edm.GeographyPoint',
+            display: (data: { lat: number; long: number }, label?: string) => (
+                <Box>
+                    {label && (
+                        <Typography variant="body1" gutterBottom>
+                            {label}:
+                        </Typography>
+                    )}
+                    <Typography variant="body2">
+                        Latitude: {data.lat}, Longitude: {data.long}
+                    </Typography>
+                </Box>
+            ),
             edit: (
                 value: { lat: number; long: number },
-                onChange: (value: { lat: number; long: number }) => void
+                onChange: (value: { lat: number; long: number }) => void,
+                label?: string
             ) => (
-                <Box display="flex" flexDirection="column" gap={2}>
-                    <TextField
-                        label="Latitude"
-                        type="number"
-                        value={value.lat}
-                        onChange={(e) =>
-                            onChange({ ...value, lat: parseFloat(e.target.value) })
-                        }
-                        fullWidth
-                    />
-                    <TextField
-                        label="Longitude"
-                        type="number"
-                        value={value.long}
-                        onChange={(e) =>
-                            onChange({ ...value, long: parseFloat(e.target.value) })
-                        }
-                        fullWidth
-                    />
+                <Box>
+                    {label && (
+                        <Typography variant="body1" gutterBottom>
+                            {label}
+                        </Typography>
+                    )}
+                    <Box display="flex" flexDirection="column" gap={2} mt={1}>
+                        <TextField
+                            label="Latitude"
+                            type="number"
+                            value={value.lat}
+                            onChange={(e) =>
+                                onChange({ ...value, lat: parseFloat(e.target.value) })
+                            }
+                            fullWidth
+                        />
+                        <TextField
+                            label="Longitude"
+                            type="number"
+                            value={value.long}
+                            onChange={(e) =>
+                                onChange({ ...value, long: parseFloat(e.target.value) })
+                            }
+                            fullWidth
+                        />
+                    </Box>
                 </Box>
             ),
         },
-        // Optionally, you can integrate a map component for better UX
+        // Optionally, you can add a map component for better UX
     ],
 } as const satisfies ComponentMap<ReactNode>;
+
 
 export type ReactComponentMap = typeof REACT_COMPONENT_MAP;

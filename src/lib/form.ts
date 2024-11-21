@@ -17,6 +17,7 @@ export type FormPrimitive<
     | keyof T
     | {
         key: keyof T;
+        label?: string;
         component: AllComponentNames<RenderT, MappingT>;
     } & {
         [ObjK in keyof T]: ConfigT[ObjK] extends ObjectMappings['key'] ?
