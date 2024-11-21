@@ -1,4 +1,4 @@
-import { ComponentMapping, ObjectMappings, OdataTypeToValue } from "./domain";
+import { AllComponentNames, ComponentMap, ComponentNames, ObjectMappings } from "./domain";
 
 export type FormDirection = 'row' | 'column';
 
@@ -11,45 +11,36 @@ type CustomRender<T, RenderT> = {
 export type FormPrimitive<
     T, // The object type
     RenderT,
-    MappingT extends ComponentMapping<string, RenderT> // Component mappings
+    ConfigT extends ObjectConfig<T>,
+    MappingT extends ComponentMap<RenderT> // Component mappings
 > =
     | keyof T
     | {
         key: keyof T;
-        component: keyof MappingT;
+        component: AllComponentNames<RenderT, MappingT>;
     } & {
+        [ObjK in keyof T]: ConfigT[ObjK] extends ObjectMappings['key'] ?
+        {
+            [K in ObjectMappings['key']]: ConfigT[ObjK] extends K ?
+            { key: ObjK, component: ComponentNames<RenderT, MappingT>[K] } :
+            never
+        }[ObjectMappings['key']]
         // Enforce type compatibility between the object key and component
-        [K in keyof MappingT]: MappingT[K]['type'] extends ObjectMappings['key']
-        ? { [ObjK in keyof T]: T[ObjK] extends OdataTypeToValue<MappingT[K]['type']>
-            ? { key: ObjK; component: K }
-            : never }[keyof T]
         : never
-    }[keyof MappingT]
+    }[keyof T]
     | CustomRender<T, RenderT>;
 
-export type FormItem<T, RenderT, MappingT extends ComponentMapping<string, RenderT>> = FormPrimitive<T, RenderT, MappingT> | FormItems<T, RenderT, MappingT>;
+export type FormItem<T, RenderT, ConfigT extends ObjectConfig<T>, MappingT extends ComponentMap<RenderT>> = FormPrimitive<T, RenderT, ConfigT, MappingT> | FormItems<T, RenderT, ConfigT, MappingT>;
 
-export type FormItems<T, RenderT, MappingT extends ComponentMapping<string, RenderT>> = {
+export type FormItems<T, RenderT, ConfigT extends ObjectConfig<T>, MappingT extends ComponentMap<RenderT>> = {
     label: string;
     direction: FormDirection,
-    items: FormItem<T, RenderT, MappingT>[]
+    items: FormItem<T, RenderT, ConfigT, MappingT>[]
 };
 
 
 
 
-
-export type VerifyFormConfiguration<
-    Config extends Record<keyof T, keyof MappingT>,
-    T,
-    MappingT extends ComponentMapping<string, unknown>
-> = {
-        [K in keyof T]: Config[K] extends keyof MappingT
-        ? T[K] extends OdataTypeToValue<MappingT[Config[K]]['type']>
-        ? true
-        : { error: "Key type does not match component type" }
-        : { error: "Invalid component key" };
-    };
 
 export type ObjectConfig<
     T, // The object type

@@ -28,15 +28,32 @@ export type ObjectMappings =
     ObjectMapping<'Edm.GeographyPoint', { lat: number, long: number }>;
 
 
+type NonEmptyList<T> = [T, ...T[]];
+
+export type ComponentMap<RenderT> = {
+    [K in ObjectMappings['key']]: NonEmptyList<SingleComponentType<RenderT, K>>
+}
 
 export type OdataTypeToValue<K extends ObjectMappings['key']> =
     Extract<ObjectMappings, { key: K }>['value'];
 
 export type SingleComponentType<RenderT, K extends ObjectMappings['key']> = {
     type: K,
+    name: string,
     display: (data: OdataTypeToValue<K>) => RenderT,
     edit: (data: OdataTypeToValue<K>, onChange: (value: OdataTypeToValue<K>) => void) => RenderT
 };
+
+export type AllComponentNames<RenderT, MapT extends ComponentMap<RenderT>> = {
+    [K in ObjectMappings['key']]: ComponentNames<RenderT, MapT>[K];
+}[ObjectMappings['key']];
+
+
+
+export type ComponentNames<RenderT, MapT extends ComponentMap<RenderT>> = {
+    [K in ObjectMappings['key']]: MapT[K][number]['name'];
+};
+
 
 // Enforce a component for each key in ObjectMappings
 export type ComponentType<RenderT> = {

@@ -1,29 +1,13 @@
 // Get default component 
 
-import { ComponentMapping, ObjectMappings, OdataTypeToValue, SingleComponentType } from "./domain";
-import { FormItems, FormItem, FormDirection, ObjectConfig } from "./form";
-
-
-function findComponentKeyForType<
-    RenderT,
-    MappingT extends ComponentMapping<string, RenderT>
->(
-    type: ObjectMappings['key'],
-    componentMap: MappingT
-): keyof MappingT | null {
-    // Find the first component key that matches the object type
-    for (const componentKey in componentMap) {
-        if (componentMap[componentKey].type === type) {
-            return componentKey;
-        }
-    }
-    return null;
-}
+import { ComponentMap, OdataTypeToValue } from "./domain";
+import { FormDirection, FormItem, FormItems, ObjectConfig } from "./form";
 
 
 
-export const renderForm = <T, RenderT, MappingT extends ComponentMapping<string, RenderT>>(
-    form: FormItems<T, RenderT, MappingT>,
+
+export const renderForm = <T, RenderT, ConfigT extends ObjectConfig<T>, MappingT extends ComponentMap<RenderT>>(
+    form: FormItems<T, RenderT, ConfigT, MappingT>,
     data: T,
     componentMap: MappingT,
     objectConfig: ObjectConfig<T>,
@@ -33,8 +17,8 @@ export const renderForm = <T, RenderT, MappingT extends ComponentMapping<string,
 ): RenderT => renderForm(form.label, form.items.map((item) => renderFormItem(item, data, componentMap, objectConfig, renderContainer, onChange)));
 
 
-const renderFormItem = <T, RenderT, ComponentKeyT extends string, MappingT extends ComponentMapping<ComponentKeyT, RenderT>>(
-    item: FormItem<T, RenderT, MappingT>,
+const renderFormItem = <T, RenderT, ConfigT extends ObjectConfig<T>, MappingT extends ComponentMap<RenderT>>(
+    item: FormItem<T, RenderT, ConfigT, MappingT>,
     data: T,
     componentMap: MappingT,
     objectConfig: ObjectConfig<T>,
@@ -46,19 +30,9 @@ const renderFormItem = <T, RenderT, ComponentKeyT extends string, MappingT exten
         const propertyKey = item;
         const propertyValue = data[item];
 
+        const typeName = objectConfig[propertyKey];
+        const [componentDef] = componentMap[typeName];
 
-        const componentKey = findComponentKeyForType<RenderT, MappingT>(
-            objectConfig[propertyKey],
-            componentMap
-        );
-
-        if (!componentKey) {
-            throw new Error(`No component found for property ${String(propertyKey)}`);
-        }
-
-        const componentDef = componentMap[componentKey];
-        if (componentDef.type !== componentKey) throw new Error("Test");
-        // TODO typecheck here
         return componentDef.edit(
             propertyValue as never,
             (newValue) => {
@@ -70,17 +44,17 @@ const renderFormItem = <T, RenderT, ComponentKeyT extends string, MappingT exten
     if ('component' in item) {
         // It's a component-based item
         const { key: propertyKey, component } = item;
-        const componentDef = componentMap[component];
+        const typeName = objectConfig[propertyKey];
+        const componentDef = componentMap[typeName].find(x => x.name === item.component);
 
-        // Type assertion to ensure types align
+        if (!componentDef) throw new Error(`Could not find definition for type ${typeName} and component ${component}`);
         type PropertyType = T[typeof propertyKey];
         type ComponentValueType = OdataTypeToValue<typeof componentDef['type']>;
 
         // Ensure the property type matches the component value type
         const propertyValue = data[propertyKey] as PropertyType & ComponentValueType;
-        const componentDefTyped = componentDef as SingleComponentType<RenderT, typeof componentDef['type']>;
 
-        return componentDefTyped.edit(propertyValue as never, (newValue) => {
+        return componentDef.edit(propertyValue as never, (newValue) => {
             onChange({ ...data, [propertyKey]: newValue });
         });
     }
