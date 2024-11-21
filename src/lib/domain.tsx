@@ -1,6 +1,6 @@
 
 
-type ObjectTypes =
+export type ObjectTypes =
     "Edm.Double" |
     "Edm.Single" |
     "Edm.Int32" |

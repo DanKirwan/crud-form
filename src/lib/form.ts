@@ -1,20 +1,22 @@
 import { ComponentMapping, ObjectMappings, OdataTypeToValue } from "./domain";
 
+export type FormDirection = 'row' | 'column';
+
 type CustomRender<T, RenderT> = {
     key: keyof T;
     display: (value: T[keyof T]) => RenderT;
     edit: (value: T[keyof T], onChange: (value: T[keyof T]) => void) => RenderT;
 };
 
-export type Primitive<
+export type FormPrimitive<
     T, // The object type
-    RenderT, // Render type
+    RenderT,
     MappingT extends ComponentMapping<string, RenderT> // Component mappings
 > =
-    | keyof T // A key from the object
+    | keyof T
     | {
-        key: keyof T; // A key from the object
-        component: keyof MappingT; // A predefined component key
+        key: keyof T;
+        component: keyof MappingT;
     } & {
         // Enforce type compatibility between the object key and component
         [K in keyof MappingT]: MappingT[K]['type'] extends ObjectMappings['key']
@@ -23,14 +25,35 @@ export type Primitive<
             : never }[keyof T]
         : never
     }[keyof MappingT]
-    | CustomRender<T, RenderT>; // A custom render function
+    | CustomRender<T, RenderT>;
 
+export type FormItem<T, RenderT, MappingT extends ComponentMapping<string, RenderT>> = FormPrimitive<T, RenderT, MappingT> | FormItems<T, RenderT, MappingT>;
 
-type Item<T, RenderT, MappingT extends ComponentMapping<string, RenderT>> = Primitive<T, RenderT, MappingT> | Items<T, RenderT, MappingT>;
-
-export type Items<T, RenderT, MappingT extends ComponentMapping<string, RenderT>> = {
+export type FormItems<T, RenderT, MappingT extends ComponentMapping<string, RenderT>> = {
     label: string;
-    direction: 'row' | 'column'
-    items: Item<T, RenderT, MappingT>[]
+    direction: FormDirection,
+    items: FormItem<T, RenderT, MappingT>[]
 };
 
+
+
+
+
+export type VerifyFormConfiguration<
+    Config extends Record<keyof T, keyof MappingT>,
+    T,
+    MappingT extends ComponentMapping<string, unknown>
+> = {
+        [K in keyof T]: Config[K] extends keyof MappingT
+        ? T[K] extends OdataTypeToValue<MappingT[Config[K]]['type']>
+        ? true
+        : { error: "Key type does not match component type" }
+        : { error: "Invalid component key" };
+    };
+
+export type ObjectConfig<
+    T, // The object type
+> = {
+        // Map each key in the object T to a valid component key in MappingT
+        [ObjK in keyof T]: Extract<ObjectMappings, { value: T[ObjK] }>['key']
+    };

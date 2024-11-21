@@ -1,9 +1,8 @@
-import React, { ReactNode } from "react";
-import { SingleComponentType } from "./lib/domain";
-import { Items, Primitive } from "./lib/form";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Switch, TextField } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers";
-import dayjs from "dayjs";
+import { ReactNode } from "react";
+import { SingleComponentType } from "./lib/domain";
+import { FormItems, FormPrimitive, ObjectConfig, VerifyFormConfiguration } from "./lib/form";
 
 // type ComponentKeys = 'double-primitive' | 'boolean-primitive';
 
@@ -52,14 +51,14 @@ type ExampleObject = {
     key3: string;
 };
 
-const validPrimitive: Primitive<ExampleObject, ReactNode, ComponentMappings> = {
+const validPrimitive: FormPrimitive<ExampleObject, ReactNode, ComponentMappings> = {
     key: 'key2', // Matches the `number` type
     component: 'boolean-primitive', // `double-primitive` expects `Edm.Double` which is `number`
 };
 
 
 
-const form: Items<ExampleObject, ReactNode, ComponentMappings> = {
+const form: FormItems<ExampleObject, ReactNode, ComponentMappings> = {
     direction: 'row',
     label: 'Test',
     items: [
@@ -80,5 +79,13 @@ const form: Items<ExampleObject, ReactNode, ComponentMappings> = {
         }
     ]
 }
+
+
+// Type Configuration 
+const objectConfiguration: ObjectConfig<ExampleObject> = {
+    key1: 'Edm.Int32',
+    key2: 'Edm.Boolean',
+    key3: 'Edm.String'
+};
 
 
