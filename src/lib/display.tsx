@@ -1,37 +1,19 @@
 // Get default component 
 
-import { ComponentMapping, ObjectTypes, OdataTypeToValue, SingleComponentType } from "./domain";
-import { FormItems, FormItem, FormDirection } from "./form";
+import { ComponentMapping, ObjectMappings, OdataTypeToValue, SingleComponentType } from "./domain";
+import { FormItems, FormItem, FormDirection, ObjectConfig } from "./form";
 
 
 function findComponentKeyForType<
-    PropertyValueType,
     RenderT,
     MappingT extends ComponentMapping<string, RenderT>
 >(
-    value: PropertyValueType,
+    type: ObjectMappings['key'],
     componentMap: MappingT
 ): keyof MappingT | null {
-    const typeName = typeof value;
-
-    // Map JavaScript types to your ObjectTypes
-    // TODO map other types
-    const typeMapping: { [key: string]: ObjectTypes } = {
-        number: 'Edm.Double',
-        boolean: 'Edm.Boolean',
-        string: 'Edm.String',
-        object: value instanceof Date ? 'Edm.DateTimeOffset' : 'Edm.GeographyPoint',
-    };
-
-    const objectType = typeMapping[typeName];
-
-    if (!objectType) {
-        return null;
-    }
-
     // Find the first component key that matches the object type
     for (const componentKey in componentMap) {
-        if (componentMap[componentKey].type === objectType) {
+        if (componentMap[componentKey].type === type) {
             return componentKey;
         }
     }
@@ -44,16 +26,18 @@ export const renderForm = <T, RenderT, MappingT extends ComponentMapping<string,
     form: FormItems<T, RenderT, MappingT>,
     data: T,
     componentMap: MappingT,
+    objectConfig: ObjectConfig<T>,
     renderContainer: (label: string, contents: RenderT[], direction: FormDirection) => RenderT,
     renderForm: (label: string, contents: RenderT[]) => RenderT,
     onChange: (updatedData: T) => void
-): RenderT => renderForm(form.label, form.items.map((item) => renderFormItem(item, data, componentMap, renderContainer, onChange)));
+): RenderT => renderForm(form.label, form.items.map((item) => renderFormItem(item, data, componentMap, objectConfig, renderContainer, onChange)));
 
 
 const renderFormItem = <T, RenderT, ComponentKeyT extends string, MappingT extends ComponentMapping<ComponentKeyT, RenderT>>(
     item: FormItem<T, RenderT, MappingT>,
     data: T,
     componentMap: MappingT,
+    objectConfig: ObjectConfig<T>,
     renderContainer: (label: string, contents: RenderT[], direction: FormDirection) => RenderT,
     onChange: (updatedData: T) => void,
 ): RenderT => {
@@ -62,8 +46,9 @@ const renderFormItem = <T, RenderT, ComponentKeyT extends string, MappingT exten
         const propertyKey = item;
         const propertyValue = data[item];
 
-        const componentKey = findComponentKeyForType<T[typeof propertyKey], RenderT, MappingT>(
-            propertyValue,
+
+        const componentKey = findComponentKeyForType<RenderT, MappingT>(
+            objectConfig[propertyKey],
             componentMap
         );
 
@@ -110,7 +95,7 @@ const renderFormItem = <T, RenderT, ComponentKeyT extends string, MappingT exten
 
 
     if ('items' in item) {
-        return renderContainer(item.label, item.items.map((nestedItem) => renderFormItem(nestedItem, data, componentMap, renderContainer, onChange)), item.direction)
+        return renderContainer(item.label, item.items.map((nestedItem) => renderFormItem(nestedItem, data, componentMap, objectConfig, renderContainer, onChange)), item.direction)
     }
 
     throw new Error("Failed to match form object to any renderable type");

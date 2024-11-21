@@ -3,11 +3,12 @@ import { Switch, TextField } from "@mui/material";
 import { ReactNode } from "react";
 import { SingleComponentType } from "./lib/domain";
 import { FormItems, FormPrimitive, ObjectConfig, VerifyFormConfiguration } from "./lib/form";
+import { renderForm } from "./lib/display";
 
 // type ComponentKeys = 'double-primitive' | 'boolean-primitive';
 
 type ComponentMappings = {
-    'double-primitive': SingleComponentType<ReactNode, 'Edm.Double'>;
+    // 'double-primitive': SingleComponentType<ReactNode, 'Edm.Double'>;
     'boolean-primitive': SingleComponentType<ReactNode, 'Edm.Boolean'>;
     'string-primitive': SingleComponentType<ReactNode, 'Edm.String'>;
     'date-picker': SingleComponentType<ReactNode, 'Edm.DateTimeOffset'>;
@@ -16,13 +17,14 @@ type ComponentMappings = {
 // Firstly make the keys typesafe 
 // secondly make util methods to allow the same component for different types - probs needs to be in typing somehow?
 
+// TODO somehow this needs to fail if it doesn't have a mapping for every type - maybe it needs to be handled the other way around with keys being the types and a list of items inside that
 const componentMap: ComponentMappings = {
-    'double-primitive':
-    {
-        type: 'Edm.Double',
-        display: (value: number) => value,
-        edit: (value: number, onChange: (value: number) => void) => <TextField value={value} onChange={e => onChange(+e.target.value)} />,
-    },
+    // 'double-primitive':
+    // {
+    //     type: 'Edm.Double',
+    //     display: (value: number) => value,
+    //     edit: (value: number, onChange: (value: number) => void) => <TextField value={value} onChange={e => onChange(+e.target.value)} />,
+    // },
     'boolean-primitive':
     {
         type: 'Edm.Boolean',
@@ -50,6 +52,14 @@ type ExampleObject = {
     key2: boolean;
     key3: string;
 };
+
+
+const exampleObject: ExampleObject = {
+    key1: 0,
+    key2: true,
+    key3: "test"
+};
+
 
 const validPrimitive: FormPrimitive<ExampleObject, ReactNode, ComponentMappings> = {
     key: 'key2', // Matches the `number` type
@@ -83,9 +93,11 @@ const form: FormItems<ExampleObject, ReactNode, ComponentMappings> = {
 
 // Type Configuration 
 const objectConfiguration: ObjectConfig<ExampleObject> = {
-    key1: 'Edm.Int32',
+    key1: 'Edm.Double',
     key2: 'Edm.Boolean',
     key3: 'Edm.String'
 };
 
+
+renderForm(form, exampleObject, componentMap, objectConfiguration, (label, items) => <div>{items}</div>, (label, items) => <div>{items}</div>, () => null)
 
