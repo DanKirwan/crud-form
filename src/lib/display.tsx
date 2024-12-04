@@ -1,86 +1,130 @@
 // Get default component 
 
-import { ComponentMap, OdataTypeToValue } from "./domain";
+import { ComponentMap, FieldEditOptions, ObjectMappings, SingleComponentType } from "./domain";
 import { FormDirection, FormItem, FormItems, ObjectConfig } from "./form";
 import { camelToDisplay } from "./stringUtils";
 
 
+import { DeepKeys, FieldApi, FormApi } from '@tanstack/form-core';
+
+type FieldRenderer<T, RenderT> = <K extends DeepKeys<T>>(
+    key: K,
+    render: (api: FieldApi<T, K>) => RenderT
+) => RenderT;
 
 
 export const renderForm = <T, RenderT, ConfigT extends ObjectConfig<T>, MappingT extends ComponentMap<RenderT>>(
     form: FormItems<T, RenderT, ConfigT, MappingT>,
-    data: T,
+    formInstance: FormApi<T>,
     componentMap: MappingT,
     objectConfig: ObjectConfig<T>,
-    renderContainer: (label: string, contents: RenderT[], direction: FormDirection) => RenderT,
     renderForm: (label: string, contents: RenderT[]) => RenderT,
-    onChange: (updatedData: T) => void
-): RenderT => renderForm(form.label, form.items.map((item) => renderFormItem(item, data, componentMap, objectConfig, renderContainer, onChange)));
+    renderContainer: (label: string, contents: RenderT[], direction: FormDirection) => RenderT,
+    renderField: FieldRenderer<T, RenderT>,
+): RenderT => renderForm(
+    form.label,
+    form.items.map((item) => renderFormItem(item, formInstance, componentMap, objectConfig, renderContainer, renderField)));
 
 
 const renderFormItem = <T, RenderT, ConfigT extends ObjectConfig<T>, MappingT extends ComponentMap<RenderT>>(
     item: FormItem<T, RenderT, ConfigT, MappingT>,
-    data: T,
+    formInstance: FormApi<T>,
     componentMap: MappingT,
     objectConfig: ObjectConfig<T>,
     renderContainer: (label: string, contents: RenderT[], direction: FormDirection) => RenderT,
-    onChange: (updatedData: T) => void,
+    renderField: FieldRenderer<T, RenderT>
 ): RenderT => {
-
     if (typeof item === 'string') {
-        const propertyKey = item;
-        const propertyValue = data[item];
-
-        const typeName = objectConfig[propertyKey];
+        // It's a simple property key
+        const propertyKey = item satisfies DeepKeys<T>;
+        const typeName = objectConfig[propertyKey] satisfies ObjectMappings['key'];
         const [componentDef] = componentMap[typeName];
 
-        return componentDef.edit(
-            propertyValue as never,
-            (newValue) => {
-                onChange({ ...data, [propertyKey]: newValue });
-            },
-            camelToDisplay(propertyKey)
-        )
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const def = componentDef as SingleComponentType<RenderT, any>;
+
+        return renderField(
+            propertyKey,
+            field => def.edit({
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                state: field.state as FieldEditOptions<any>['state'],
+                handleChange: field.handleChange as FieldEditOptions<unknown>['handleChange'],
+                handleBlur: field.handleBlur,
+                name: field.name as string,
+                label: camelToDisplay(propertyKey as string),
+            })
+
+        );
     }
 
     if (!(item instanceof Object)) throw new Error("Failed to match form item ")
+
     if ('component' in item) {
         // It's a component-based item
-        const { key: propertyKey, component } = item;
+        const { key: propertyKey, component, label } = item;
         const typeName = objectConfig[propertyKey];
-        const componentDef = componentMap[typeName].find(x => x.name === item.component);
-
-        if (!componentDef) throw new Error(`Could not find definition for type ${typeName} and component ${component}`);
-        type PropertyType = T[typeof propertyKey];
-        type ComponentValueType = OdataTypeToValue<typeof componentDef['type']>;
-
-        // Ensure the property type matches the component value type
-        const propertyValue = data[propertyKey] as PropertyType & ComponentValueType;
-
-        return componentDef.edit(
-            propertyValue as never,
-            (newValue) => {
-                onChange({ ...data, [propertyKey]: newValue });
-            },
-            item.label
+        const componentDef = componentMap[typeName].find(
+            (x) => x.name === component
         );
+
+        if (!componentDef)
+            throw new Error(
+                `Could not find definition for type ${typeName} and component ${component}`
+            );
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const def = componentDef as SingleComponentType<RenderT, any>;
+
+        return renderField(
+            propertyKey,
+            field => def.edit({
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                state: field.state as FieldEditOptions<any>['state'],
+                handleChange: field.handleChange as FieldEditOptions<unknown>['handleChange'],
+                handleBlur: field.handleBlur,
+                name: field.name as string,
+                label: label ?? camelToDisplay(propertyKey as string),
+            }));
+
     }
 
     if ('display' in item && 'edit' in item) {
         // It's a custom render
-        const propertyValue = data[item.key];
-        return item.edit(
-            propertyValue,
-            (newValue) => {
-                onChange({ ...data, [item.key]: newValue });
-            })
-    }
+        const { key: propertyKey, edit, label } = item;
 
+
+
+        return renderField(
+            propertyKey,
+            field => edit({
+
+                state: field.state,
+                handleBlur: field.handleBlur,
+                handleChange: field.handleChange,
+                name: field.name as string,
+                label: label ?? camelToDisplay(propertyKey as string),
+            }));
+    }
 
     if ('items' in item) {
-        return renderContainer(item.label, item.items.map((nestedItem) => renderFormItem(nestedItem, data, componentMap, objectConfig, renderContainer, onChange)), item.direction)
+        // It's a container item (e.g., section or group)
+        const { label, items, direction } = item;
+
+        const contents = items.map((nestedItem) =>
+            renderFormItem(
+                nestedItem,
+                formInstance,
+                componentMap,
+                objectConfig,
+                renderContainer,
+                renderField
+            )
+        );
+
+        return renderContainer(label, contents, direction);
     }
 
-    throw new Error("Failed to match form object to any renderable type");
+    throw new Error('Failed to match form item to any renderable type');
 
 }

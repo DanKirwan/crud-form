@@ -3,11 +3,10 @@ import { ReactNode } from "react";
 import { FormItems, FormPrimitive, ObjectConfig } from "./lib/form";
 import { ReactComponentMap } from "./react/config";
 
-// type ComponentKeys = 'double-primitive' | 'boolean-primitive';
 
-
-
-
+// Steps: 
+// Add tanstack with validation
+// Update 
 
 // user code
 export type ExampleObject = {

@@ -1,3 +1,4 @@
+import { FieldApi, Validator } from "@tanstack/form-core";
 
 
 export type ObjectTypes =
@@ -37,11 +38,18 @@ export type ComponentMap<RenderT> = {
 export type OdataTypeToValue<K extends ObjectMappings['key']> =
     Extract<ObjectMappings, { key: K }>['value'];
 
+
+type TanStackField<TData> = FieldApi<Record<string, TData>, string, Validator<TData, string>, undefined, TData>;
+
+export type FieldEditOptions<TData> = Pick<TanStackField<TData>, 'state' | 'handleBlur' | 'handleChange' | 'name'> & { label: string };
+export type FieldDisplayOptions<TData> = Omit<FieldEditOptions<TData>, 'handleBlur' | 'handleChange'> & { label: string };
+
+
 export type SingleComponentType<RenderT, K extends ObjectMappings['key']> = {
     type: K,
     name: string,
-    display: (data: OdataTypeToValue<K>, label?: string) => RenderT,
-    edit: (data: OdataTypeToValue<K>, onChange: (value: OdataTypeToValue<K>) => void, label?: string) => RenderT
+    display: (field: FieldDisplayOptions<OdataTypeToValue<K>>) => RenderT,
+    edit: (data: FieldEditOptions<OdataTypeToValue<K>>) => RenderT
 };
 
 export type AllComponentNames<RenderT, MapT extends ComponentMap<RenderT>> = {

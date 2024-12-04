@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ReactNode } from "react";
-import { FormItems, FormPrimitive, ObjectConfig } from "./form";
 import { ReactComponentMap } from "../react/config";
-import { ComponentMap } from "./domain";
+import { FormItems, ObjectConfig } from "./form";
 
 // Define the UserProfile type
 export type UserProfile = {
@@ -45,6 +44,7 @@ export const userProfileExample: UserProfile = {
 };
 
 
+// TODO config shouldn't need to do all deep keys just primitive keys at the bottom
 // Define the ObjectConfig for UserProfile
 export const userProfileConfig = {
     firstName: 'Edm.String',
@@ -59,10 +59,58 @@ export const userProfileConfig = {
     lastLogin: 'Edm.DateTimeOffset',
     newsletter: 'Edm.Boolean',
     notifications: 'Edm.Boolean',
-    location: 'Edm.GeographyPoint',
+    "location.lat": 'Edm.Double',
+    "location.long": 'Edm.Double',
+    location: 'Edm.GeographyPoint'
 } as const satisfies ObjectConfig<UserProfile>;
 
+export const userProfileFilter = {
+    rating: { readonly: true }
+};
+
 export type UserProfileConfig = typeof userProfileConfig;
+
+
+
+// const validators: {
+//     'Edm.Int32': [
+//         {
+//             name: 'non-negative',
+//             onBlur: (value: number) => 'tanstack validation types'
+//         }
+//     ]
+// }
+
+
+
+// Define the form items for the UserProfile
+export const simpleUserForm: FormItems<
+    UserProfile,
+    ReactNode,
+    UserProfileConfig,
+    ReactComponentMap
+> = {
+    direction: 'column',
+    label: 'Form',
+    items: [
+        'age',
+        // {
+        // key: 'age',
+        // validators: [ // This needs to incorporate types of validation
+        // 'non-negative',
+        // greaterThan(20),
+        // (value: boolean) => 'tanstack-stuff',
+        // ]
+        // },
+        'isActive',
+
+        'notifications',
+        'firstName',
+        'lastName',
+        "email"
+    ],
+}
+
 
 
 // Define the form items for the UserProfile
@@ -108,19 +156,19 @@ export const userProfileForm: FormItems<
                     items: [
                         {
                             key: 'age',
-                            component: 'int-number-field',
+                            component: 'int-text-box',
                             label: 'Age',
                         },
                         {
                             key: 'birthDate',
-                            component: 'date-picker',
+                            component: 'datetime',
                             label: 'Birth Date',
                         },
                     ],
                 },
                 {
                     key: 'bio',
-                    component: 'multi-line-text-field',
+                    component: 'single-line-text-field',
                     label: 'Biography',
                 },
             ]
@@ -133,11 +181,12 @@ export const userProfileForm: FormItems<
                 {
                     key: 'isActive',
                     component: 'switch',
+
                     label: 'Active',
                 },
                 {
                     key: 'rating',
-                    component: 'decimal-slider',
+                    component: 'decimal-text-box',
                     label: 'User Rating',
                 },
             ],
@@ -148,19 +197,19 @@ export const userProfileForm: FormItems<
             items: [
                 {
                     key: 'newsletter',
-                    component: 'checkbox',
+                    component: 'switch',
                     label: 'Subscribe to Newsletter',
                 },
                 {
                     key: 'notifications',
-                    component: 'checkbox',
+                    component: 'switch',
                     label: 'Enable Notifications',
                 },
             ],
         },
         {
             key: 'location',
-            component: 'geography-point-input',
+            component: 'geographyPoint',
             label: 'Location',
         },
         {
@@ -169,12 +218,12 @@ export const userProfileForm: FormItems<
             items: [
                 {
                     key: 'registeredAt',
-                    component: 'date-time-picker',
+                    component: 'datetime',
                     label: 'Registered At',
                 },
                 {
                     key: 'lastLogin',
-                    component: 'date-time-picker',
+                    component: 'datetime',
                     label: 'Last Login',
                 },
             ],

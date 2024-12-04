@@ -1,24 +1,22 @@
-import React, { useState } from 'react';
-import { UserProfile, userProfileExample, userProfileConfig, userProfileForm } from '../lib/example';
+import { useForm } from '@tanstack/react-form';
+import { UserProfile, userProfileConfig, userProfileExample, userProfileForm, } from '../lib/example';
 import { EditForm } from '../react/EditForm';
 
 function UserProfileForm() {
-    const [formData, setFormData] = useState<UserProfile>(userProfileExample);
 
-    const handleFormChange = (newValue: UserProfile) => {
-        setFormData(newValue);
-    };
+    const form = useForm({
+        defaultValues: userProfileExample,
+    });
 
-    const handleFormSubmit = (value: UserProfile) => {
-        // Handle form submission logic (e.g., send data to an API)
-        console.log('Form submitted:', value);
-    };
+    // const handleFormSubmit = (value: UserProfile) => {
+    //     // Handle form submission logic (e.g., send data to an API)
+    //     console.log('Form submitted:', value);
+    // };
 
     return (
         <EditForm
-            value={formData}
-            onChange={handleFormChange}
-            onSubmit={handleFormSubmit}
+            value={form}
+            // onSubmit={handleFormSubmit}
             config={userProfileConfig}
             form={userProfileForm}
         />
