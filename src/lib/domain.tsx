@@ -1,4 +1,5 @@
 import { FieldApi, Validator } from '@tanstack/form-core';
+import { ContainerLayoutConfig, ContainerWrapperConfig } from './containers';
 
 
 export type ObjectTypes =
@@ -26,11 +27,6 @@ export type ObjectMappings =
     ObjectMapping<'Edm.String', string> |
     ObjectMapping<'Edm.DateTimeOffset', Date> ;
 
-type NonEmptyList<T> = [T, ...T[]];
-
-export type ComponentMap<RenderT> = {
-    [K in ObjectMappings['key']]: NonEmptyList<SingleComponentType<RenderT, K>>
-}
 
 export type OdataTypeToValue<K extends ObjectMappings['key']> =
     Extract<ObjectMappings, { key: K }>['value'];
@@ -41,7 +37,6 @@ type TanStackField<TData> = FieldApi<Record<string, TData>, string, Validator<TD
 export type FieldEditOptions<TData> = Pick<TanStackField<TData>, 'state' | 'handleBlur' | 'handleChange' | 'name'> & { label: string };
 export type FieldDisplayOptions<TData> = Omit<FieldEditOptions<TData>, 'handleBlur' | 'handleChange'> & { label: string };
 
-
 export type SingleComponentType<RenderT, K extends ObjectMappings['key']> = {
     type: K,
     name: string,
@@ -49,21 +44,29 @@ export type SingleComponentType<RenderT, K extends ObjectMappings['key']> = {
     edit: (data: FieldEditOptions<OdataTypeToValue<K>>) => RenderT
 };
 
+
+export type ComponentMap<RenderT> = {
+    [K in ObjectMappings['key']]: NonEmptyList<SingleComponentType<RenderT, K>>
+}
+
+
+
+// util methods 
 export type AllComponentNames<RenderT, MapT extends ComponentMap<RenderT>> = {
     [K in ObjectMappings['key']]: ComponentNames<RenderT, MapT>[K];
 }[ObjectMappings['key']];
-
 
 
 export type ComponentNames<RenderT, MapT extends ComponentMap<RenderT>> = {
     [K in ObjectMappings['key']]: MapT[K][number]['name'];
 };
 
-
-// Enforce a component for each key in ObjectMappings
-export type ComponentType<RenderT> = {
-    [K in ObjectMappings['key']]: SingleComponentType<RenderT, K>
-}[ObjectMappings['key']];
+type NonEmptyList<T> = [T, ...T[]];
 
 
-export type ComponentMapping<KeyT extends string, RenderT> = Record<KeyT, ComponentType<RenderT>>;
+export type RenderConfig<RenderT> = {
+    fieldComponents: ComponentMap<RenderT>;
+    layouts: ContainerLayoutConfig<RenderT>;
+    containers: ContainerWrapperConfig<RenderT>;
+}
+

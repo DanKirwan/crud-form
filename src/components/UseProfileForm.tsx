@@ -1,7 +1,7 @@
 import { useForm } from '@tanstack/react-form';
 import { userProfileConfig, userProfileExample, userProfileForm } from '../lib/example';
 import { EditForm } from '../react/EditForm';
-import { REACT_COMPONENT_MAP } from '../react/config';
+import { REACT_RENDER_CONFIG } from '../react/config';
 
 function UserProfileForm() {
 
@@ -17,10 +17,9 @@ function UserProfileForm() {
     return (
         <EditForm
             value={form}
-            // onSubmit={handleFormSubmit}
+            renderConfig={REACT_RENDER_CONFIG}
             config={userProfileConfig}
             form={userProfileForm}
-            componentMap={REACT_COMPONENT_MAP}
         />
     );
 }

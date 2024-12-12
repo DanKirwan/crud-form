@@ -1,5 +1,5 @@
 import { DeepKeys, DeepValue, FieldValidators } from '@tanstack/form-core';
-import { ComponentMap, ComponentNames, FieldDisplayOptions, FieldEditOptions, ObjectMappings } from './domain';
+import { ComponentMap, ComponentNames, FieldDisplayOptions, FieldEditOptions, ObjectMappings, RenderConfig } from './domain';
 
 export type FormDirection = 'row' | 'column';
 
@@ -35,15 +35,18 @@ export type FormPrimitive<
 
 
 
-export type FormItem<T, RenderT, ConfigT extends ObjectConfig<T>, MappingT extends ComponentMap<RenderT>> =
-    FormPrimitive<T, RenderT, ConfigT, MappingT> |
-    FormItems<T, RenderT, ConfigT, MappingT>;
+export type FormItem<T, RenderT, ConfigT extends ObjectConfig<T>, RenderConfigT extends RenderConfig<RenderT>> =
+    FormPrimitive<T, RenderT, ConfigT, RenderConfigT['fieldComponents']> |
+    FormItems<T, RenderT, ConfigT, RenderConfigT>;
 
-export type FormItems<T, RenderT, ConfigT extends ObjectConfig<T>, MappingT extends ComponentMap<RenderT>> = {
+export type FormItems<T, RenderT, ConfigT extends ObjectConfig<T>, RenderConfigT extends RenderConfig<RenderT>> = {
     label: string;
-    direction: FormDirection,
-    items: FormItem<T, RenderT, ConfigT, MappingT>[]
+    layout: keyof RenderConfigT['layouts']
+    container: keyof RenderConfigT['containers']
+    items: FormItem<T, RenderT, ConfigT, RenderConfigT>[]
 };
+
+
 
 
 export type ObjectConfig<T> = {

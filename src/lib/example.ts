@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { ReactRenderComponentMap } from '../react/config';
+import { ReactRenderComponentMap, ReactRenderConfig } from '../react/config';
 import { FormItems, ObjectConfig } from './form';
 
 // Define the UserProfile type
@@ -88,9 +88,10 @@ export const simpleUserForm: FormItems<
     UserProfile,
     ReactNode,
     UserProfileConfig,
-    ReactRenderComponentMap
+    ReactRenderConfig
 > = {
-    direction: 'column',
+    container: 'paper',
+    layout: 'col',
     label: 'Form',
     items: [
         'age',
@@ -118,19 +119,21 @@ export const userProfileForm: FormItems<
     UserProfile,
     ReactNode,
     UserProfileConfig,
-    ReactRenderComponentMap
+    ReactRenderConfig
 > = {
-    direction: 'column',
+    container: 'paper',
+    layout: 'row',
     label: 'User Profile',
     items: [
         {
-
-            direction: 'column',
+            layout: 'col',
+            container: 'accordion',
             label: 'Personal Info',
             items: [
 
                 {
-                    direction: 'row',
+                    layout: 'row',
+                    container: 'paper',
                     label: '',
                     items: [
                         {
@@ -151,7 +154,8 @@ export const userProfileForm: FormItems<
                     label: 'Email Address',
                 },
                 {
-                    direction: 'row',
+                    layout: 'row',
+                    container: 'paper',
                     label: '',
                     items: [
                         {
@@ -178,7 +182,8 @@ export const userProfileForm: FormItems<
         },
 
         {
-            direction: 'row',
+            layout: 'row',
+            container: 'paper',
             label: 'Account Status',
             items: [
                 {
@@ -195,7 +200,8 @@ export const userProfileForm: FormItems<
             ],
         },
         {
-            direction: 'row',
+            layout: 'row',
+            container: 'modal',
             label: 'Preferences',
             items: [
                 {
@@ -211,7 +217,8 @@ export const userProfileForm: FormItems<
             ],
         },
         {
-            direction: 'row',
+            layout:'row',
+            container: 'paper',
             label: 'Registration Info',
             items: [
                 {

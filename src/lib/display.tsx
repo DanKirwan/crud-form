@@ -1,6 +1,6 @@
 // Get default component 
 
-import { ComponentMap, FieldEditOptions, ObjectMappings, SingleComponentType } from './domain';
+import { ComponentMap, FieldEditOptions, ObjectMappings, RenderConfig, SingleComponentType } from './domain';
 import { FormDirection, FormItem, FormItems, ObjectConfig } from './form';
 import { camelToDisplay } from './stringUtils';
 
@@ -14,32 +14,30 @@ type FieldRenderer<T, RenderT> = <K extends DeepKeys<T>>(
 ) => RenderT;
 
 
-export const renderForm = <T, RenderT, ConfigT extends ObjectConfig<T>, MappingT extends ComponentMap<RenderT>>(
-    form: FormItems<T, RenderT, ConfigT, MappingT>,
+export const renderForm = <T, RenderT, ConfigT extends ObjectConfig<T>, RenderConfigT extends RenderConfig<RenderT>>(
+    form: FormItems<T, RenderT, ConfigT, RenderConfigT>,
     formInstance: FormApi<T>,
-    componentMap: MappingT,
+    renderConfig: RenderConfigT,
     objectConfig: ObjectConfig<T>,
     renderForm: (label: string, contents: RenderT[]) => RenderT,
-    renderContainer: (label: string, contents: RenderT[], direction: FormDirection) => RenderT,
     renderField: FieldRenderer<T, RenderT>,
 ): RenderT => renderForm(
         form.label,
-        form.items.map((item) => renderFormItem(item, formInstance, componentMap, objectConfig, renderContainer, renderField)));
+        form.items.map((item) => renderFormItem(item, formInstance, renderConfig, objectConfig, renderField)));
 
 
-const renderFormItem = <T, RenderT, ConfigT extends ObjectConfig<T>, MappingT extends ComponentMap<RenderT>>(
-    item: FormItem<T, RenderT, ConfigT, MappingT>,
+const renderFormItem = <T, RenderT, ConfigT extends ObjectConfig<T>, RenderConfigT extends RenderConfig<RenderT>>(
+    item: FormItem<T, RenderT, ConfigT, RenderConfigT>,
     formInstance: FormApi<T>,
-    componentMap: MappingT,
+    renderConfig: RenderConfigT,
     objectConfig: ObjectConfig<T>,
-    renderContainer: (label: string, contents: RenderT[], direction: FormDirection) => RenderT,
     renderField: FieldRenderer<T, RenderT>,
 ): RenderT => {
     if (typeof item === 'string') {
         // It's a simple property key
         const propertyKey = item satisfies DeepKeys<T>;
         const typeName = objectConfig[propertyKey] satisfies ObjectMappings['key'];
-        const [componentDef] = componentMap[typeName];
+        const [componentDef] = renderConfig.fieldComponents[typeName];
 
 
         const def = componentDef as SingleComponentType<RenderT, any>;
@@ -64,7 +62,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectConfig<T>, MappingT ex
         // It's a component-based item
         const { key: propertyKey, component, label, validators } = item;
         const typeName = objectConfig[propertyKey];
-        const componentDef = componentMap[typeName].find(
+        const componentDef = renderConfig.fieldComponents[typeName].find(
             (x) => x.name === component,
         );
 
@@ -109,20 +107,25 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectConfig<T>, MappingT ex
 
     if ('items' in item) {
         // It's a container item (e.g., section or group)
-        const { label, items, direction } = item;
+        const { label, items, container, layout } = item;
+
+        const containers: RenderConfigT['containers'] = renderConfig.containers;
+        const renderContainer = containers[container];
+
+        const layouts: RenderConfigT['layouts'] = renderConfig.layouts;
+        const renderLayout = layouts[layout];
 
         const contents = items.map((nestedItem) =>
             renderFormItem(
                 nestedItem,
                 formInstance,
-                componentMap,
+                renderConfig,
                 objectConfig,
-                renderContainer,
                 renderField,
             ),
         );
-
-        return renderContainer(label, contents, direction);
+        // todo interface properly with the fields to get the relevant metadata
+        return renderContainer(renderLayout(contents), {hasErrors: false, isCompleted: false, label});
     }
 
     throw new Error('Failed to match form item to any renderable type');

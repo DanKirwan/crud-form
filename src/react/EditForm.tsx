@@ -8,28 +8,28 @@ import {
 import { ReactFormExtendedApi } from '@tanstack/react-form';
 import { ReactNode } from 'react';
 import { renderForm } from '../lib/display';
-import { ComponentMap } from '../lib/domain';
+import { ComponentMap, RenderConfig } from '../lib/domain';
 import { FormItems, ObjectConfig } from '../lib/form';
 
-type Props<T, TObjectConfig extends ObjectConfig<T>, TComponentMap extends ComponentMap<ReactNode>,> = {
+type Props<T, TObjectConfig extends ObjectConfig<T>, TRenderConfig extends RenderConfig<ReactNode>,> = {
     value: ReactFormExtendedApi<T>;
     config: TObjectConfig;
-    form: FormItems<T, ReactNode, TObjectConfig, TComponentMap>;
-    componentMap: TComponentMap
+    form: FormItems<T, ReactNode, TObjectConfig, TRenderConfig>;
+    renderConfig: TRenderConfig
 };
 
-export const EditForm = <T, TObjectConfig extends ObjectConfig<T>, TComponentMap extends ComponentMap<ReactNode>,>({
+export const EditForm = <T, TObjectConfig extends ObjectConfig<T>, TRenderConfig extends RenderConfig<ReactNode>,>({
     config,
     value,
     form,
-    componentMap,
-}: Props<T, TObjectConfig, TComponentMap>) => {
+    renderConfig,
+}: Props<T, TObjectConfig, TRenderConfig>) => {
 
 
-    return renderForm<T, ReactNode, TObjectConfig, TComponentMap>(
+    return renderForm<T, ReactNode, TObjectConfig, TRenderConfig >(
         form,
         value,
-        componentMap,
+        renderConfig,
         config,
         // Function to render the entire form
         (label, contents) => (
@@ -57,46 +57,6 @@ export const EditForm = <T, TObjectConfig extends ObjectConfig<T>, TComponentMap
                                 Submit
                             </Button>
                         </Box>
-                    </Box>
-                </Paper>
-            </Box>
-        ),
-        // Function to render a container or group
-        (label, contents, direction) => !label ? (
-            <Stack
-                direction={direction}
-                spacing={2}
-                alignItems="flex-start"
-                justifyContent="flex-start"
-            >
-                {contents.map((content, index) => (
-                    <Box key={index} width="100%">
-                        {content}
-                    </Box>
-                ))}
-            </Stack>
-        ) : (
-
-            <Box p={2}>
-                <Paper elevation={2}>
-                    <Box p={2}>
-                        {label && (
-                            <Typography variant="h6" gutterBottom>
-                                {label}
-                            </Typography>
-                        )}
-                        <Stack
-                            direction={direction}
-                            spacing={2}
-                            alignItems="flex-start"
-                            justifyContent="flex-start"
-                        >
-                            {contents.map((content, index) => (
-                                <Box key={index} width="100%">
-                                    {content}
-                                </Box>
-                            ))}
-                        </Stack>
                     </Box>
                 </Paper>
             </Box>
