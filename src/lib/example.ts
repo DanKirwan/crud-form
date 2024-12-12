@@ -110,7 +110,7 @@ export const userProfileForm: FormItems<
                 },
                 {
                     key: 'bio',
-                    component: 'single-line-text-field',
+                    component: 'multi-line-text-field',
                     label: 'Biography',
                 },
             ],

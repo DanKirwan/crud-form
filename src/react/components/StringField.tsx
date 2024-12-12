@@ -3,15 +3,15 @@ import React from 'react';
 import { TextField, CircularProgress, InputAdornment } from '@mui/material';
 import { FieldDisplayOptions, FieldEditOptions, SingleComponentType } from '../../lib/domain';
 
-export const StringField = {
-    type: 'Edm.String',
-    name: 'single-line-text-field',
+const buildStringField = (rows: number) => ({
     display: ({ state, label }: FieldDisplayOptions<string>) => (
         <TextField
             label={label}
             value={state.value || ''}
             slotProps={{ input: { readOnly: true } }}
             variant="outlined"
+            multiline={rows > 1}
+            rows={rows}
             fullWidth
         />
     ),
@@ -26,6 +26,8 @@ export const StringField = {
             helperText={state.meta.errors.join(', ')}
             variant="outlined"
             fullWidth
+            multiline={rows > 1}
+            rows={rows}
             slotProps={{
                 input: {
                     endAdornment: (
@@ -41,4 +43,18 @@ export const StringField = {
             }}
         />
     ),
+});
+
+
+export const StringField = {
+    ...buildStringField(1),
+    type: 'Edm.String',
+    name: 'single-line-text-field',
+} as const satisfies SingleComponentType<JSX.Element, 'Edm.String'>;
+
+
+export const MultilineStringField = {
+    ...buildStringField(4),
+    type: 'Edm.String',
+    name: 'multi-line-text-field',
 } as const satisfies SingleComponentType<JSX.Element, 'Edm.String'>;

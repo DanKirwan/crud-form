@@ -6,7 +6,7 @@ import { DateTimeOffsetField } from './components/DateTimeOffsetField';
 import { DecimalField, DoubleField, FloatField } from './components/FloatField';
 import { GuidField } from './components/GuidField';
 import { ByteField, Int32Field } from './components/IntegerField';
-import { StringField } from './components/StringField';
+import { MultilineStringField, StringField } from './components/StringField';
 import { SwitchField } from './components/SwitchField';
 import { REACT_CONTAINER_WRAPPER_CONFIG } from './containers/wrappers/wrapperConfig';
 import { REACT_LAYOUT_CONFIG } from './containers/layouts/layoutConfig';
@@ -15,7 +15,7 @@ import { REACT_LAYOUT_CONFIG } from './containers/layouts/layoutConfig';
 
 export const REACT_COMPONENT_MAP = {
     'Edm.Boolean': [SwitchField, CheckboxField],
-    'Edm.String': [StringField],
+    'Edm.String': [StringField, MultilineStringField],
     'Edm.Int32': [Int32Field],
     'Edm.Double': [DoubleField],
     'Edm.Decimal': [DecimalField],
