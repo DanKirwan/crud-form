@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { ReactComponentMap } from "../react/config";
+import { ReactRenderComponentMap } from "../react/config";
 import { FormItems, ObjectConfig } from "./form";
 
 // Define the UserProfile type
@@ -87,7 +87,7 @@ export const simpleUserForm: FormItems<
     UserProfile,
     ReactNode,
     UserProfileConfig,
-    ReactComponentMap
+    ReactRenderComponentMap
 > = {
     direction: 'column',
     label: 'Form',
@@ -117,7 +117,7 @@ export const userProfileForm: FormItems<
     UserProfile,
     ReactNode,
     UserProfileConfig,
-    ReactComponentMap
+    ReactRenderComponentMap
 > = {
     direction: 'column',
     label: 'User Profile',

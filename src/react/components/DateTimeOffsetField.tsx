@@ -6,7 +6,6 @@ import { FieldDisplayOptions, FieldEditOptions, SingleComponentType } from '../.
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 
-// todo needs better error handling and other input props
 export const DateTimeOffsetField = {
     type: 'Edm.DateTimeOffset',
     name: 'datetime',

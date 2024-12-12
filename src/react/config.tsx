@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 
-import { ComponentMap } from '../lib/domain';
+import { ComponentMap as RenderComponentMap } from '../lib/domain';
 import { DateTimeOffsetField } from './components/DateTimeOffsetField';
 import { DecimalField, DoubleField, FloatField } from './components/FloatField';
 import { GeographyPointField } from './components/GeographyPointField';
@@ -25,8 +25,7 @@ export const REACT_COMPONENT_MAP = {
     'Edm.Single': [FloatField],
     'Edm.Byte': [ByteField],
 
-} as const satisfies ComponentMap<ReactNode>;
+} as const satisfies RenderComponentMap<ReactNode>;
 
-// TODO call this render component map
 
-export type ReactComponentMap = typeof REACT_COMPONENT_MAP;
+export type ReactRenderComponentMap = typeof REACT_COMPONENT_MAP;
