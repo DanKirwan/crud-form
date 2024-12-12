@@ -1,6 +1,6 @@
-import { ReactNode } from "react";
-import { ReactRenderComponentMap } from "../react/config";
-import { FormItems, ObjectConfig } from "./form";
+import { ReactNode } from 'react';
+import { ReactRenderComponentMap } from '../react/config';
+import { FormItems, ObjectConfig } from './form';
 
 // Define the UserProfile type
 export type UserProfile = {
@@ -20,6 +20,7 @@ export type UserProfile = {
         lat: number;
         long: number;
     };
+    acceptedTOS: boolean;
 };
 
 
@@ -40,6 +41,7 @@ export const userProfileExample: UserProfile = {
         lat: 40.7128,
         long: -74.0060,
     },
+    acceptedTOS: true,
 };
 
 
@@ -58,13 +60,14 @@ export const userProfileConfig = {
     lastLogin: 'Edm.DateTimeOffset',
     newsletter: 'Edm.Boolean',
     notifications: 'Edm.Boolean',
-    "location.lat": 'Edm.Double',
-    "location.long": 'Edm.Double',
-    location: 'Edm.GeographyPoint'
+    'location.lat': 'Edm.Double',
+    'location.long': 'Edm.Double',
+    location: 'Edm.GeographyPoint',
+    acceptedTOS: 'Edm.Boolean',
 } as const satisfies ObjectConfig<UserProfile>;
 
 export const userProfileFilter = {
-    rating: { readonly: true }
+    rating: { readonly: true },
 };
 
 export type UserProfileConfig = typeof userProfileConfig;
@@ -106,7 +109,7 @@ export const simpleUserForm: FormItems<
         'notifications',
         'firstName',
         'lastName',
-        "email"
+        'email',
     ],
 }
 
@@ -158,8 +161,8 @@ export const userProfileForm: FormItems<
                             component: 'int-text-box',
                             label: 'Age',
                             validators: {
-                                onChange: ({ value }) => value < 0 ? 'Cannot be negative age' : undefined
-                            }
+                                onChange: ({ value }) => value < 0 ? 'Cannot be negative age' : undefined,
+                            },
                         },
                         {
                             key: 'birthDate',
@@ -173,7 +176,7 @@ export const userProfileForm: FormItems<
                     component: 'single-line-text-field',
                     label: 'Biography',
                 },
-            ]
+            ],
         },
 
         {
@@ -199,12 +202,12 @@ export const userProfileForm: FormItems<
             items: [
                 {
                     key: 'newsletter',
-                    component: 'switch',
+                    component: 'checkbox',
                     label: 'Subscribe to Newsletter',
                 },
                 {
                     key: 'notifications',
-                    component: 'switch',
+                    component: 'checkbox',
                     label: 'Enable Notifications',
                 },
             ],
@@ -229,6 +232,14 @@ export const userProfileForm: FormItems<
                     label: 'Last Login',
                 },
             ],
+        },
+        {
+            key: 'acceptedTOS',
+            component: 'checkbox',
+            label: 'Accept Terms Of Service',
+            validators: {
+                onChange: ({value})=> !value ? 'Must Accept Terms of Service' : void 0,
+            },
         },
     ],
 };

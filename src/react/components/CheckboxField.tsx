@@ -1,10 +1,10 @@
 // BooleanField.tsx
-import { CircularProgress, FormControlLabel, FormHelperText, Switch } from '@mui/material';
+import { Checkbox, CircularProgress, FormControlLabel, FormHelperText, Switch } from '@mui/material';
 import { FieldDisplayOptions, FieldEditOptions, SingleComponentType } from '../../lib/domain';
 
-export const SwitchField = {
+export const CheckboxField = {
     type: 'Edm.Boolean',
-    name: 'switch',
+    name: 'checkbox',
     display: ({ state, label }: FieldDisplayOptions<boolean>) => (
         <FormControlLabel
             control={<Switch checked={!!state.value} disabled color="primary" />}
@@ -15,7 +15,7 @@ export const SwitchField = {
         <div style={{ position: 'relative', display: 'inline-block' }}>
             <FormControlLabel
                 control={
-                    <Switch
+                    <Checkbox
                         checked={!!state.value}
                         onChange={(event) => handleChange(event.target.checked)}
                         onBlur={handleBlur}

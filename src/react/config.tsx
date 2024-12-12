@@ -8,12 +8,13 @@ import { GuidField } from './components/GuidField';
 import { ByteField, Int32Field } from './components/IntegerField';
 import { StringField } from './components/StringField';
 import { SwitchField } from './components/SwitchField';
+import { CheckboxField } from './components/CheckboxField';
 
 
 // TODO - add checkboxes to booleans, sliders to float and other number types and multiline text boxes
 
 export const REACT_COMPONENT_MAP = {
-    'Edm.Boolean': [SwitchField],
+    'Edm.Boolean': [SwitchField, CheckboxField],
     'Edm.String': [StringField],
     'Edm.Int32': [Int32Field],
     'Edm.Double': [DoubleField],
