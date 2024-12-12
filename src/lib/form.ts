@@ -1,4 +1,4 @@
-import { DeepKeys, DeepValue } from "@tanstack/form-core";
+import { DeepKeys, DeepValue, FieldValidators } from "@tanstack/form-core";
 import { ComponentMap, ComponentNames, FieldDisplayOptions, FieldEditOptions, ObjectMappings } from "./domain";
 
 export type FormDirection = 'row' | 'column';
@@ -23,7 +23,7 @@ export type FormPrimitive<
         [ObjK in DeepKeys<T>]: ConfigT[ObjK] extends ObjectMappings['key'] ?
         {
             [K in ObjectMappings['key']]: ConfigT[ObjK] extends K ? K extends ConfigT[ObjK] ?
-            { key: ObjK, component: ComponentNames<RenderT, MappingT>[K] } :
+            { key: ObjK, component: ComponentNames<RenderT, MappingT>[K], validators?: FieldValidators<T, ObjK> } :
             never : never
         }[ObjectMappings['key']]
         // Enforce type compatibility between the object key and component

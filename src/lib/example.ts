@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ReactNode } from "react";
 import { ReactComponentMap } from "../react/config";
 import { FormItems, ObjectConfig } from "./form";
@@ -158,6 +157,9 @@ export const userProfileForm: FormItems<
                             key: 'age',
                             component: 'int-text-box',
                             label: 'Age',
+                            validators: {
+                                onChange: ({ value }) => value < 0 ? 'Cannot be negative age' : undefined
+                            }
                         },
                         {
                             key: 'birthDate',

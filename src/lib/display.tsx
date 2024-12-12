@@ -5,10 +5,11 @@ import { FormDirection, FormItem, FormItems, ObjectConfig } from "./form";
 import { camelToDisplay } from "./stringUtils";
 
 
-import { DeepKeys, FieldApi, FormApi } from '@tanstack/form-core';
+import { DeepKeys, FieldApi, FieldValidators, FormApi } from '@tanstack/form-core';
 
 type FieldRenderer<T, RenderT> = <K extends DeepKeys<T>>(
     key: K,
+    validators: FieldValidators<T, K>,
     render: (api: FieldApi<T, K>) => RenderT
 ) => RenderT;
 
@@ -46,6 +47,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectConfig<T>, MappingT ex
 
         return renderField(
             propertyKey,
+            {},
             field => def.edit({
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 state: field.state as FieldEditOptions<any>['state'],
@@ -62,7 +64,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectConfig<T>, MappingT ex
 
     if ('component' in item) {
         // It's a component-based item
-        const { key: propertyKey, component, label } = item;
+        const { key: propertyKey, component, label, validators } = item;
         const typeName = objectConfig[propertyKey];
         const componentDef = componentMap[typeName].find(
             (x) => x.name === component
@@ -78,6 +80,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectConfig<T>, MappingT ex
 
         return renderField(
             propertyKey,
+            validators ?? {},
             field => def.edit({
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 state: field.state as FieldEditOptions<any>['state'],
@@ -97,6 +100,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectConfig<T>, MappingT ex
 
         return renderField(
             propertyKey,
+            {},
             field => edit({
 
                 state: field.state,

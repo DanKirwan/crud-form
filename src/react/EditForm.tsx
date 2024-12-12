@@ -10,26 +10,26 @@ import { ReactNode } from 'react';
 import { renderForm } from '../lib/display';
 import { ComponentMap } from '../lib/domain';
 import { FormItems, ObjectConfig } from '../lib/form';
-import { REACT_COMPONENT_MAP } from './config';
 
-type Props<T, TObjectConfig extends ObjectConfig<T>> = {
+type Props<T, TObjectConfig extends ObjectConfig<T>, TComponentMap extends ComponentMap<ReactNode>,> = {
     value: ReactFormExtendedApi<T>;
     config: TObjectConfig;
-    form: FormItems<T, ReactNode, TObjectConfig, ComponentMap<ReactNode>>;
+    form: FormItems<T, ReactNode, TObjectConfig, TComponentMap>;
+    componentMap: TComponentMap
 };
 
-export const EditForm = <T,>({
+export const EditForm = <T, TObjectConfig extends ObjectConfig<T>, TComponentMap extends ComponentMap<ReactNode>,>({
     config,
     value,
     form,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-}: Props<T, any>) => {
+    componentMap
+}: Props<T, TObjectConfig, TComponentMap>) => {
 
 
-    return renderForm(
+    return renderForm<T, ReactNode, TObjectConfig, TComponentMap>(
         form,
         value,
-        REACT_COMPONENT_MAP,
+        componentMap,
         config,
         // Function to render the entire form
         (label, contents) => (
@@ -102,7 +102,7 @@ export const EditForm = <T,>({
             </Box>
         ),
 
-        (key, render) => <value.Field name={key}>
+        (key, validators, render) => <value.Field name={key} validators={validators}>
             {(field) => render(field)}
         </value.Field>
     );
