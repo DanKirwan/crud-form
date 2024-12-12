@@ -7,6 +7,7 @@ export const SwitchField = {
     name: 'switch',
     display: ({ state, label }: FieldDisplayOptions<boolean>) => (
         <FormControlLabel
+        
             control={<Switch checked={!!state.value} disabled color="primary" />}
             label={label}
         />

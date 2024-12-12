@@ -1,6 +1,7 @@
 import { ContainerWrapperMeta } from '@lib/containers';
-import { Paper, Typography, Box } from '@mui/material';
+import { Paper, Typography, Box, Stack } from '@mui/material';
 import {FC, ReactNode} from 'react';
+import { ContainerStateIcon } from './ContainerStateIcon';
 
 type Props = {
     contents: ReactNode;
@@ -9,11 +10,13 @@ type Props = {
 
 export const PaperWrapper : FC<Props> = ({contents, meta }) => {
     return (
-        <Paper elevation={3} style={{ padding: 16 }}>
-            <Typography variant="h6">{meta.label}</Typography>
-            <Typography variant="body2" color={meta.hasErrors ? 'error' : 'textSecondary'}>
-                {meta.hasErrors ? 'Error' : meta.isCompleted ? 'Completed' : 'In Progress'}
-            </Typography>
+        <Paper elevation={2} sx={{p: 2}}>
+            <Stack direction='row' alignItems='center' justifyContent='space-between'>
+                
+                <Typography variant="h6">{meta.label}</Typography>
+                <ContainerStateIcon meta={meta}/>
+
+            </Stack>
             <Box mt={2}>{contents}</Box>
         </Paper>
     )

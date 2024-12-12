@@ -125,7 +125,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectConfig<T>, RenderConfi
             ),
         );
         // todo interface properly with the fields to get the relevant metadata
-        return renderContainer(renderLayout(contents), {hasErrors: false, isCompleted: false, label: label ?? ''});
+        return renderContainer(renderLayout(contents), {hasErrors: true, isCompleted: true, label: label ?? ''});
     }
 
     throw new Error('Failed to match form item to any renderable type');

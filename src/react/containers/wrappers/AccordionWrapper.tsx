@@ -1,7 +1,8 @@
 import { ContainerWrapperMeta } from '@lib/containers';
-import { Paper, Typography, Box, Accordion, AccordionDetails, AccordionSummary } from '@mui/material';
-import {FC, ReactNode, useState} from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Accordion, AccordionDetails, AccordionSummary, Box, Stack, Typography } from '@mui/material';
+import { FC, ReactNode, useState } from 'react';
+import { ContainerStateIcon } from './ContainerStateIcon';
 
 
 type Props = {
@@ -15,15 +16,12 @@ export const AccordionWrapper : FC<Props> = ({contents, meta }) => {
     return (
         <Accordion expanded={expanded} onChange={() => setExpanded(!expanded)}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography variant="h6">{meta.label}</Typography>
-                <Box ml={2}>
-                    <Typography
-                        variant="body2"
-                        color={meta.hasErrors ? 'error' : 'textSecondary'}
-                    >
-                        {meta.hasErrors ? 'Error' : meta.isCompleted ? 'Completed' : 'In Progress'}
-                    </Typography>
-                </Box>
+                <Stack direction='row' spacing={2} alignItems='center' >
+
+                    <Typography variant="h6">{meta.label}</Typography>
+                    <ContainerStateIcon meta={meta}/>
+                </Stack>
+
             </AccordionSummary>
             <AccordionDetails>{contents}</AccordionDetails>
         </Accordion>

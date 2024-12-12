@@ -1,6 +1,7 @@
 import { ContainerWrapperMeta } from '@lib/containers';
-import {  Dialog, DialogContent, DialogTitle, Typography } from '@mui/material';
+import {  Dialog, DialogContent, DialogTitle, Paper, Stack, Typography } from '@mui/material';
 import { FC, ReactNode, useState } from 'react';
+import { ContainerStateIcon } from './ContainerStateIcon';
 
 type Props = {
     contents: ReactNode;
@@ -12,19 +13,27 @@ export const ModalWrapper : FC<Props> = ({contents, meta }) => {
 
     return (
         <>
-            <Typography
-                variant="h6"
-                onClick={() => setOpen(true)}
-                style={{ cursor: 'pointer', textDecoration: 'underline' }}
-            >
-                {meta.label}
-            </Typography>
-            <Typography variant="body2" color={meta.hasErrors ? 'error' : 'textSecondary'}>
-                {meta.hasErrors ? 'Error' : meta.isCompleted ? 'Completed' : 'In Progress'}
-            </Typography>
+            <Paper elevation={2} sx={{p: 2}}>
+                <Stack direction='row' alignItems='center' spacing={1}>
+            
+                    <Typography
+                        variant="h6"
+                        onClick={() => setOpen(true)}
+                        style={{ cursor: 'pointer', textDecoration: 'underline' }}
+                    >
+                        {meta.label}
+                    </Typography>
+                    <ContainerStateIcon meta={meta}/>
+
+                </Stack>
+            </Paper>
             <Dialog open={open} onClose={() => setOpen(false)}>
-                 
-                <DialogTitle>{meta.label}</DialogTitle>
+                <DialogTitle>
+                    <Stack direction='row' justifyContent='space-between'>
+                        {meta.label}
+                        <ContainerStateIcon meta={meta}/>
+                    </Stack>
+                </DialogTitle>
                 <DialogContent>
                     {contents}
                 </DialogContent>
