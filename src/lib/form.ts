@@ -1,5 +1,5 @@
-import { DeepKeys, DeepValue, FieldValidators } from "@tanstack/form-core";
-import { ComponentMap, ComponentNames, FieldDisplayOptions, FieldEditOptions, ObjectMappings } from "./domain";
+import { DeepKeys, DeepValue, FieldValidators } from '@tanstack/form-core';
+import { ComponentMap, ComponentNames, FieldDisplayOptions, FieldEditOptions, ObjectMappings } from './domain';
 
 export type FormDirection = 'row' | 'column';
 
@@ -20,7 +20,7 @@ export type FormPrimitive<
     | {
         label?: string;
     } & {
-        [ObjK in DeepKeys<T>]: ConfigT[ObjK] extends ObjectMappings['key'] ?
+        [ObjK in PrimitiveDeepKeys<T>]: ConfigT[ObjK] extends ObjectMappings['key'] ?
         {
             [K in ObjectMappings['key']]: ConfigT[ObjK] extends K ? K extends ConfigT[ObjK] ?
             { key: ObjK, component: ComponentNames<RenderT, MappingT>[K], validators?: FieldValidators<T, ObjK> } :
@@ -28,7 +28,7 @@ export type FormPrimitive<
         }[ObjectMappings['key']]
         // Enforce type compatibility between the object key and component
         : never
-    }[DeepKeys<T>]
+    }[PrimitiveDeepKeys<T>]
     | CustomRenderFormItem<T, DeepKeys<T>, RenderT>;
 
 
@@ -46,10 +46,25 @@ export type FormItems<T, RenderT, ConfigT extends ObjectConfig<T>, MappingT exte
 };
 
 
-
-
-
 export type ObjectConfig<T> = {
     // Map each key in the object T to a valid component key in MappingT
-    [ObjK in DeepKeys<T>]: Extract<ObjectMappings, { value: DeepValue<T, ObjK> }>['key']
+    [ObjK in PrimitiveDeepKeys<T>]: Extract<ObjectMappings, { value: DeepValue<T, ObjK> }>['key']
 };
+
+
+
+// Filters existing deep keys to give only the primitive fields
+export type PrimitiveDeepKeys<T> = DeepKeys<T> extends infer K
+    ? K extends string
+        ? IsRecord<DeepValue<T, K>> extends false
+            ? K
+            : never
+        : never
+    : never;
+
+
+type IsRecord<T> = T extends object
+    ? T extends Date | Uint8Array // Add other non-record types here
+        ? false
+        : true
+    : false;

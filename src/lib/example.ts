@@ -45,7 +45,6 @@ export const userProfileExample: UserProfile = {
 };
 
 
-// TODO config shouldn't need to do all deep keys just primitive keys at the bottom
 // Define the ObjectConfig for UserProfile
 export const userProfileConfig = {
     firstName: 'Edm.String',
@@ -62,7 +61,6 @@ export const userProfileConfig = {
     notifications: 'Edm.Boolean',
     'location.lat': 'Edm.Double',
     'location.long': 'Edm.Double',
-    location: 'Edm.GeographyPoint',
     acceptedTOS: 'Edm.Boolean',
 } as const satisfies ObjectConfig<UserProfile>;
 
@@ -211,11 +209,6 @@ export const userProfileForm: FormItems<
                     label: 'Enable Notifications',
                 },
             ],
-        },
-        {
-            key: 'location',
-            component: 'geographyPoint',
-            label: 'Location',
         },
         {
             direction: 'row',

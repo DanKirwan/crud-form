@@ -10,8 +10,7 @@ export type ObjectTypes =
     'Edm.Guid' |
     'Edm.Boolean' |
     'Edm.DateTimeOffset' |
-    'Edm.String' |
-    'Edm.GeographyPoint';
+    'Edm.String';
 
 type ObjectMapping<X extends ObjectTypes, T> = { key: X, value: T }
 
@@ -25,9 +24,7 @@ export type ObjectMappings =
     ObjectMapping<'Edm.Guid', string> |
     ObjectMapping<'Edm.Boolean', boolean> |
     ObjectMapping<'Edm.String', string> |
-    ObjectMapping<'Edm.DateTimeOffset', Date> |
-    ObjectMapping<'Edm.GeographyPoint', { lat: number, long: number }>;
-
+    ObjectMapping<'Edm.DateTimeOffset', Date> ;
 
 type NonEmptyList<T> = [T, ...T[]];
 
