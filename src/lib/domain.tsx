@@ -1,17 +1,17 @@
-import { FieldApi, Validator } from "@tanstack/form-core";
+import { FieldApi, Validator } from '@tanstack/form-core';
 
 
 export type ObjectTypes =
-    "Edm.Double" |
-    "Edm.Single" |
-    "Edm.Int32" |
-    "Edm.Byte" |
-    "Edm.Decimal" |
-    "Edm.Guid" |
-    "Edm.Boolean" |
-    "Edm.DateTimeOffset" |
-    "Edm.String" |
-    "Edm.GeographyPoint";
+    'Edm.Double' |
+    'Edm.Single' |
+    'Edm.Int32' |
+    'Edm.Byte' |
+    'Edm.Decimal' |
+    'Edm.Guid' |
+    'Edm.Boolean' |
+    'Edm.DateTimeOffset' |
+    'Edm.String' |
+    'Edm.GeographyPoint';
 
 type ObjectMapping<X extends ObjectTypes, T> = { key: X, value: T }
 

@@ -1,4 +1,4 @@
-import UserProfileForm from './components/UseProfileForm'
+import UserProfileForm from '@src/components/UseProfileForm'
 
 function App() {
   return (
