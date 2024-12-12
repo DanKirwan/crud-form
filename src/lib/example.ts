@@ -77,7 +77,7 @@ export const userProfileForm: FormItems<
     UserProfileConfig,
     ReactRenderConfig
 > = {
-    layout: 'row',
+    layout: 'col',
     label: 'User Profile',
     items: [
         {

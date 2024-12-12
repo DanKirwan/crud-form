@@ -1,5 +1,5 @@
 import { useState, ReactNode, FC } from 'react';
-import { Box, Button, LinearProgress, Typography } from '@mui/material';
+import { Box, Button, LinearProgress, Stack, Typography } from '@mui/material';
 
 type Props =  {
     pages: ReactNode[];
@@ -21,7 +21,8 @@ export const PagesLayout : FC<Props> = ({ pages }) => {
     };
 
     return (
-        <Box display="flex" flexDirection="column" alignItems="center" >
+        <Stack height='100%' spacing={1} justifyContent='space-between'>
+            
             {/* Progress Bar */}
             <Box width="100%" mb={2}>
                 <LinearProgress
@@ -32,11 +33,9 @@ export const PagesLayout : FC<Props> = ({ pages }) => {
                     Page {currentPage + 1} of {pages.length}
                 </Typography>
             </Box>
+                
 
-            {/* Current Page */}
-            <Box flex={1} width="100%" display="flex" justifyContent="center" alignItems="center" mb={2}>
-                {pages[currentPage]}
-            </Box>
+            {pages[currentPage]}
 
             {/* Navigation Buttons */}
             <Box display="flex" justifyContent="space-between" width="100%">
@@ -47,6 +46,6 @@ export const PagesLayout : FC<Props> = ({ pages }) => {
                     Next
                 </Button>
             </Box>
-        </Box>
+        </Stack>
     );
 };

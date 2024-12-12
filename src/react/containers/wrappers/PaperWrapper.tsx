@@ -10,14 +10,18 @@ type Props = {
 
 export const PaperWrapper : FC<Props> = ({contents, meta }) => {
     return (
-        <Paper elevation={2} sx={{p: 2}}>
-            <Stack direction='row' alignItems='center' justifyContent='space-between'>
+        <Paper elevation={2} sx={{p: 2}} >
+            <Stack height='100%'>
                 
-                <Typography variant="h6">{meta.label}</Typography>
-                <ContainerStateIcon meta={meta}/>
 
+                <Stack direction='row' alignItems='center' justifyContent='space-between'>
+                
+                    <Typography variant="h6">{meta.label}</Typography>
+                    <ContainerStateIcon meta={meta}/>
+
+                </Stack>
+                <Box mt={2}>{contents}</Box>
             </Stack>
-            <Box mt={2}>{contents}</Box>
         </Paper>
     )
 }

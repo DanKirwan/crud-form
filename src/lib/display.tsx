@@ -19,11 +19,11 @@ export const renderForm = <T, RenderT, ConfigT extends ObjectConfig<T>, RenderCo
     formInstance: FormApi<T>,
     renderConfig: RenderConfigT,
     objectConfig: ObjectConfig<T>,
-    renderForm: (label: string, contents: RenderT[]) => RenderT,
+    renderForm: (label: string, contents: RenderT) => RenderT,
     renderField: FieldRenderer<T, RenderT>,
 ): RenderT => renderForm(
         form.label ?? '',
-        form.items.map((item) => renderFormItem(item, formInstance, renderConfig, objectConfig, renderField)));
+        renderFormItem(form, formInstance, renderConfig, objectConfig, renderField))
 
 
 const renderFormItem = <T, RenderT, ConfigT extends ObjectConfig<T>, RenderConfigT extends RenderConfig<RenderT>>(

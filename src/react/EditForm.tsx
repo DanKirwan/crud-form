@@ -32,23 +32,13 @@ export const EditForm = <T, TObjectConfig extends ObjectConfig<T>, TRenderConfig
         renderConfig,
         config,
         // Function to render the entire form
-        (label, contents) => (
-            <Box p={2}>
-                <Paper elevation={3}>
-                    <Box p={3}>
-                        {label && (
-                            <Typography variant="h5" gutterBottom>
-                                {label}
-                            </Typography>
-                        )}
-                        <Stack spacing={3}>
-                            {contents.map((content, index) => (
-                                <Box key={index} width="100%">
-                                    {content}
-                                </Box>
-                            ))}
-                        </Stack>
-                        <Box mt={3} textAlign="right">
+        (label, content) => (
+            <Paper elevation={3}>
+                <Box p={2} width='80vw' height='100vh' overflow='auto'>
+                    <Stack height='100%' justifyContent='space-between'>
+
+                        {content}
+                        <Box mt={3} mb={1} textAlign="right">
                             <Button
                                 variant="contained"
                                 color="primary"
@@ -57,9 +47,9 @@ export const EditForm = <T, TObjectConfig extends ObjectConfig<T>, TRenderConfig
                                 Submit
                             </Button>
                         </Box>
-                    </Box>
-                </Paper>
-            </Box>
+                    </Stack>
+                </Box>
+            </Paper>
         ),
 
         (key, validators, render) => <value.Field name={key} validators={validators}>
