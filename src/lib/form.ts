@@ -40,9 +40,9 @@ export type FormItem<T, RenderT, ConfigT extends ObjectConfig<T>, RenderConfigT 
     FormItems<T, RenderT, ConfigT, RenderConfigT>;
 
 export type FormItems<T, RenderT, ConfigT extends ObjectConfig<T>, RenderConfigT extends RenderConfig<RenderT>> = {
-    label: string;
-    layout: keyof RenderConfigT['layouts']
-    container: keyof RenderConfigT['containers']
+    label?: string;
+    layout?: keyof RenderConfigT['layouts']
+    container?: keyof RenderConfigT['containers']
     items: FormItem<T, RenderT, ConfigT, RenderConfigT>[]
 };
 

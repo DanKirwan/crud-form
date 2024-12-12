@@ -22,7 +22,7 @@ export const renderForm = <T, RenderT, ConfigT extends ObjectConfig<T>, RenderCo
     renderForm: (label: string, contents: RenderT[]) => RenderT,
     renderField: FieldRenderer<T, RenderT>,
 ): RenderT => renderForm(
-        form.label,
+        form.label ?? '',
         form.items.map((item) => renderFormItem(item, formInstance, renderConfig, objectConfig, renderField)));
 
 
@@ -110,10 +110,10 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectConfig<T>, RenderConfi
         const { label, items, container, layout } = item;
 
         const containers: RenderConfigT['containers'] = renderConfig.containers;
-        const renderContainer = containers[container];
+        const renderContainer = !!container ?  containers[container] : Object.values(containers)[0] ;
 
         const layouts: RenderConfigT['layouts'] = renderConfig.layouts;
-        const renderLayout = layouts[layout];
+        const renderLayout = !!layout ? layouts[layout] : Object.values(layouts)[0];
 
         const contents = items.map((nestedItem) =>
             renderFormItem(
@@ -125,7 +125,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectConfig<T>, RenderConfi
             ),
         );
         // todo interface properly with the fields to get the relevant metadata
-        return renderContainer(renderLayout(contents), {hasErrors: false, isCompleted: false, label});
+        return renderContainer(renderLayout(contents), {hasErrors: false, isCompleted: false, label: label ?? ''});
     }
 
     throw new Error('Failed to match form item to any renderable type');

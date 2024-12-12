@@ -70,50 +70,6 @@ export const userProfileFilter = {
 
 export type UserProfileConfig = typeof userProfileConfig;
 
-
-
-// const validators: {
-//     'Edm.Int32': [
-//         {
-//             name: 'non-negative',
-//             onBlur: (value: number) => 'tanstack validation types'
-//         }
-//     ]
-// }
-
-
-
-// Define the form items for the UserProfile
-export const simpleUserForm: FormItems<
-    UserProfile,
-    ReactNode,
-    UserProfileConfig,
-    ReactRenderConfig
-> = {
-    container: 'paper',
-    layout: 'col',
-    label: 'Form',
-    items: [
-        'age',
-        // {
-        // key: 'age',
-        // validators: [ // This needs to incorporate types of validation
-        // 'non-negative',
-        // greaterThan(20),
-        // (value: boolean) => 'tanstack-stuff',
-        // ]
-        // },
-        'isActive',
-
-        'notifications',
-        'firstName',
-        'lastName',
-        'email',
-    ],
-}
-
-
-
 // Define the form items for the UserProfile
 export const userProfileForm: FormItems<
     UserProfile,
@@ -121,7 +77,6 @@ export const userProfileForm: FormItems<
     UserProfileConfig,
     ReactRenderConfig
 > = {
-    container: 'paper',
     layout: 'row',
     label: 'User Profile',
     items: [
@@ -133,29 +88,13 @@ export const userProfileForm: FormItems<
 
                 {
                     layout: 'row',
-                    container: 'paper',
-                    label: '',
-                    items: [
-                        {
-                            key: 'firstName',
-                            component: 'single-line-text-field',
-                            label: 'First Name',
-                        },
-                        {
-                            key: 'lastName',
-                            component: 'single-line-text-field',
-                            label: 'Last Name',
-                        },
-                    ],
+                    container: 'identity',
+                    items: ['firstName', 'lastName'],
                 },
-                {
-                    key: 'email',
-                    component: 'single-line-text-field',
-                    label: 'Email Address',
-                },
+                'email',
                 {
                     layout: 'row',
-                    container: 'paper',
+                    container: 'identity',
                     label: '',
                     items: [
                         {
@@ -166,11 +105,7 @@ export const userProfileForm: FormItems<
                                 onChange: ({ value }) => value < 0 ? 'Cannot be negative age' : undefined,
                             },
                         },
-                        {
-                            key: 'birthDate',
-                            component: 'datetime',
-                            label: 'Birth Date',
-                        },
+                        'birthDate',
                     ],
                 },
                 {
@@ -180,16 +115,13 @@ export const userProfileForm: FormItems<
                 },
             ],
         },
-
         {
             layout: 'row',
-            container: 'paper',
             label: 'Account Status',
             items: [
                 {
                     key: 'isActive',
                     component: 'switch',
-
                     label: 'Active',
                 },
                 {
@@ -218,20 +150,8 @@ export const userProfileForm: FormItems<
         },
         {
             layout:'row',
-            container: 'paper',
             label: 'Registration Info',
-            items: [
-                {
-                    key: 'registeredAt',
-                    component: 'datetime',
-                    label: 'Registered At',
-                },
-                {
-                    key: 'lastLogin',
-                    component: 'datetime',
-                    label: 'Last Login',
-                },
-            ],
+            items: ['registeredAt', 'lastLogin'],
         },
         {
             key: 'acceptedTOS',

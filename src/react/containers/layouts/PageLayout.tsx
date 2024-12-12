@@ -21,7 +21,7 @@ export const PagesLayout : FC<Props> = ({ pages }) => {
     };
 
     return (
-        <Box display="flex" flexDirection="column" alignItems="center" p={2}>
+        <Box display="flex" flexDirection="column" alignItems="center" >
             {/* Progress Bar */}
             <Box width="100%" mb={2}>
                 <LinearProgress

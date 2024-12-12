@@ -9,6 +9,7 @@ export const REACT_CONTAINER_WRAPPER_CONFIG = {
     paper: (contents, meta) => <PaperWrapper contents={contents} meta={meta}/>,
     accordion: (contents, meta) => <AccordionWrapper contents={contents} meta={meta}/>,
     modal: (contents, meta) => <ModalWrapper  contents={contents} meta={meta}/>,
+    identity: (contents) => contents,
 } as const satisfies ContainerWrapperConfig<ReactNode>;
 
 export type ReactContainerWrapperConfig = typeof REACT_CONTAINER_WRAPPER_CONFIG

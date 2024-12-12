@@ -9,7 +9,7 @@ type Props = {
 
 export const PaperWrapper : FC<Props> = ({contents, meta }) => {
     return (
-        <Paper elevation={3} style={{ padding: 16, margin: 8 }}>
+        <Paper elevation={3} style={{ padding: 16 }}>
             <Typography variant="h6">{meta.label}</Typography>
             <Typography variant="body2" color={meta.hasErrors ? 'error' : 'textSecondary'}>
                 {meta.hasErrors ? 'Error' : meta.isCompleted ? 'Completed' : 'In Progress'}
