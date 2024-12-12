@@ -36,7 +36,7 @@ export default [
       // Trailing commas on multiline
       'comma-dangle': ['error', 'always-multiline'],
 
-
+      "indent": ["error", 4]
 
     },
   },

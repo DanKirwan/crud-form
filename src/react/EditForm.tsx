@@ -3,7 +3,7 @@ import {
     Button,
     Paper,
     Stack,
-    Typography
+    Typography,
 } from '@mui/material';
 import { ReactFormExtendedApi } from '@tanstack/react-form';
 import { ReactNode } from 'react';
@@ -22,7 +22,7 @@ export const EditForm = <T, TObjectConfig extends ObjectConfig<T>, TComponentMap
     config,
     value,
     form,
-    componentMap
+    componentMap,
 }: Props<T, TObjectConfig, TComponentMap>) => {
 
 
@@ -104,6 +104,6 @@ export const EditForm = <T, TObjectConfig extends ObjectConfig<T>, TComponentMap
 
         (key, validators, render) => <value.Field name={key} validators={validators}>
             {(field) => render(field)}
-        </value.Field>
+        </value.Field>,
     );
 };

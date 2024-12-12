@@ -7,7 +7,7 @@ export const CheckboxField = {
     name: 'checkbox',
     display: ({ state, label }: FieldDisplayOptions<boolean>) => (
         <FormControlLabel
-            control={<Switch checked={!!state.value} disabled color="primary" />}
+            control={<Checkbox checked={!!state.value} disabled color="primary" />}
             label={label}
         />
     ),

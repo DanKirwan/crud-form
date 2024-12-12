@@ -1,8 +1,8 @@
 // Get default component 
 
-import { ComponentMap, FieldEditOptions, ObjectMappings, SingleComponentType } from "./domain";
-import { FormDirection, FormItem, FormItems, ObjectConfig } from "./form";
-import { camelToDisplay } from "./stringUtils";
+import { ComponentMap, FieldEditOptions, ObjectMappings, SingleComponentType } from './domain';
+import { FormDirection, FormItem, FormItems, ObjectConfig } from './form';
+import { camelToDisplay } from './stringUtils';
 
 
 import { DeepKeys, FieldApi, FieldValidators, FormApi } from '@tanstack/form-core';
@@ -33,7 +33,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectConfig<T>, MappingT ex
     componentMap: MappingT,
     objectConfig: ObjectConfig<T>,
     renderContainer: (label: string, contents: RenderT[], direction: FormDirection) => RenderT,
-    renderField: FieldRenderer<T, RenderT>
+    renderField: FieldRenderer<T, RenderT>,
 ): RenderT => {
     if (typeof item === 'string') {
         // It's a simple property key
@@ -42,37 +42,35 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectConfig<T>, MappingT ex
         const [componentDef] = componentMap[typeName];
 
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const def = componentDef as SingleComponentType<RenderT, any>;
 
         return renderField(
             propertyKey,
             {},
             field => def.edit({
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 state: field.state as FieldEditOptions<any>['state'],
                 handleChange: field.handleChange as FieldEditOptions<unknown>['handleChange'],
                 handleBlur: field.handleBlur,
                 name: field.name as string,
                 label: camelToDisplay(propertyKey as string),
-            })
+            }),
 
         );
     }
 
-    if (!(item instanceof Object)) throw new Error("Failed to match form item ")
+    if (!(item instanceof Object)) throw new Error('Failed to match form item ')
 
     if ('component' in item) {
         // It's a component-based item
         const { key: propertyKey, component, label, validators } = item;
         const typeName = objectConfig[propertyKey];
         const componentDef = componentMap[typeName].find(
-            (x) => x.name === component
+            (x) => x.name === component,
         );
 
         if (!componentDef)
             throw new Error(
-                `Could not find definition for type ${typeName} and component ${component}`
+                `Could not find definition for type ${typeName} and component ${component}`,
             );
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -122,8 +120,8 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectConfig<T>, MappingT ex
                 componentMap,
                 objectConfig,
                 renderContainer,
-                renderField
-            )
+                renderField,
+            ),
         );
 
         return renderContainer(label, contents, direction);
