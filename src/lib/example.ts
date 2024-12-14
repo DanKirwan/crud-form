@@ -102,10 +102,12 @@ export const userProfileForm: FormItems<
 > = {
     layout: 'col',
     label: 'User Profile',
+    showStatus: true,
     items: [
         {
             layout: 'col',
             container: 'accordion',
+            showStatus: true,
             label: 'Personal Info',
             items: [
 

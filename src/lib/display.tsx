@@ -142,7 +142,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
 
     if ('items' in item) {
         // It's a container item (e.g., section or group)
-        const { label, items, container, layout } = item;
+        const { label, items, container, layout, showStatus } = item;
 
         const containers: RenderConfigT['containers'] = renderConfig.containers;
         const renderContainer = !!container ?  containers[container] : Object.values(containers)[0] ;
@@ -172,9 +172,9 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
                 renderLayout(contents.map(c => c.render)), 
                 {
                     hasErrors: fieldMetas.some(m => m?.errorMap?.onBlur), 
-                    isCompleted: fieldMetas.every(m => !m?.errorMap?.onBlur && !m?.errorMap?.onMount,
-                    ),
+                    isCompleted: fieldMetas.every(m => !m?.errorMap?.onBlur && !m?.errorMap?.onMount),
                     label: label ?? '',
+                    showStatus: showStatus ?? false,
                 })
 
         },

@@ -6,5 +6,6 @@ export type ContainerMeta = {
     label: string;  
     hasErrors: boolean;
     isCompleted: boolean;
+    showStatus: boolean;
 }
 export type ContainerWrapperConfig<RenderT> = Record<string, (contents: RenderT, meta: ContainerMeta) => RenderT>;

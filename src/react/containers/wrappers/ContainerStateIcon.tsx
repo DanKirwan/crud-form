@@ -8,7 +8,8 @@ type Props = {
     meta: Omit<ContainerMeta, 'label'>
 }
 
-export const ContainerStateIcon : FC<Props> = ({meta: {hasErrors, isCompleted}}) => {
+export const ContainerStateIcon : FC<Props> = ({meta: {hasErrors, isCompleted, showStatus}}) => {
+    if(!showStatus) return null;
     return (
         isCompleted ? 
             <CheckCircleIcon color='success'/> : 

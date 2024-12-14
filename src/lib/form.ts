@@ -44,6 +44,7 @@ export type FormItems<T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderCon
     label?: string;
     layout?: keyof RenderConfigT['layouts']
     container?: keyof RenderConfigT['containers']
+    showStatus?: boolean
     items: FormItem<T, RenderT, ConfigT, RenderConfigT>[]
 };
 
