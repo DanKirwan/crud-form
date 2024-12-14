@@ -3,5 +3,6 @@ import { PrimitiveDeepKeys } from '../form';
 
 export type FormValidator<T, TFormValidator extends Validator<T, unknown> | undefined = undefined> = {
     formValidator: FormValidateOrFn<T, TFormValidator>,
-    getFieldValidator: <K extends PrimitiveDeepKeys<T>>(key: K) => FieldValidateOrFn<T, K, undefined, TFormValidator> | undefined
+    getFieldValidator: <K extends PrimitiveDeepKeys<T>>(key: K) => FieldValidateOrFn<T, K, undefined, TFormValidator> | undefined,
+    isFieldRequired: <K extends PrimitiveDeepKeys<T>>(key: K) => boolean,
 };

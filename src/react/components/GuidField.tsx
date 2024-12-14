@@ -1,6 +1,7 @@
 // GuidField.tsx
 import { CircularProgress, InputAdornment, TextField } from '@mui/material';
 import { FieldDisplayOptions, FieldEditOptions, SingleComponentType } from '../../lib/domain';
+import { extractRelevantError } from '@src/lib/errorUtils';
 
 export const GuidField = {
     type: 'Edm.Guid',
@@ -14,15 +15,16 @@ export const GuidField = {
             fullWidth
         />
     ),
-    edit: ({ state, handleBlur, handleChange, name, label }: FieldEditOptions<string>) => (
+    edit: ({ state, handleBlur, handleChange, name, label, required }: FieldEditOptions<string>) => (
         <TextField
+            required={required}
             label={label}
             value={state.value || ''}
             onChange={(event) => handleChange(event.target.value)}
             onBlur={handleBlur}
             name={name}
-            error={state.meta.errors.length > 0}
-            helperText={state.meta.errors.join(', ')}
+            error={!!extractRelevantError(state.meta.errorMap)}
+            helperText={extractRelevantError(state.meta.errorMap)}
             variant="outlined"
             fullWidth
             slotProps={{

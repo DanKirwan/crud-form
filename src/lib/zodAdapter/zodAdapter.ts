@@ -13,6 +13,7 @@ export type ZodFormValidator<T> = z.ZodType<PartialDeep<T>>;
 export const buildZodValidator = <T extends object>(schema: z.ZodType<PartialDeep<T>>): FormValidator<T, Validator<unknown, ZodType>> => ({
     formValidator: schema,
     getFieldValidator: key => accessZodField(schema, key),
+    isFieldRequired: key => !(accessZodField(schema,key)?.isOptional() ?? true),
 }) 
 
 

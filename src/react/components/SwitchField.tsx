@@ -1,6 +1,7 @@
 // BooleanField.tsx
 import { CircularProgress, FormControlLabel, FormHelperText, Switch } from '@mui/material';
 import { FieldDisplayOptions, FieldEditOptions, SingleComponentType } from '../../lib/domain';
+import { extractRelevantError } from '@src/lib/errorUtils';
 
 export const SwitchField = {
     type: 'Edm.Boolean',
@@ -12,9 +13,10 @@ export const SwitchField = {
             label={label}
         />
     ),
-    edit: ({ state, handleBlur, handleChange, name, label }: FieldEditOptions<boolean>) => (
+    edit: ({ state, handleBlur, handleChange, name, label, required }: FieldEditOptions<boolean>) => (
         <div style={{ position: 'relative', display: 'inline-block' }}>
             <FormControlLabel
+                required={required}
                 control={
                     <Switch
                         checked={!!state.value}
@@ -26,8 +28,8 @@ export const SwitchField = {
                 }
                 label={label}
             />
-            {state.meta.errors.length > 0 && (
-                <FormHelperText error>{state.meta.errors.join(', ')}</FormHelperText>
+            {extractRelevantError(state.meta.errorMap) && (
+                <FormHelperText error>{extractRelevantError(state.meta.errorMap)}</FormHelperText>
             )}
             {state.meta.isValidating && (
                 <CircularProgress

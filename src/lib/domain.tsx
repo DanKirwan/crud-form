@@ -34,7 +34,7 @@ export type OdataTypeToValue<K extends ObjectMappings['key']> =
 
 type TanStackField<TData> = FieldApi<Record<string, TData>, string, Validator<TData, string>, undefined, TData>;
 
-export type FieldEditOptions<TData> = Pick<TanStackField<TData>, 'state' | 'handleBlur' | 'handleChange' | 'name'> & { label: string };
+export type FieldEditOptions<TData> = Pick<TanStackField<TData>, 'state' | 'handleBlur' | 'handleChange' | 'name'> & { label: string, required: boolean };
 export type FieldDisplayOptions<TData> = Omit<FieldEditOptions<TData>, 'handleBlur' | 'handleChange'> & { label: string };
 
 export type SingleComponentType<RenderT, K extends ObjectMappings['key']> = {

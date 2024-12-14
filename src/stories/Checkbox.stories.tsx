@@ -1,7 +1,7 @@
 import { CheckboxField } from '@src/react/components/CheckboxField';
 import type { Meta } from '@storybook/react';
 import { useForm } from '@tanstack/react-form';
-import { baseArgs, FieldStory } from './StoryUtils';
+import { baseArgs, FieldStory } from './storyUtils';
 
 const meta: Meta = {
     title: 'Fields/CheckboxField',
@@ -15,7 +15,7 @@ export const Display: FieldStory<boolean> = {
     args: {
         value: true,
         label: 'Test',
-        errors: [],
+        error: '',
         isValidating: false,
     },
     render: (args) => {
@@ -26,14 +26,15 @@ export const Display: FieldStory<boolean> = {
                 <form.Field name="value">
                     {(field) => CheckboxField.display({
                         label: args.label,
+                        required: false,
                         state: {
                             value: field.state.value,
                             meta: {
-                                errors: args.errors,
+                                errors: [args.error],
                                 isValidating: args.isValidating,
                                 isTouched: false,
                                 isBlurred: false,
-                                errorMap: {},
+                                errorMap: {onChange: args.error},
                                 isDirty: false,
                                 isPristine: false,
                             },
@@ -52,7 +53,7 @@ export const Edit: FieldStory<boolean> = {
     args: {
         value: true,
         label: 'Test',
-        errors: ['This field is required'],
+        error: 'This field is required',
         isValidating: false,
     },
     render: (args) => {
@@ -64,14 +65,15 @@ export const Edit: FieldStory<boolean> = {
                 <form.Field name="value">
                     {(field) => CheckboxField.edit({
                         label: args.label,
+                        required: false,
                         state: {
                             value: field.state.value,
                             meta: {
-                                errors: args.errors,
+                                errors: [args.error],
                                 isValidating: args.isValidating,
                                 isTouched: false,
                                 isBlurred: false,
-                                errorMap: {},
+                                errorMap: {onChange: args.error},
                                 isDirty: false,
                                 isPristine: false,
                             },

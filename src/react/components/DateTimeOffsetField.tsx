@@ -5,6 +5,7 @@ import { FieldDisplayOptions, FieldEditOptions, SingleComponentType } from '../.
 
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import { extractRelevantError } from '@src/lib/errorUtils';
 
 export const DateTimeOffsetField = {
     type: 'Edm.DateTimeOffset',
@@ -33,6 +34,12 @@ export const DateTimeOffsetField = {
 
                 onAccept={handleBlur}
 
+                slotProps={{
+                    textField: {
+                        error: !!extractRelevantError(state.meta.errorMap),
+                        helperText: extractRelevantError(state.meta.errorMap),
+                    },
+                }}
             // renderInput={(params) => (
             //     <TextField
             //         {...params}

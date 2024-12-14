@@ -6,14 +6,16 @@ import { ReactNode } from 'react';
 export type FieldStory<T> = StoryObj<{
     value: T;
     label: string;
-    errors: string[];
+    error: string;
     isValidating: boolean;
+    required: boolean;
 }>;
 
 export const baseArgs = {
     label: { control: 'text' },
-    errors: { control: { type: 'array' as unknown as undefined } },
+    error: { control: 'text'},
     isValidating: { control: 'boolean' },
+    required: {control: 'boolean'},
 } as const;
 
 type StoryItem<T> = {
@@ -26,8 +28,9 @@ export const buildStory = <K extends ObjectMappings['key'], T extends OdataTypeT
         args: {
             value: defaultVal,
             label: 'Test',
-            errors: ['This field is required'],
+            error: 'Example Error',
             isValidating: false,
+            required: false,
         },
         render: (args) => {
             // Wrap your hook usage inside a component
@@ -38,14 +41,15 @@ export const buildStory = <K extends ObjectMappings['key'], T extends OdataTypeT
                     <form.Field name="value">
                         {(field) => component.edit({
                             label: args.label,
+                            required: args.required,
                             state: {
                                 value: field.state.value as unknown as any,
                                 meta: {
-                                    errors: args.errors,
+                                    errors: [args.error],
                                     isValidating: args.isValidating,
                                     isTouched: false,
                                     isBlurred: false,
-                                    errorMap: {},
+                                    errorMap: {onBlur: args.error, onChange: args.error},
                                     isDirty: false,
                                     isPristine: false,
                                 },
@@ -67,8 +71,9 @@ export const buildStory = <K extends ObjectMappings['key'], T extends OdataTypeT
         args: {
             value: defaultVal,
             label: 'Test',
-            errors: ['This field is required'],
+            error: 'Example Errror',
             isValidating: false,
+            required: false,
         },
         render: (args) => {
             // Wrap your hook usage inside a component
@@ -79,14 +84,15 @@ export const buildStory = <K extends ObjectMappings['key'], T extends OdataTypeT
                     <form.Field name="value">
                         {(field) => component.display({
                             label: args.label,
+                            required: args.required,
                             state: {
                                 value: field.state.value as unknown as any,
                                 meta: {
-                                    errors: args.errors,
+                                    errors: [args.error],
                                     isValidating: args.isValidating,
                                     isTouched: false,
                                     isBlurred: false,
-                                    errorMap: {},
+                                    errorMap: {onBlur: args.error},
                                     isDirty: false,
                                     isPristine: false,
                                 },

@@ -1,6 +1,6 @@
 import { SwitchField } from '@src/react/components/SwitchField';
 import type { Meta } from '@storybook/react';
-import { baseArgs, buildStory } from './StoryUtils';
+import { baseArgs, buildStory } from './storyUtils';
 
 const meta: Meta = {
     title: 'Fields/SwitchField',

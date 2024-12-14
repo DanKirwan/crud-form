@@ -1,6 +1,7 @@
 // Int32Field.tsx
 import { CircularProgress, InputAdornment, TextField } from '@mui/material';
 import { FieldDisplayOptions, FieldEditOptions, SingleComponentType } from '../../lib/domain';
+import { extractRelevantError } from '@src/lib/errorUtils';
 
 
 
@@ -16,8 +17,9 @@ const integerField: Pick<SingleComponentType<JSX.Element, 'Edm.Int32'>, 'display
             type="number"
         />
     ),
-    edit: ({ state, handleBlur, handleChange, name, label }: FieldEditOptions<number>) => (
+    edit: ({ state, handleBlur, handleChange, name, label, required }: FieldEditOptions<number>) => (
         <TextField
+            required={required}
             label={label}
             value={state.value !== undefined ? state.value : ''}
             onChange={(event) => {
@@ -27,8 +29,8 @@ const integerField: Pick<SingleComponentType<JSX.Element, 'Edm.Int32'>, 'display
             }}
             onBlur={handleBlur}
             name={name}
-            error={state.meta.errors.length > 0}
-            helperText={state.meta.errors.join(', ')}
+            error={!!extractRelevantError(state.meta.errorMap)}
+            helperText={extractRelevantError(state.meta.errorMap)}
             variant="outlined"
             fullWidth
             type="number"

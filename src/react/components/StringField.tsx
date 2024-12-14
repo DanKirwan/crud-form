@@ -1,5 +1,3 @@
-// StringField.tsx
-import React from 'react';
 import { TextField, CircularProgress, InputAdornment } from '@mui/material';
 import { FieldDisplayOptions, FieldEditOptions, SingleComponentType } from '../../lib/domain';
 import { extractRelevantError } from '@src/lib/errorUtils';
@@ -16,8 +14,9 @@ const buildStringField = (rows: number) => ({
             fullWidth
         />
     ),
-    edit: ({ state, handleBlur, handleChange, name, label }: FieldEditOptions<string>) => (
+    edit: ({ state, handleBlur, handleChange, name, label, required }: FieldEditOptions<string>) => (
         <TextField
+            required={required}
             label={label}
             value={state.value || ''}
             onChange={(event) => handleChange(event.target.value)}

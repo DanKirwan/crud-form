@@ -72,6 +72,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
                 handleBlur: field.handleBlur,
                 name: `${field.name}`,
                 label: camelToDisplay(propertyKey),
+                required: validator?.isFieldRequired(propertyKey) ?? false,
             }),
         );
 
@@ -109,6 +110,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
                 handleBlur: field.handleBlur,
                 name: field.name as string,
                 label: label ?? camelToDisplay(propertyKey as string),
+                required: validator?.isFieldRequired(propertyKey) ?? false,
             }));
 
         return {meta: [propertyKey], render};
@@ -132,6 +134,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
                 handleChange: field.handleChange,
                 name: field.name as string,
                 label: label ?? camelToDisplay(propertyKey as string),
+                required: validator?.isFieldRequired(propertyKey) ?? false,
             }));
 
         return {render, meta: [propertyKey]};
