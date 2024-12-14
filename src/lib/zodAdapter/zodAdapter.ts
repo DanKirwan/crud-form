@@ -8,7 +8,9 @@ import type { PartialDeep } from 'type-fest';
 
 
 
-export type ZodFormValidator<T> = z.ZodType<PartialDeep<T>>;
+// Prefer ZodFormValidator but allow for partial (less safe but useful in big objects)
+export type ZodFormValidator<T> = z.ZodType<T>;
+export type PartialZodFormValidator<T> = z.ZodType<PartialDeep<T>>;
 
 export const buildZodValidator = <T extends object>(schema: z.ZodType<PartialDeep<T>>): FormValidator<T, Validator<unknown, ZodType>> => ({
     formValidator: schema,

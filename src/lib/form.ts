@@ -21,9 +21,9 @@ export type FormPrimitive<
     | {
         label?: string;
     } & {
-        [ObjK in PrimitiveDeepKeys<T>]: ConfigT[ObjK] extends ObjectMappings['key'] ?
+        [ObjK in PrimitiveDeepKeys<T>]: DeepValue<ConfigT, ObjK> extends ObjectMappings['key'] ?
         {
-            [K in ObjectMappings['key']]: ConfigT[ObjK] extends K ? K extends ConfigT[ObjK] ?
+            [K in ObjectMappings['key']]: DeepValue<ConfigT, ObjK>extends K ? K extends DeepValue<ConfigT, ObjK> ?
             { key: ObjK, component: ComponentNames<RenderT, MappingT>[K], validators?: FieldValidators<T, ObjK> } :
             never : never
         }[ObjectMappings['key']]
