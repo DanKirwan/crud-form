@@ -19,10 +19,9 @@ export const renderForm = <T, RenderT, ConfigT extends ObjectConfig<T>, RenderCo
     formInstance: FormApi<T>,
     renderConfig: RenderConfigT,
     objectConfig: ObjectConfig<T>,
-    renderForm: (label: string, contents: RenderT) => RenderT,
+    renderForm: (contents: RenderT) => RenderT,
     renderField: FieldRenderer<T, RenderT>,
 ): RenderT => renderForm(
-        form.label ?? '',
         renderFormItem(form, formInstance, renderConfig, objectConfig, renderField))
 
 

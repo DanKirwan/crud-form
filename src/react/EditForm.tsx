@@ -32,12 +32,14 @@ export const EditForm = <T, TObjectConfig extends ObjectConfig<T>, TRenderConfig
         renderConfig,
         config,
         // Function to render the entire form
-        (label, content) => (
+        (content) => (
             <Paper elevation={3}>
-                <Box p={2} width='80vw' height='100vh' overflow='auto'>
+                <Box p={2} width='80vw' height='100vh' >
                     <Stack height='100%' justifyContent='space-between'>
+                        <Stack overflow='auto'>
 
-                        {content}
+                            {content}
+                        </Stack>
                         <Box mt={3} mb={1} textAlign="right">
                             <Button
                                 variant="contained"
