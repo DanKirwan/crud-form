@@ -5,20 +5,20 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import { ReactFormExtendedApi } from '@tanstack/react-form';
+import { FieldMeta, ReactFormExtendedApi } from '@tanstack/react-form';
 import { ReactNode } from 'react';
 import { renderForm } from '../lib/display';
 import { ComponentMap, RenderConfig } from '../lib/domain';
-import { FormItems, ObjectConfig } from '../lib/form';
+import { FormItems, ObjectTypeConfig } from '../lib/form';
 
-type Props<T, TObjectConfig extends ObjectConfig<T>, TRenderConfig extends RenderConfig<ReactNode>,> = {
+type Props<T, TObjectConfig extends ObjectTypeConfig<T>, TRenderConfig extends RenderConfig<ReactNode>,> = {
     value: ReactFormExtendedApi<T>;
     config: TObjectConfig;
     form: FormItems<T, ReactNode, TObjectConfig, TRenderConfig>;
     renderConfig: TRenderConfig
 };
 
-export const EditForm = <T, TObjectConfig extends ObjectConfig<T>, TRenderConfig extends RenderConfig<ReactNode>,>({
+export const EditForm = <T, TObjectConfig extends ObjectTypeConfig<T>, TRenderConfig extends RenderConfig<ReactNode>,>({
     config,
     value,
     form,
@@ -44,7 +44,7 @@ export const EditForm = <T, TObjectConfig extends ObjectConfig<T>, TRenderConfig
                             <Button
                                 variant="contained"
                                 color="primary"
-                            // onClick={() => onSubmit && onSubmit(value)}
+                                // onClick={() => onSubmit && onSubmit(value)}
                             >
                                 Submit
                             </Button>
@@ -53,6 +53,10 @@ export const EditForm = <T, TObjectConfig extends ObjectConfig<T>, TRenderConfig
                 </Box>
             </Paper>
         ),
+        (fields, render) => <value.Subscribe 
+            selector={state => fields.map(field => state.fieldMeta[field])}
+            children={(fieldMetas) => render(fieldMetas) }
+        />,
 
         (key, validators, render) => <value.Field name={key} validators={validators}>
             {(field) => render(field)}

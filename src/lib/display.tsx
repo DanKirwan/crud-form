@@ -1,11 +1,12 @@
 // Get default component 
 
-import { ComponentMap, FieldEditOptions, ObjectMappings, RenderConfig, SingleComponentType } from './domain';
-import { FormDirection, FormItem, FormItems, ObjectConfig } from './form';
+import { FieldEditOptions, ObjectMappings, OdataTypeToValue, RenderConfig, SingleComponentType } from './domain';
+import { FormItem, FormItems, ObjectTypeConfig  } from './form';
 import { camelToDisplay } from './stringUtils';
 
+import {get} from 'lodash-es';
 
-import { DeepKeys, FieldApi, FieldValidators, FormApi } from '@tanstack/form-core';
+import { DeepKeys, FieldApi, FieldMeta, FieldValidators, FormApi } from '@tanstack/form-core';
 
 type FieldRenderer<T, RenderT> = <K extends DeepKeys<T>>(
     key: K,
@@ -14,53 +15,68 @@ type FieldRenderer<T, RenderT> = <K extends DeepKeys<T>>(
 ) => RenderT;
 
 
-export const renderForm = <T, RenderT, ConfigT extends ObjectConfig<T>, RenderConfigT extends RenderConfig<RenderT>>(
+type ContainerSubscriber<T, RenderT> = <K extends DeepKeys<T>,> (
+    keys: K[],
+    render: ((metadata: FieldMeta[]) => RenderT),
+) => RenderT;
+
+export const renderForm = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderConfigT extends RenderConfig<RenderT>>(
     form: FormItems<T, RenderT, ConfigT, RenderConfigT>,
     formInstance: FormApi<T>,
     renderConfig: RenderConfigT,
-    objectConfig: ObjectConfig<T>,
+    objectConfig: ObjectTypeConfig<T>,
     renderForm: (contents: RenderT) => RenderT,
+    containerSubscriber: ContainerSubscriber<T, RenderT>,
     renderField: FieldRenderer<T, RenderT>,
 ): RenderT => renderForm(
-        renderFormItem(form, formInstance, renderConfig, objectConfig, renderField))
+        renderFormItem(form, formInstance, renderConfig, objectConfig, containerSubscriber, renderField).render)
 
 
-const renderFormItem = <T, RenderT, ConfigT extends ObjectConfig<T>, RenderConfigT extends RenderConfig<RenderT>>(
+
+// TODO should this be PrimitiveDeepKeys?
+type RenderNode<T, RenderT> = {
+    render: RenderT, 
+    meta: DeepKeys<T>[]
+}
+
+const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderConfigT extends RenderConfig<RenderT>>(
     item: FormItem<T, RenderT, ConfigT, RenderConfigT>,
     formInstance: FormApi<T>,
     renderConfig: RenderConfigT,
-    objectConfig: ObjectConfig<T>,
+    objectConfig: ObjectTypeConfig<T>,
+    containerSubscriber: ContainerSubscriber<T, RenderT>,
     renderField: FieldRenderer<T, RenderT>,
-): RenderT => {
+): RenderNode<T, RenderT> => {
+
     if (typeof item === 'string') {
         // It's a simple property key
         const propertyKey = item satisfies DeepKeys<T>;
-        const typeName = objectConfig[propertyKey] satisfies ObjectMappings['key'];
+        const typeName = get(objectConfig, propertyKey) as ObjectMappings['key'];
         const [componentDef] = renderConfig.fieldComponents[typeName];
-
-
         const def = componentDef as SingleComponentType<RenderT, any>;
 
-        return renderField(
+        const render: RenderT = renderField(
             propertyKey,
             {},
             field => def.edit({
-                state: field.state as FieldEditOptions<any>['state'],
-                handleChange: field.handleChange as FieldEditOptions<unknown>['handleChange'],
+                state: field.state as FieldEditOptions<OdataTypeToValue<typeof typeName>>['state'],
+                handleChange: field.handleChange as FieldEditOptions<OdataTypeToValue<typeof typeName>>['handleChange'],
                 handleBlur: field.handleBlur,
-                name: field.name as string,
-                label: camelToDisplay(propertyKey as string),
+                name: `${field.name}`,
+                label: camelToDisplay(propertyKey),
             }),
-
         );
+
+        return {meta: [propertyKey], render};   
     }
 
+    
     if (!(item instanceof Object)) throw new Error('Failed to match form item ')
 
     if ('component' in item) {
         // It's a component-based item
         const { key: propertyKey, component, label, validators } = item;
-        const typeName = objectConfig[propertyKey];
+        const typeName = get(objectConfig, propertyKey) as ObjectMappings['key'];
         const componentDef = renderConfig.fieldComponents[typeName].find(
             (x) => x.name === component,
         );
@@ -72,26 +88,25 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectConfig<T>, RenderConfi
 
         const def = componentDef as SingleComponentType<RenderT, any>;
 
-        return renderField(
+        const render: RenderT = renderField(
             propertyKey,
             validators ?? {},
             field => def.edit({
-                state: field.state as FieldEditOptions<any>['state'],
+                state: field.state as FieldEditOptions<OdataTypeToValue<typeof typeName>>['state'],
                 handleChange: field.handleChange as FieldEditOptions<unknown>['handleChange'],
                 handleBlur: field.handleBlur,
                 name: field.name as string,
                 label: label ?? camelToDisplay(propertyKey as string),
             }));
 
+        return {meta: [propertyKey], render};
     }
 
     if ('display' in item && 'edit' in item) {
         // It's a custom render
         const { key: propertyKey, edit, label } = item;
 
-
-
-        return renderField(
+        const render: RenderT = renderField(
             propertyKey,
             {},
             field => edit({
@@ -102,6 +117,8 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectConfig<T>, RenderConfi
                 name: field.name as string,
                 label: label ?? camelToDisplay(propertyKey as string),
             }));
+
+        return {render, meta: [propertyKey]};
     }
 
     if ('items' in item) {
@@ -114,17 +131,38 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectConfig<T>, RenderConfi
         const layouts: RenderConfigT['layouts'] = renderConfig.layouts;
         const renderLayout = !!layout ? layouts[layout] : Object.values(layouts)[0];
 
+
         const contents = items.map((nestedItem) =>
             renderFormItem(
                 nestedItem,
                 formInstance,
                 renderConfig,
                 objectConfig,
+                containerSubscriber,
                 renderField,
             ),
         );
+
+        const keys = contents.flatMap(c => c.meta);
+        const render = containerSubscriber(keys, fieldMetas => 
+        {
+
+            console.log(fieldMetas);
+            return renderContainer(
+                renderLayout(contents.map(c => c.render)), 
+                {
+                    hasErrors: fieldMetas.some(m => m !== undefined && m.errors.length > 0), 
+                    isCompleted: fieldMetas.every(m => !!m?.isTouched),
+                    label: label ?? '',
+                })
+        },
+        );
+        
         // todo interface properly with the fields to get the relevant metadata
-        return renderContainer(renderLayout(contents), {hasErrors: true, isCompleted: true, label: label ?? ''});
+        return {
+            meta: keys,
+            render,
+        }
     }
 
     throw new Error('Failed to match form item to any renderable type');

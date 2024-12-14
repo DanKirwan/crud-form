@@ -1,6 +1,11 @@
 import { ReactNode } from 'react';
-import { ReactRenderComponentMap, ReactRenderConfig } from '../react/config';
-import { FormItems, ObjectConfig } from './form';
+import { ReactRenderConfig } from '../react/config';
+import { FormItems, ObjectControlConfig, ObjectTypeConfig, PrimitiveDeepKeys } from './form';
+import { z } from 'zod';
+import { zodValidator } from '@tanstack/zod-form-adapter';
+import { DeepKeys, DeepValue, Validator } from '@tanstack/form-core';
+
+
 
 // Define the UserProfile type
 export type UserProfile = {
@@ -24,6 +29,7 @@ export type UserProfile = {
 };
 
 
+
 export const userProfileExample: UserProfile = {
     firstName: 'Jane',
     lastName: 'Doe',
@@ -32,7 +38,7 @@ export const userProfileExample: UserProfile = {
     bio: 'Passionate traveler and food lover.',
     birthDate: new Date('1993-05-15'),
     isActive: true,
-    rating: 4.8,
+    rating: 0,
     registeredAt: new Date('2020-01-10'),
     lastLogin: new Date(),
     newsletter: true,
@@ -45,8 +51,29 @@ export const userProfileExample: UserProfile = {
 };
 
 
-// Define the ObjectConfig for UserProfile
-export const userProfileConfig = {
+export const emptyUserProfileExample: UserProfile = {
+    firstName: '',
+    lastName: '',
+    age: 0,
+    email: '',
+    bio: '',
+    birthDate: new Date('0000-00-00'),
+    isActive: false,
+    rating: 0,
+    registeredAt: new Date('0000-00-00'),
+    lastLogin: new Date(),
+    newsletter: true,
+    notifications: false,
+    location: {
+        lat: 0,
+        long: 0,
+    },
+    acceptedTOS: false,
+};
+
+
+
+export const userProfileTypeConfig = {
     firstName: 'Edm.String',
     lastName: 'Edm.String',
     age: 'Edm.Int32',
@@ -59,16 +86,15 @@ export const userProfileConfig = {
     lastLogin: 'Edm.DateTimeOffset',
     newsletter: 'Edm.Boolean',
     notifications: 'Edm.Boolean',
-    'location.lat': 'Edm.Double',
-    'location.long': 'Edm.Double',
+    location: {
+        lat: 'Edm.Double',
+        long: 'Edm.Double',
+    },
     acceptedTOS: 'Edm.Boolean',
-} as const satisfies ObjectConfig<UserProfile>;
+} as const satisfies ObjectTypeConfig<UserProfile>;
 
-export const userProfileFilter = {
-    rating: { readonly: true },
-};
 
-export type UserProfileConfig = typeof userProfileConfig;
+export type UserProfileConfig = typeof userProfileTypeConfig;
 
 // Define the form items for the UserProfile
 export const userProfileForm: FormItems<
@@ -77,7 +103,7 @@ export const userProfileForm: FormItems<
     UserProfileConfig,
     ReactRenderConfig
 > = {
-    layout: 'pages',
+    layout: 'col',
     label: 'User Profile',
     items: [
         {
@@ -157,9 +183,6 @@ export const userProfileForm: FormItems<
             key: 'acceptedTOS',
             component: 'checkbox',
             label: 'Accept Terms Of Service',
-            validators: {
-                onChange: ({value})=> !value ? 'Must Accept Terms of Service' : void 0,
-            },
         },
     ],
 };

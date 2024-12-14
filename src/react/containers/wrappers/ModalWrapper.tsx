@@ -1,11 +1,11 @@
-import { ContainerWrapperMeta } from '@lib/containers';
+import { ContainerMeta } from '@lib/containers';
 import {  Dialog, DialogContent, DialogTitle, Paper, Stack, Typography } from '@mui/material';
 import { FC, ReactNode, useState } from 'react';
 import { ContainerStateIcon } from './ContainerStateIcon';
 
 type Props = {
     contents: ReactNode;
-    meta: ContainerWrapperMeta;
+    meta: ContainerMeta;
 }
 
 export const ModalWrapper : FC<Props> = ({contents, meta }) => {

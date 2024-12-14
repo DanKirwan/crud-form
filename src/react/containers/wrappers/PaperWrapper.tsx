@@ -1,11 +1,11 @@
-import { ContainerWrapperMeta } from '@lib/containers';
+import { ContainerMeta } from '@lib/containers';
 import { Paper, Typography, Box, Stack } from '@mui/material';
 import {FC, ReactNode} from 'react';
 import { ContainerStateIcon } from './ContainerStateIcon';
 
 type Props = {
     contents: ReactNode;
-    meta: ContainerWrapperMeta;
+    meta: ContainerMeta;
 }
 
 export const PaperWrapper : FC<Props> = ({contents, meta }) => {
