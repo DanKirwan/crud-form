@@ -61,7 +61,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
 
         const render: RenderT = renderField(
             propertyKey,
-            validator?.getFieldValidator(propertyKey) ?? {},
+            {onBlur: validator?.getFieldValidator(propertyKey) ?? undefined},
             field => def.edit({
                 state: field.state as FieldEditOptions<OdataTypeToValue<typeof typeName>>['state'],
                 handleChange: field.handleChange as FieldEditOptions<OdataTypeToValue<typeof typeName>>['handleChange'],
@@ -94,7 +94,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
 
         const render: RenderT = renderField(
             propertyKey,
-            validator?.getFieldValidator(propertyKey) ?? {},
+            {onBlur: validator?.getFieldValidator(propertyKey) ?? undefined},
             field => def.edit({
                 state: field.state as FieldEditOptions<OdataTypeToValue<typeof typeName>>['state'],
                 handleChange: field.handleChange as FieldEditOptions<unknown>['handleChange'],
@@ -112,7 +112,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
 
         const render: RenderT = renderField(
             propertyKey,
-            validator?.getFieldValidator(propertyKey) ?? {},
+            {onBlur: validator?.getFieldValidator(propertyKey) ?? undefined},
             field => edit({
 
                 state: field.state,

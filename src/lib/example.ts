@@ -1,15 +1,12 @@
 import { ReactNode } from 'react';
 import { ReactRenderConfig } from '../react/config';
-import { FormItems, ObjectControlConfig, ObjectTypeConfig, PrimitiveDeepKeys } from './form';
-import { z } from 'zod';
-import { zodValidator } from '@tanstack/zod-form-adapter';
-import { DeepKeys, DeepValue, Validator } from '@tanstack/form-core';
+import { FormItems, ObjectTypeConfig } from './form';
 
 
 
 // Define the UserProfile type
 export type UserProfile = {
-    firstName: string;
+    firstName: string;  
     lastName: string;
     age: number;
     email: string;
@@ -127,9 +124,7 @@ export const userProfileForm: FormItems<
                             key: 'age',
                             component: 'int-text-box',
                             label: 'Age',
-                            validators: {
-                                onChange: ({ value }) => value < 0 ? 'Cannot be negative age' : undefined,
-                            },
+                       
                         },
                         'birthDate',
                     ],

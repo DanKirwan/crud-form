@@ -11,6 +11,7 @@ function UserProfileForm() {
 
     const schema: ZodFormValidator<UserProfile> = z.object({
         age: z.number({ invalid_type_error: 'age is required' }).min(1, 'Age should be greater than 0'),
+        lastName: z.string({invalid_type_error: 'last name required'}).nonempty({message: 'Name Required'}),
     })
 
     const form = useForm({
@@ -20,7 +21,9 @@ function UserProfileForm() {
         },
         validatorAdapter: zodValidator(),
         validators: {
-            onChange: schema,
+            onBlur: schema,
+            onMount: schema,
+            onSubmit: schema,
         },
     });
 

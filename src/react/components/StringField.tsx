@@ -22,8 +22,8 @@ const buildStringField = (rows: number) => ({
             onChange={(event) => handleChange(event.target.value)}
             onBlur={handleBlur}
             name={name}
-            error={state.meta.errors.length > 0}
-            helperText={state.meta.errors.join(', ')}
+            error={state.meta.isTouched && state.meta.errors.length > 0}
+            helperText={state.meta.isTouched ? state.meta.errors.join(', ') : ''}
             variant="outlined"
             fullWidth
             multiline={rows > 1}

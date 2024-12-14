@@ -26,7 +26,7 @@ export const CheckboxField = {
                 label={label}
             />
             {state.meta.errors.length > 0 && (
-                <FormHelperText error>{state.meta.errors.join(', ')}</FormHelperText>
+                <FormHelperText error>{state.meta.isTouched && state.meta.errors.join(', ')}</FormHelperText>
             )}
             {state.meta.isValidating && (
                 <CircularProgress
