@@ -3,30 +3,29 @@ import {
     Button,
     Paper,
     Stack,
-    Typography,
 } from '@mui/material';
-import { FieldMeta, ReactFormExtendedApi } from '@tanstack/react-form';
+import { ReactFormExtendedApi, Validator } from '@tanstack/react-form';
 import { ReactNode } from 'react';
 import { renderForm } from '../lib/display';
-import { ComponentMap, RenderConfig } from '../lib/domain';
+import { RenderConfig } from '../lib/domain';
 import { FormItems, ObjectTypeConfig } from '../lib/form';
 
-type Props<T, TObjectConfig extends ObjectTypeConfig<T>, TRenderConfig extends RenderConfig<ReactNode>,> = {
-    value: ReactFormExtendedApi<T>;
+type Props<T, TObjectConfig extends ObjectTypeConfig<T>, TRenderConfig extends RenderConfig<ReactNode>, TFormValidator extends Validator<T, unknown> | undefined = undefined> = {
+    value: ReactFormExtendedApi<T, TFormValidator>;
     config: TObjectConfig;
     form: FormItems<T, ReactNode, TObjectConfig, TRenderConfig>;
-    renderConfig: TRenderConfig
+    renderConfig: TRenderConfig,
 };
 
-export const EditForm = <T, TObjectConfig extends ObjectTypeConfig<T>, TRenderConfig extends RenderConfig<ReactNode>,>({
+export const EditForm = <T, TObjectConfig extends ObjectTypeConfig<T>, TRenderConfig extends RenderConfig<ReactNode>,TFormValidator extends Validator<T, unknown> | undefined = undefined>({
     config,
     value,
     form,
     renderConfig,
-}: Props<T, TObjectConfig, TRenderConfig>) => {
+}: Props<T, TObjectConfig, TRenderConfig, TFormValidator>) => {
 
 
-    return renderForm<T, ReactNode, TObjectConfig, TRenderConfig >(
+    return renderForm<T, ReactNode, TObjectConfig, TRenderConfig, TFormValidator>(
         form,
         value,
         renderConfig,

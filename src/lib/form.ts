@@ -3,7 +3,7 @@ import { ComponentMap, ComponentNames, FieldDisplayOptions, FieldEditOptions, Ob
 
 export type FormDirection = 'row' | 'column';
 
-type CustomRenderFormItem<TParentData, TKey extends DeepKeys<TParentData>, RenderT> = {
+type CustomRenderFormItem<TParentData, TKey extends PrimitiveDeepKeys<TParentData>, RenderT> = {
     key: TKey;
     label?: string;
     display: (options: FieldDisplayOptions<DeepValue<TParentData, TKey>>) => RenderT;
@@ -17,7 +17,7 @@ export type FormPrimitive<
     ConfigT extends ObjectTypeConfig<T>,
     MappingT extends ComponentMap<RenderT> // Component mappings
 > =
-    | DeepKeys<T>
+    | PrimitiveDeepKeys<T>
     | {
         label?: string;
     } & {
@@ -30,7 +30,7 @@ export type FormPrimitive<
         // Enforce type compatibility between the object key and component
         : never
     }[PrimitiveDeepKeys<T>]
-    | CustomRenderFormItem<T, DeepKeys<T>, RenderT>;
+    | CustomRenderFormItem<T, PrimitiveDeepKeys<T>, RenderT>;
 
 
 

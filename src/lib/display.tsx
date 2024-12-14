@@ -1,17 +1,18 @@
 // Get default component 
 
 import { FieldEditOptions, ObjectMappings, OdataTypeToValue, RenderConfig, SingleComponentType } from './domain';
-import { FormItem, FormItems, ObjectTypeConfig  } from './form';
+import { FormItem, FormItems, ObjectTypeConfig, PrimitiveDeepKeys  } from './form';
 import { camelToDisplay } from './stringUtils';
 
 import {get} from 'lodash-es';
 
-import { DeepKeys, FieldApi, FieldMeta, FieldValidators, FormApi } from '@tanstack/form-core';
+import { DeepKeys, FieldApi, FieldMeta, FieldValidators, FormApi, Validator } from '@tanstack/form-core';
+import { FormValidator as CrudFormValidator } from './validation/validationTypes';
 
-type FieldRenderer<T, RenderT> = <K extends DeepKeys<T>>(
+type FieldRenderer<T, RenderT, TFormValidator extends Validator<T, unknown> | undefined> = <K extends DeepKeys<T>>(
     key: K,
-    validators: FieldValidators<T, K>,
-    render: (api: FieldApi<T, K>) => RenderT
+    validators: FieldValidators<T, K, undefined, TFormValidator>,
+    render: (api: FieldApi<T, K, undefined, TFormValidator>) => RenderT
 ) => RenderT;
 
 
@@ -20,16 +21,18 @@ type ContainerSubscriber<T, RenderT> = <K extends DeepKeys<T>,> (
     render: ((metadata: FieldMeta[]) => RenderT),
 ) => RenderT;
 
-export const renderForm = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderConfigT extends RenderConfig<RenderT>>(
+export const renderForm = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderConfigT extends RenderConfig<RenderT>, TFormValidator extends  Validator<T, unknown> | undefined = undefined>(
     form: FormItems<T, RenderT, ConfigT, RenderConfigT>,
-    formInstance: FormApi<T>,
+    formInstance: FormApi<T, TFormValidator>,
     renderConfig: RenderConfigT,
     objectConfig: ObjectTypeConfig<T>,
     renderForm: (contents: RenderT) => RenderT,
     containerSubscriber: ContainerSubscriber<T, RenderT>,
-    renderField: FieldRenderer<T, RenderT>,
+    renderField: FieldRenderer<T, RenderT, TFormValidator>,
+    validator: CrudFormValidator<T, TFormValidator> | undefined = undefined,
+
 ): RenderT => renderForm(
-        renderFormItem(form, formInstance, renderConfig, objectConfig, containerSubscriber, renderField).render)
+        renderFormItem(form, formInstance, renderConfig, objectConfig, containerSubscriber, renderField, validator).render)
 
 
 
@@ -39,25 +42,26 @@ type RenderNode<T, RenderT> = {
     meta: DeepKeys<T>[]
 }
 
-const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderConfigT extends RenderConfig<RenderT>>(
+const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderConfigT extends RenderConfig<RenderT>, TFormValidator extends  Validator<T, unknown> | undefined = undefined>(
     item: FormItem<T, RenderT, ConfigT, RenderConfigT>,
-    formInstance: FormApi<T>,
+    formInstance: FormApi<T, TFormValidator>,
     renderConfig: RenderConfigT,
     objectConfig: ObjectTypeConfig<T>,
     containerSubscriber: ContainerSubscriber<T, RenderT>,
-    renderField: FieldRenderer<T, RenderT>,
+    renderField: FieldRenderer<T, RenderT, TFormValidator>,
+    validator: CrudFormValidator<T, TFormValidator> | undefined,
 ): RenderNode<T, RenderT> => {
 
     if (typeof item === 'string') {
         // It's a simple property key
-        const propertyKey = item satisfies DeepKeys<T>;
+        const propertyKey = item satisfies PrimitiveDeepKeys<T>;
         const typeName = get(objectConfig, propertyKey) as ObjectMappings['key'];
         const [componentDef] = renderConfig.fieldComponents[typeName];
         const def = componentDef as SingleComponentType<RenderT, any>;
 
         const render: RenderT = renderField(
             propertyKey,
-            {},
+            validator?.getFieldValidator(propertyKey) ?? {},
             field => def.edit({
                 state: field.state as FieldEditOptions<OdataTypeToValue<typeof typeName>>['state'],
                 handleChange: field.handleChange as FieldEditOptions<OdataTypeToValue<typeof typeName>>['handleChange'],
@@ -75,7 +79,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
 
     if ('component' in item) {
         // It's a component-based item
-        const { key: propertyKey, component, label, validators } = item;
+        const { key: propertyKey, component, label } = item;
         const typeName = get(objectConfig, propertyKey) as ObjectMappings['key'];
         const componentDef = renderConfig.fieldComponents[typeName].find(
             (x) => x.name === component,
@@ -90,7 +94,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
 
         const render: RenderT = renderField(
             propertyKey,
-            validators ?? {},
+            validator?.getFieldValidator(propertyKey) ?? {},
             field => def.edit({
                 state: field.state as FieldEditOptions<OdataTypeToValue<typeof typeName>>['state'],
                 handleChange: field.handleChange as FieldEditOptions<unknown>['handleChange'],
@@ -108,7 +112,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
 
         const render: RenderT = renderField(
             propertyKey,
-            {},
+            validator?.getFieldValidator(propertyKey) ?? {},
             field => edit({
 
                 state: field.state,
@@ -140,6 +144,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
                 objectConfig,
                 containerSubscriber,
                 renderField,
+                validator,
             ),
         );
 

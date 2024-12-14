@@ -1,29 +1,16 @@
-import { z, ZodObject, ZodType, ZodTypeAny } from 'zod';
-import { FormValidator } from '../validation/validationTypes';
-import { zodValidator } from '@tanstack/zod-form-adapter';
 import { Validator } from '@tanstack/form-core';
-import { T } from 'vitest/dist/chunks/environment.LoooBwUu.js';
+import { z, ZodObject, ZodType, ZodTypeAny } from 'zod';
 import { PrimitiveDeepKeys } from '../form';
-import { Z } from 'vitest/dist/chunks/reporters.D7Jzd9GS.js';
-import { i } from 'node_modules/vite/dist/node/types.d-aGj9QkWt';
+import { FormValidator } from '../validation/validationTypes';
 
-import type {PartialDeep} from 'type-fest';
-
-type TestX = {
-    test: string,
-    a: number
-}
-const x = z.object({
-    test: z.string(),
-    a: z.number(),
-})
+import type { PartialDeep } from 'type-fest';
 
 
 
 
 export type ZodFormValidator<T> = z.ZodType<PartialDeep<T>>;
 
-const buildValidator = <T extends object>(schema: z.ZodType<PartialDeep<T>>): FormValidator<T, Validator<unknown, ZodType>> => ({
+export const buildZodValidator = <T extends object>(schema: z.ZodType<PartialDeep<T>>): FormValidator<T, Validator<unknown, ZodType>> => ({
     formValidator: schema,
     getFieldValidator: key => accessZodField(schema, key),
 }) 
