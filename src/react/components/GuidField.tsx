@@ -5,7 +5,6 @@ import { extractRelevantError } from '@src/lib/errorUtils';
 
 export const GuidField = {
     type: 'Edm.Guid',
-    name: 'guid',
     display: ({ state, label }: FieldDisplayOptions<string>) => (
         <TextField
             label={label}

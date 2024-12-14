@@ -9,7 +9,6 @@ import { extractRelevantError } from '@src/lib/errorUtils';
 
 export const DateTimeOffsetField = {
     type: 'Edm.DateTimeOffset',
-    name: 'datetime',
     display: ({ state, label }: FieldDisplayOptions<Date>) => (
         <TextField
             label={label}

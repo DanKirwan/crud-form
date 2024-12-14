@@ -56,7 +56,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
         // It's a simple property key
         const propertyKey = item satisfies PrimitiveDeepKeys<T>;
         const typeName = get(objectConfig, propertyKey) as ObjectMappings['key'];
-        const [componentDef] = renderConfig.fieldComponents[typeName];
+        const componentDef = Object.values(renderConfig.fieldComponents[typeName])[0];
         const def = componentDef as SingleComponentType<RenderT, any>;
 
         const render: RenderT = renderField(
@@ -73,7 +73,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
                 name: `${field.name}`,
                 label: camelToDisplay(propertyKey),
                 required: validator?.isFieldRequired(propertyKey) ?? false,
-            }),
+            }, undefined),
         );
 
         return {meta: [propertyKey], render};   
@@ -84,18 +84,18 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
 
     if ('component' in item) {
         // It's a component-based item
-        const { key: propertyKey, component, label } = item;
+        const { key: propertyKey, component, label} = item;
         const typeName = get(objectConfig, propertyKey) as ObjectMappings['key'];
-        const componentDef = renderConfig.fieldComponents[typeName].find(
-            (x) => x.name === component,
-        );
-
+        const relevantComponents = renderConfig.fieldComponents[typeName];
+        const componentDef = relevantComponents[component];
         if (!componentDef)
             throw new Error(
                 `Could not find definition for type ${typeName} and component ${component}`,
             );
 
         const def = componentDef as SingleComponentType<RenderT, any>;
+
+        const options = 'options' in item ? item.options : undefined;
 
         const render: RenderT = renderField(
             propertyKey,
@@ -111,7 +111,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
                 name: field.name as string,
                 label: label ?? camelToDisplay(propertyKey as string),
                 required: validator?.isFieldRequired(propertyKey) ?? false,
-            }));
+            }, options));
 
         return {meta: [propertyKey], render};
     }

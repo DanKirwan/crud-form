@@ -172,7 +172,7 @@ export const bigUserProfileForm: FormItems<
     BigUserProfileTypeConfig,
     ReactRenderConfig
 > = {
-    layout: 'pages',
+    layout: 'col',
     label: 'User Profile Wizard',
     showStatus: true,
     // We define 4 main pages (accordions, tabs, or steps), each can be navigated sequentially.
@@ -181,7 +181,7 @@ export const bigUserProfileForm: FormItems<
         {
             layout: 'col',
             showStatus: true,
-            container: 'paper',
+            container: 'accordion',
             label: 'Personal Information',
             items: [
                 {
@@ -212,13 +212,17 @@ export const bigUserProfileForm: FormItems<
                     label: 'Biography',
                 },
                 {
-                    // TODO make this work by allowing specific fields to be exposed to components
-                    // key: 'maritalStatus',
-                    // component: 'select',
-                    // label: 'Marital Status',
-                    // options: ['single', 'married', 'divorced', 'widowed'],
                     key: 'maritalStatus',
-                    component: 'single-line-text-field',
+                    component: 'select',
+                    label: 'Marital Status',
+                    options: { placeholder: 'Status', options: 
+                        [
+                            {key: 'single', label: 'Single'},
+                            {key: 'married', label: 'Married'},
+                            {key: 'divorced', label: 'Divorced'},
+                            {key: 'widowed', label: 'Widowed'},                            
+                        ],
+                    },
                 },
             ],
         },
@@ -227,7 +231,7 @@ export const bigUserProfileForm: FormItems<
         {
             showStatus: true,
             layout: 'col',
-            container: 'paper',
+            container: 'accordion',
             label: 'Employment & Address',
             items: [
                 {
@@ -272,7 +276,7 @@ export const bigUserProfileForm: FormItems<
         {
             showStatus: true,
             layout: 'col',
-            container: 'paper',
+            container: 'accordion',
             label: 'Preferences & Status',
             items: [
                 {

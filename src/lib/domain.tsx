@@ -1,5 +1,6 @@
 import { FieldApi, Validator } from '@tanstack/form-core';
 import { ContainerLayoutConfig, ContainerWrapperConfig } from './containers';
+import { NonEmptyObject } from 'type-fest';
 
 
 export type ObjectTypes =
@@ -37,16 +38,15 @@ type TanStackField<TData> = FieldApi<Record<string, TData>, string, Validator<TD
 export type FieldEditOptions<TData> = Pick<TanStackField<TData>, 'state' | 'handleBlur' | 'handleChange' | 'name'> & { label: string, required: boolean };
 export type FieldDisplayOptions<TData> = Omit<FieldEditOptions<TData>, 'handleBlur' | 'handleChange'> & { label: string };
 
-export type SingleComponentType<RenderT, K extends ObjectMappings['key']> = {
+export type SingleComponentType<RenderT, K extends ObjectMappings['key'], TOptions = undefined> = {
     type: K,
-    name: string,
     display: (field: FieldDisplayOptions<OdataTypeToValue<K>>) => RenderT,
-    edit: (data: FieldEditOptions<OdataTypeToValue<K>>) => RenderT
+    edit: (data: FieldEditOptions<OdataTypeToValue<K>>, options: TOptions) => RenderT
 };
 
 
 export type ComponentMap<RenderT> = {
-    [K in ObjectMappings['key']]: NonEmptyList<SingleComponentType<RenderT, K>>
+    [K in ObjectMappings['key']]: NonEmptyObject<Record<string, SingleComponentType<RenderT, K>>>
 }
 
 
@@ -58,7 +58,7 @@ export type AllComponentNames<RenderT, MapT extends ComponentMap<RenderT>> = {
 
 
 export type ComponentNames<RenderT, MapT extends ComponentMap<RenderT>> = {
-    [K in ObjectMappings['key']]: MapT[K][number]['name'];
+    [K in ObjectMappings['key']]: keyof MapT[K]
 };
 
 type NonEmptyList<T> = [T, ...T[]];

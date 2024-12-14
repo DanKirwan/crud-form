@@ -23,8 +23,22 @@ export type FormPrimitive<
     } & {
         [ObjK in PrimitiveDeepKeys<T>]: DeepValue<ConfigT, ObjK> extends ObjectMappings['key'] ?
         {
-            [K in ObjectMappings['key']]: DeepValue<ConfigT, ObjK>extends K ? K extends DeepValue<ConfigT, ObjK> ?
-            { key: ObjK, component: ComponentNames<RenderT, MappingT>[K], validators?: FieldValidators<T, ObjK> } :
+            [K in ObjectMappings['key']]: DeepValue<ConfigT, ObjK> extends K ? K extends DeepValue<ConfigT, ObjK> ?
+            {
+                [ComponentK in ComponentNames<RenderT, MappingT>[K]]: ComponentK extends string ?  
+                    Parameters<MappingT[K][ComponentK]['edit']>['1']  extends undefined ? {
+                        key: ObjK, 
+                        component: ComponentK, 
+                    } : 
+                    {
+                        key: ObjK, 
+                        component: ComponentK, 
+                        options?: Parameters<MappingT[K][ComponentK]['edit']>['1'] 
+                    } : 
+                never
+                
+               
+            }[ComponentNames<RenderT, MappingT>[K]]:
             never : never
         }[ObjectMappings['key']]
         // Enforce type compatibility between the object key and component

@@ -5,7 +5,6 @@ import { extractRelevantError } from '@src/lib/errorUtils';
 
 export const SwitchField = {
     type: 'Edm.Boolean',
-    name: 'switch',
     display: ({ state, label }: FieldDisplayOptions<boolean>) => (
         <FormControlLabel
         
