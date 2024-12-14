@@ -12,9 +12,11 @@ function UserProfileForm() {
     // TODO add ability to make fields optional but start with all required
     // TODO fix all field components to use the extractError method
     // TODO better type safety on ZodFormValidator
+    // you can define things as optional for it to not be needed
     const schema: ZodFormValidator<UserProfile> = z.object({
         age: z.number({ invalid_type_error: 'age is required' }).min(1, 'Age should be greater than 0'),
         lastName: z.string({invalid_type_error: 'last name required'}).nonempty({message: 'Name Required'}),
+        firstName: z.string({invalid_type_error: 'last name required'}),//.optional(),//.nonempty({message: 'First Name Required'}),
         acceptedTOS: z.boolean().refine(v => v === true, {message: 'Please accept Terms of Service'}),
     })
 
@@ -27,9 +29,7 @@ function UserProfileForm() {
         },
         validatorAdapter: zodValidator(),
         validators: {
-            // onBlur: zodSchema.formValidator,
-            onSubmit: zodSchema.formValidator,
-    
+            onSubmit: zodSchema.formValidator,    
         },
     });
 
@@ -40,8 +40,7 @@ function UserProfileForm() {
             renderConfig={REACT_RENDER_CONFIG}
             config={userProfileTypeConfig}
             form={userProfileForm}
-            validator={zodSchema}
-            
+            validator={zodSchema} 
         />
     );
 }

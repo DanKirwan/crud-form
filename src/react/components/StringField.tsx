@@ -23,7 +23,7 @@ const buildStringField = (rows: number) => ({
             onBlur={handleBlur}
             name={name}
             error={!!extractRelevantError(state.meta.errorMap)}
-            helperText={extractRelevantError(state.meta.errorMap)}
+            helperText={extractRelevantError(state.meta.errorMap) ?? ' '}
             variant="outlined"
             fullWidth
             multiline={rows > 1}

@@ -30,7 +30,7 @@ const integerField: Pick<SingleComponentType<JSX.Element, 'Edm.Int32'>, 'display
             onBlur={handleBlur}
             name={name}
             error={!!extractRelevantError(state.meta.errorMap)}
-            helperText={extractRelevantError(state.meta.errorMap)}
+            helperText={extractRelevantError(state.meta.errorMap) ?? ' '}
             variant="outlined"
             fullWidth
             type="number"

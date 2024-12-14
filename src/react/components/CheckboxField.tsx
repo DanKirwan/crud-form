@@ -28,9 +28,10 @@ export const CheckboxField = {
                 label={label}
             />
             
-            {extractRelevantError(state.meta.errorMap) && (
-                <FormHelperText error>{extractRelevantError(state.meta.errorMap)}</FormHelperText>
-            )}
+            <FormHelperText error={!!state.meta.errorMap.onChange}>
+                {state.meta.errorMap.onChange ?? ' '}
+            </FormHelperText>
+
             {state.meta.isValidating && (
                 <CircularProgress
                     size={20}

@@ -37,7 +37,7 @@ export const DateTimeOffsetField = {
                 slotProps={{
                     textField: {
                         error: !!extractRelevantError(state.meta.errorMap),
-                        helperText: extractRelevantError(state.meta.errorMap),
+                        helperText: extractRelevantError(state.meta.errorMap) ?? ' ',
                     },
                 }}
             // renderInput={(params) => (
