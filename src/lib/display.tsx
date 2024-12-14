@@ -61,7 +61,11 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
 
         const render: RenderT = renderField(
             propertyKey,
-            {onBlur: validator?.getFieldValidator(propertyKey) ?? undefined},
+            {
+                onMount: validator?.getFieldValidator(propertyKey) ?? undefined,
+                onChange: validator?.getFieldValidator(propertyKey) ?? undefined,
+                onBlur: validator?.getFieldValidator(propertyKey) ?? undefined,
+            },
             field => def.edit({
                 state: field.state as FieldEditOptions<OdataTypeToValue<typeof typeName>>['state'],
                 handleChange: field.handleChange as FieldEditOptions<OdataTypeToValue<typeof typeName>>['handleChange'],
@@ -94,7 +98,11 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
 
         const render: RenderT = renderField(
             propertyKey,
-            {onBlur: validator?.getFieldValidator(propertyKey) ?? undefined},
+            {
+                onMount: validator?.getFieldValidator(propertyKey) ?? undefined,
+                onChange: validator?.getFieldValidator(propertyKey) ?? undefined,
+                onBlur: validator?.getFieldValidator(propertyKey) ?? undefined,
+            },
             field => def.edit({
                 state: field.state as FieldEditOptions<OdataTypeToValue<typeof typeName>>['state'],
                 handleChange: field.handleChange as FieldEditOptions<unknown>['handleChange'],
@@ -112,7 +120,11 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
 
         const render: RenderT = renderField(
             propertyKey,
-            {onBlur: validator?.getFieldValidator(propertyKey) ?? undefined},
+            {
+                onMount: validator?.getFieldValidator(propertyKey) ?? undefined,
+                onChange: validator?.getFieldValidator(propertyKey) ?? undefined,
+                onBlur: validator?.getFieldValidator(propertyKey) ?? undefined,
+            },
             field => edit({
 
                 state: field.state,
@@ -148,7 +160,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
             ),
         );
 
-        const keys = contents.flatMap(c => c.meta);
+        const keys = contents.flatMap(c => c.meta) as PrimitiveDeepKeys<T>[];
         const render = containerSubscriber(keys, fieldMetas => 
         {
 
@@ -156,10 +168,12 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
             return renderContainer(
                 renderLayout(contents.map(c => c.render)), 
                 {
-                    hasErrors: fieldMetas.some(m => m !== undefined && m.errors.length > 0), 
-                    isCompleted: fieldMetas.every(m => !!m?.isTouched),
+                    hasErrors: fieldMetas.some(m => m?.errorMap?.onBlur), 
+                    isCompleted: fieldMetas.every(m => !m?.errorMap?.onBlur && !m?.errorMap?.onMount,
+                    ),
                     label: label ?? '',
                 })
+
         },
         );
         

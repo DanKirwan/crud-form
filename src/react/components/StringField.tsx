@@ -2,6 +2,7 @@
 import React from 'react';
 import { TextField, CircularProgress, InputAdornment } from '@mui/material';
 import { FieldDisplayOptions, FieldEditOptions, SingleComponentType } from '../../lib/domain';
+import { extractRelevantError } from '@src/lib/errorUtils';
 
 const buildStringField = (rows: number) => ({
     display: ({ state, label }: FieldDisplayOptions<string>) => (
@@ -22,8 +23,8 @@ const buildStringField = (rows: number) => ({
             onChange={(event) => handleChange(event.target.value)}
             onBlur={handleBlur}
             name={name}
-            error={state.meta.isTouched && state.meta.errors.length > 0}
-            helperText={state.meta.isTouched ? state.meta.errors.join(', ') : ''}
+            error={!!extractRelevantError(state.meta.errorMap)}
+            helperText={extractRelevantError(state.meta.errorMap)}
             variant="outlined"
             fullWidth
             multiline={rows > 1}

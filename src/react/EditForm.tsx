@@ -9,12 +9,14 @@ import { ReactNode } from 'react';
 import { renderForm } from '../lib/display';
 import { RenderConfig } from '../lib/domain';
 import { FormItems, ObjectTypeConfig } from '../lib/form';
+import { FormValidator } from '@src/lib/validation/validationTypes';
 
 type Props<T, TObjectConfig extends ObjectTypeConfig<T>, TRenderConfig extends RenderConfig<ReactNode>, TFormValidator extends Validator<T, unknown> | undefined = undefined> = {
     value: ReactFormExtendedApi<T, TFormValidator>;
     config: TObjectConfig;
     form: FormItems<T, ReactNode, TObjectConfig, TRenderConfig>;
     renderConfig: TRenderConfig,
+    validator?: FormValidator<T, TFormValidator> 
 };
 
 export const EditForm = <T, TObjectConfig extends ObjectTypeConfig<T>, TRenderConfig extends RenderConfig<ReactNode>,TFormValidator extends Validator<T, unknown> | undefined = undefined>({
@@ -22,6 +24,7 @@ export const EditForm = <T, TObjectConfig extends ObjectTypeConfig<T>, TRenderCo
     value,
     form,
     renderConfig,
+    validator = undefined,
 }: Props<T, TObjectConfig, TRenderConfig, TFormValidator>) => {
 
 
@@ -39,26 +42,39 @@ export const EditForm = <T, TObjectConfig extends ObjectTypeConfig<T>, TRenderCo
 
                             {content}
                         </Stack>
-                        <Box mt={3} mb={1} textAlign="right">
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                // onClick={() => onSubmit && onSubmit(value)}
-                            >
+
+                        <value.Subscribe 
+                            selector={state => [state.canSubmit, state.isValidating]}
+                            children={([canSubmit, isValidating]) => (
+
+                            
+                                <Box mt={3} mb={1} textAlign="right">
+                                
+                                    <Button
+                                        disabled={!canSubmit}
+                                        variant="contained"
+                                        color="primary"
+                                        // onClick={() => onSubmit && onSubmit(value)}
+                                    >
                                 Submit
-                            </Button>
-                        </Box>
+                                    </Button>
+                                </Box>
+                            )}
+                        />
                     </Stack>
                 </Box>
             </Paper>
         ),
-        (fields, render) => <value.Subscribe 
-            selector={state => fields.map(field => state.fieldMeta[field])}
-            children={(fieldMetas) => render(fieldMetas) }
-        />,
+        (fields, render) => 
+            (<value.Subscribe 
+                selector={state => fields.map(field => state.fieldMeta[field])}
+                children={(fieldMetas) => render(fieldMetas) }
+            />),
 
-        (key, validators, render) => <value.Field name={key} validators={validators}>
-            {(field) => render(field)}
-        </value.Field>,
+        (key, validators, render) => (
+            <value.Field name={key} validators={validators}>
+                {(field) => render(field)}
+            </value.Field>),
+        validator,
     );
 };
