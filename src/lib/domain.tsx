@@ -65,7 +65,6 @@ export type ComponentNames<RenderT, MapT extends ComponentMap<RenderT>> = {
     [K in ObjectMappings['key']]: keyof MapT[K]
 };
 
-type NonEmptyList<T> = [T, ...T[]];
 
 
 export type RenderConfig<RenderT> = {

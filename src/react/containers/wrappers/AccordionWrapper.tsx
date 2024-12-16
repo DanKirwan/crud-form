@@ -1,6 +1,6 @@
 import { ContainerMeta } from '@lib/containers';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { Accordion, AccordionDetails, AccordionSummary, Box, Stack, Typography } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, Stack, Typography } from '@mui/material';
 import { FC, ReactNode, useState } from 'react';
 import { ContainerStateIcon } from './ContainerStateIcon';
 

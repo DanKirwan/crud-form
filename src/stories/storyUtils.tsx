@@ -57,7 +57,7 @@ export const buildStory = <K extends ObjectMappings['key'], T extends OdataTypeT
                             name: 'value',
                             handleBlur: field.handleBlur,
                             handleChange: field.handleChange as unknown as any,
-                        })}
+                        }, undefined)}
                     </form.Field>
                 );
             };

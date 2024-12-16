@@ -1,4 +1,3 @@
-import UserProfileForm from '@src/components/UseProfileForm'
 import BigUserProfileForm from './components/BigUserProfileForm'
 
 function App() {

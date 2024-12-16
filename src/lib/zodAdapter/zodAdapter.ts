@@ -19,19 +19,19 @@ export const buildZodValidator = <T extends object>(schema: z.ZodType<PartialDee
 }) 
 
 
-const zodject = z.intersection(z.object({
-    a: z.string(),
-    b: z.string(),
-}), z.object({
-    a: z.string(),
-}));
+// const zodject = z.intersection(z.object({
+//     a: z.string(),
+//     b: z.string(),
+// }), z.object({
+//     a: z.string(),
+// }));
 
-type Zodject = z.infer<typeof zodject>
+// type Zodject = z.infer<typeof zodject>
 
-const x: Zodject = {
-    a: 'test',
-    b: 'test',
-}
+// const x: Zodject = {
+//     a: 'test',
+//     b: 'test',
+// }
 
 
 type ZodShape<T> = Record<keyof T, ZodTypeAny>;

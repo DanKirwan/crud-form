@@ -1,8 +1,6 @@
 // BooleanField.tsx
 import { CircularProgress, FormControlLabel, FormHelperText, Switch } from '@mui/material';
 import { FieldDisplayOptions, FieldEditOptions, SingleComponentType } from '../../lib/domain';
-import { extractRelevantError } from '@src/lib/errorUtils';
-
 export const SwitchField = {
     type: 'Edm.Boolean',
     display: ({ state, label }: FieldDisplayOptions<boolean | null>) => (

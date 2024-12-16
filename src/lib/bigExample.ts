@@ -1,9 +1,9 @@
-import { z } from 'zod';
+import { ReactRenderConfig } from '@src/react/config';
 import { ReactNode } from 'react';
-import { PartialZodFormValidator } from './zodAdapter/zodAdapter';
+import { z } from 'zod';
 import { FormItems, ObjectTypeConfig } from './form';
-import { ReactRenderComponentMap, ReactRenderConfig } from '@src/react/config';
 import { UndefinedDeepPrimitives } from './typeUtils';
+import { PartialZodFormValidator } from './zodAdapter/zodAdapter';
 
 // ---------------------------------------
 // EXTENDED USER PROFILE INTERFACE

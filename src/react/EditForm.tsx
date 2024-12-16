@@ -50,15 +50,17 @@ export const EditForm = <T, TObjectConfig extends ObjectTypeConfig<T>, TRenderCo
 
                             
                                 <Box mt={3} mb={1} textAlign="right">
-                                
-                                    <Button
-                                        disabled={!canSubmit}
-                                        variant="contained"
-                                        color="primary"
+                                    {/* TODO Fix this to have a nice loading button */}
+                                    {isValidating ? 'Loading' : 
+                                        <Button
+                                            disabled={!canSubmit}
+                                            variant="contained"
+                                            color="primary"
                                         // onClick={() => onSubmit && onSubmit(value)}
-                                    >
+                                        >
                                 Submit
-                                    </Button>
+                                        </Button>
+                                    }
                                 </Box>
                             )}
                         />

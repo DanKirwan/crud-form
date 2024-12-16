@@ -7,7 +7,7 @@ import { extractRelevantError } from '@src/lib/errorUtils';
 
 const integerField: Pick<SingleComponentType<JSX.Element, 'Edm.Int32'>, 'display' | 'edit'> = {
 
-    display: ({ state, label }: FieldDisplayOptions<number>) => (
+    display: ({ state, label }: FieldDisplayOptions<number | null>) => (
         <TextField
             label={label}
             value={state.value !== undefined ? state.value : ''}
@@ -17,7 +17,7 @@ const integerField: Pick<SingleComponentType<JSX.Element, 'Edm.Int32'>, 'display
             type="number"
         />
     ),
-    edit: ({ state, handleBlur, handleChange, name, label, required }: FieldEditOptions<number>) => (
+    edit: ({ state, handleBlur, handleChange, name, label, required }: FieldEditOptions<number | null>) => (
         <TextField
             required={required}
             label={label}
@@ -56,11 +56,9 @@ const integerField: Pick<SingleComponentType<JSX.Element, 'Edm.Int32'>, 'display
 export const Int32Field = {
     ...integerField,
     type: 'Edm.Int32',
-    name: 'int-text-box',
 } as const satisfies SingleComponentType<JSX.Element, 'Edm.Int32'>;
 
 export const ByteField = {
     ...integerField,
     type: 'Edm.Byte',
-    name: 'byte-text-box',
 } as const satisfies SingleComponentType<JSX.Element, 'Edm.Byte'>;

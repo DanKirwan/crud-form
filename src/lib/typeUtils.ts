@@ -1,5 +1,4 @@
 import { DeepKeys, DeepValue } from '@tanstack/form-core';
-import { T } from 'vitest/dist/chunks/environment.LoooBwUu.js';
 
 
 
@@ -32,3 +31,5 @@ export type IsRecord<T> = T extends object
         ? false
         : true
     : false;
+
+export  type NonEmptyList<T> = [T, ...T[]];
