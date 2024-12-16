@@ -6,7 +6,7 @@ import { extractRelevantError } from '@src/lib/errorUtils';
 // `T` is the type of the select value (e.g., string).
 // `options` is a default list of options.
 const buildSelectField = <T extends string | number>() => ({
-    display: ({ state, label }: FieldDisplayOptions<T>) => (
+    display: ({ state, label }: FieldDisplayOptions<T | null>) => (
         <FormControl fullWidth variant="outlined" disabled>
             <InputLabel>{label}</InputLabel>
             <Select
@@ -14,10 +14,14 @@ const buildSelectField = <T extends string | number>() => ({
                 label={label}
                 readOnly
             >
-                
-                <MenuItem key={state.value} value={state.value}>
-                    {state.value}
-                </MenuItem>
+                {state.value ?
+                    <MenuItem key={state.value} value={state.value}>
+                        {state.value}
+                    </MenuItem> :
+                    <MenuItem value='' disabled>
+                        Not Set
+                    </MenuItem>
+                }
             </Select>
         </FormControl>
     ),
@@ -26,7 +30,7 @@ const buildSelectField = <T extends string | number>() => ({
     // to allow customization of the select, like loading indicators, placeholder,
     // or additional options.
     edit: (
-        { state, handleBlur, handleChange, name, label, required }: FieldEditOptions<T>,
+        { state, handleBlur, handleChange, name, label, required }: FieldEditOptions<T | null>,
         componentProps?: {
             placeholder?: string;
             options: {key: T, label: string}[];
@@ -41,7 +45,10 @@ const buildSelectField = <T extends string | number>() => ({
                 <Select
                     name={name}
                     value={state.value ?? ''}
-                    onChange={(event) => handleChange(event.target.value as T)}
+                    onChange={(event) => {
+                        handleChange(event.target.value as T)
+                        console.log('test')
+                    } }
                     onBlur={handleBlur}
                     label={label}
                     // Using InputProps from MUI Select is a bit different.

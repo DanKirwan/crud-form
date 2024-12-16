@@ -1,5 +1,6 @@
 import { DeepKeys, DeepValue, FieldValidators, Validator } from '@tanstack/form-core';
 import { ComponentMap, ComponentNames, FieldDisplayOptions, FieldEditOptions, ObjectMappings, RenderConfig } from './domain';
+import { IsRecord, PrimitiveDeepKeys } from './typeUtils';
 
 export type FormDirection = 'row' | 'column';
 
@@ -83,23 +84,3 @@ export type ObjectControlConfig<T, ValidatorFn = undefined> =  {[ObjK in keyof T
 
 
 
-
-// Filters existing deep keys to give only the primitive fields
-export type PrimitiveDeepKeys<T> = DeepKeys<T> extends infer K
-    ? K extends string
-        ? IsRecord<DeepValue<T, K>> extends false
-            ? K
-            : never
-        : never
-    : never;
-
-
-
-
-    
-
-type IsRecord<T> = T extends object
-    ? T extends Date | Uint8Array // Add other non-record types here
-        ? false
-        : true
-    : false;

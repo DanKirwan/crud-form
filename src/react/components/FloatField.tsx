@@ -4,7 +4,7 @@ import { FieldDisplayOptions, FieldEditOptions, SingleComponentType } from '../.
 import { extractRelevantError } from '@src/lib/errorUtils';
 
 const floatingFieldParts: Pick<SingleComponentType<JSX.Element, 'Edm.Double'>, 'edit' | 'display'> = {
-    display: ({ state, label }: FieldDisplayOptions<number>) => (
+    display: ({ state, label }: FieldDisplayOptions<number | null>) => (
         <TextField
             label={label}
             value={state.value !== undefined ? state.value : ''}
@@ -14,7 +14,7 @@ const floatingFieldParts: Pick<SingleComponentType<JSX.Element, 'Edm.Double'>, '
             type="number"
         />
     ),
-    edit: ({ state, handleBlur, handleChange, name, label, required }: FieldEditOptions<number>) => (
+    edit: ({ state, handleBlur, handleChange, name, label, required }: FieldEditOptions<number | null>) => (
         <TextField
             required={required}
             label={label}
@@ -52,17 +52,14 @@ const floatingFieldParts: Pick<SingleComponentType<JSX.Element, 'Edm.Double'>, '
 export const FloatField = {
     ...floatingFieldParts,
     type: 'Edm.Single',
-    name: 'float-text-box',
 } as const satisfies SingleComponentType<JSX.Element, 'Edm.Single'>;
 
 export const DoubleField = {
     ...floatingFieldParts,
     type: 'Edm.Double',
-    name: 'double-text-box',
 } as const satisfies SingleComponentType<JSX.Element, 'Edm.Double'>;
 
 export const DecimalField = {
     ...floatingFieldParts,
     type: 'Edm.Decimal',
-    name: 'decimal-text-box',
 } as const satisfies SingleComponentType<JSX.Element, 'Edm.Decimal'>;

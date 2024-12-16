@@ -1,4 +1,4 @@
-import { accessZodField, ZodFormValidator } from '@src/lib/zodAdapter/zodAdapter';
+import { accessZodField, PartialZodFormValidator } from '@src/lib/zodAdapter/zodAdapter';
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
@@ -33,7 +33,7 @@ describe('basic object fetching', () => {
 
     const testSchema = z.string();
     const aSchema = z.number();
-    const partialSchema: ZodFormValidator<BasicTest> = z.object({
+    const partialSchema: PartialZodFormValidator<BasicTest> = z.object({
         test: testSchema,
         l2: z.object({
             a: aSchema,

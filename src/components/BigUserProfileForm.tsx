@@ -11,7 +11,7 @@ function UserProfileForm() {
     const zodSchema = buildZodValidator<BigUserProfile>(bigUserProfileSchema);
 
     const form = useForm({
-        defaultValues: emptyBigUserProfileExample,
+        defaultValues: emptyBigUserProfileExample, 
         defaultState: {
             canSubmit: false,
         },

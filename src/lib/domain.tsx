@@ -35,14 +35,18 @@ export type OdataTypeToValue<K extends ObjectMappings['key']> =
 
 type TanStackField<TData> = FieldApi<Record<string, TData>, string, Validator<TData, string>, undefined, TData>;
 
-export type FieldEditOptions<TData> = Pick<TanStackField<TData>, 'state' | 'handleBlur' | 'handleChange' | 'name'> & { label: string, required: boolean };
+export type FieldEditOptions<TData> = Pick<TanStackField<TData | undefined>, 'state' | 'handleBlur' | 'handleChange' | 'name'> & { label: string, required: boolean };
 export type FieldDisplayOptions<TData> = Omit<FieldEditOptions<TData>, 'handleBlur' | 'handleChange'> & { label: string };
 
+// We allow nulls here because primitive types need to be able to handle nulls but this will be type protected at a higher level
+// so only nullable fields can use it
 export type SingleComponentType<RenderT, K extends ObjectMappings['key'], TOptions = undefined> = {
     type: K,
-    display: (field: FieldDisplayOptions<OdataTypeToValue<K>>) => RenderT,
-    edit: (data: FieldEditOptions<OdataTypeToValue<K>>, options: TOptions) => RenderT
+    display: (field: FieldDisplayOptions<OdataTypeToValue<K> | null>) => RenderT,
+    edit: (data: FieldEditOptions<OdataTypeToValue<K> | null>, options: TOptions) => RenderT
 };
+
+
 
 
 export type ComponentMap<RenderT> = {

@@ -4,13 +4,13 @@ import { FieldDisplayOptions, FieldEditOptions, SingleComponentType } from '../.
 
 export const CheckboxField = {
     type: 'Edm.Boolean',
-    display: ({ state, label }: FieldDisplayOptions<boolean>) => (
+    display: ({ state, label }: FieldDisplayOptions<boolean | null>) => (
         <FormControlLabel
             control={<Checkbox checked={!!state.value} disabled color="primary" />}
             label={label}
         />
     ),
-    edit: ({ state, handleBlur, handleChange, name, label, required }: FieldEditOptions<boolean>) => (
+    edit: ({ state, handleBlur, handleChange, name, label, required }: FieldEditOptions<boolean | null>) => (
         <div style={{ position: 'relative', display: 'inline-block' }}>
             <FormControlLabel
                 required={required}

@@ -7,9 +7,10 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { extractRelevantError } from '@src/lib/errorUtils';
 
+// TODO better handling of null values
 export const DateTimeOffsetField = {
     type: 'Edm.DateTimeOffset',
-    display: ({ state, label }: FieldDisplayOptions<Date>) => (
+    display: ({ state, label }: FieldDisplayOptions<Date | null>) => (
         <TextField
             label={label}
             value={state.value ? state.value.toISOString() : ''}
@@ -18,7 +19,7 @@ export const DateTimeOffsetField = {
             fullWidth
         />
     ),
-    edit: ({ state, handleBlur, handleChange, label }: FieldEditOptions<Date>) => (
+    edit: ({ state, handleBlur, handleChange, label }: FieldEditOptions<Date | null>) => (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
 
 

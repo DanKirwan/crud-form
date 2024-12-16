@@ -10,9 +10,10 @@ import { renderForm } from '../lib/display';
 import { RenderConfig } from '../lib/domain';
 import { FormItems, ObjectTypeConfig } from '../lib/form';
 import { FormValidator } from '@src/lib/validation/validationTypes';
+import { UndefinedDeepPrimitives } from '@src/lib/typeUtils';
 
 type Props<T, TObjectConfig extends ObjectTypeConfig<T>, TRenderConfig extends RenderConfig<ReactNode>, TFormValidator extends Validator<T, unknown> | undefined = undefined> = {
-    value: ReactFormExtendedApi<T, TFormValidator>;
+    value: ReactFormExtendedApi<UndefinedDeepPrimitives<T>, TFormValidator>;
     config: TObjectConfig;
     form: FormItems<T, ReactNode, TObjectConfig, TRenderConfig>;
     renderConfig: TRenderConfig,

@@ -20,7 +20,7 @@ export const REACT_COMPONENT_MAP = {
     'Edm.Int32': {'int-text-box': Int32Field},
     'Edm.Double': { 'double-text-box': DoubleField},
     'Edm.Decimal': {'decimal-text-box': DecimalField},
-    'Edm.Guid': {'guid-': GuidField},
+    'Edm.Guid': {'guid': GuidField},
     'Edm.DateTimeOffset': {'datetime': DateTimeOffsetField},
     // Reusing components for similar types
     'Edm.Single': {'float-text-box': FloatField},

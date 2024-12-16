@@ -3,7 +3,7 @@ import { FieldDisplayOptions, FieldEditOptions, SingleComponentType } from '../.
 import { extractRelevantError } from '@src/lib/errorUtils';
 
 const buildStringField = (rows: number) => ({
-    display: ({ state, label }: FieldDisplayOptions<string>) => (
+    display: ({ state, label }: FieldDisplayOptions<string | null>) => (
         <TextField
             label={label}
             value={state.value || ''}
@@ -14,7 +14,7 @@ const buildStringField = (rows: number) => ({
             fullWidth
         />
     ),
-    edit: ({ state, handleBlur, handleChange, name, label, required }: FieldEditOptions<string>) => (
+    edit: ({ state, handleBlur, handleChange, name, label, required }: FieldEditOptions<string | null>) => (
         <TextField
             required={required}
             label={label}
@@ -49,12 +49,10 @@ const buildStringField = (rows: number) => ({
 export const StringField = {
     ...buildStringField(1),
     type: 'Edm.String',
-    name: 'single-line-text-field',
 } as const satisfies SingleComponentType<JSX.Element, 'Edm.String'>;
 
 
 export const MultilineStringField = {
     ...buildStringField(4),
     type: 'Edm.String',
-    name: 'multi-line-text-field',
 } as const satisfies SingleComponentType<JSX.Element, 'Edm.String'>;

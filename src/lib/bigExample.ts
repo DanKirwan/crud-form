@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 import { PartialZodFormValidator } from './zodAdapter/zodAdapter';
 import { FormItems, ObjectTypeConfig } from './form';
 import { ReactRenderComponentMap, ReactRenderConfig } from '@src/react/config';
+import { UndefinedDeepPrimitives } from './typeUtils';
 
 // ---------------------------------------
 // EXTENDED USER PROFILE INTERFACE
@@ -66,7 +67,7 @@ export type BigUserProfile = {
 const dateInPast = z.date().refine(d => d < new Date(), { message: 'Date must be in the past.' });
 const nonEmptyString = (message: string) => z.string().nonempty({ message });
 
-const bigUserProfileSchema: PartialZodFormValidator<BigUserProfile> = z.strictObject({
+const bigUserProfileSchema = z.strictObject({
     // Basic Information
     firstName: nonEmptyString('First name is required'),
     lastName: nonEmptyString('Last name is required'),
@@ -75,7 +76,7 @@ const bigUserProfileSchema: PartialZodFormValidator<BigUserProfile> = z.strictOb
         .email('Must be a valid email'),
     bio: z.string().optional().default(''), // bio can be empty
     birthDate: dateInPast,
-    maritalStatus: z.enum(['single', 'married', 'divorced', 'widowed']).optional(),
+    maritalStatus: z.enum(['single', 'married', 'divorced', 'widowed']),
 
     // Account Status & Rating
     isActive: z.boolean(),
@@ -116,7 +117,7 @@ const bigUserProfileSchema: PartialZodFormValidator<BigUserProfile> = z.strictOb
 
     // Terms & Conditions
     acceptedTOS: z.boolean().refine(v => v === true, { message: 'Please accept the Terms of Service' }),
-});
+}) satisfies  PartialZodFormValidator<BigUserProfile>;
 
 // ---------------------------------------
 // TYPE CONFIG (MAPPING TO EDM TYPES)
@@ -372,14 +373,14 @@ export const bigUserProfileForm: FormItems<
 // ---------------------------------------
 // DEFAULT VALUES
 // ---------------------------------------
-export const emptyBigUserProfileExample: BigUserProfile = {
-    firstName: '',
-    lastName: '',
-    age: 0,
+export const emptyBigUserProfileExample: UndefinedDeepPrimitives<BigUserProfile> = {
+    firstName: undefined,
+    lastName: undefined,
+    age: undefined,
     email: '',
     bio: '',
     birthDate: new Date('1900-01-01'),
-    maritalStatus: 'single',
+    maritalStatus: undefined,
 
     isActive: false,
     rating: 0,

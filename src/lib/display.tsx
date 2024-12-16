@@ -1,36 +1,36 @@
 // Get default component 
 
 import { FieldEditOptions, ObjectMappings, OdataTypeToValue, RenderConfig, SingleComponentType } from './domain';
-import { FormItem, FormItems, ObjectTypeConfig, PrimitiveDeepKeys  } from './form';
+import { FormItem, FormItems, ObjectTypeConfig } from './form';
 import { camelToDisplay } from './stringUtils';
 
-import {get} from 'lodash-es';
+import { get } from 'lodash-es';
 
-import { DeepKeys, FieldApi, FieldMeta, FieldValidators, FormApi, Validator } from '@tanstack/form-core';
+import { DeepKeys, DeepValue, FieldApi, FieldMeta, FieldValidators, FormApi, Validator } from '@tanstack/form-core';
+import { PrimitiveDeepKeys, UndefinedDeepPrimitives } from './typeUtils';
 import { FormValidator as CrudFormValidator } from './validation/validationTypes';
 
-type FieldRenderer<T, RenderT, TFormValidator extends Validator<T, unknown> | undefined> = <K extends DeepKeys<T>>(
+type FieldRenderer<T, RenderT, TFormValidator extends Validator<T, unknown> | undefined> = <K extends PrimitiveDeepKeys<T>>(
     key: K,
-    validators: FieldValidators<T, K, undefined, TFormValidator>,
-    render: (api: FieldApi<T, K, undefined, TFormValidator>) => RenderT
+    validators: FieldValidators<UndefinedDeepPrimitives<T>, K, undefined, TFormValidator>,
+    render: (api: FieldApi<UndefinedDeepPrimitives<T>, K, undefined, TFormValidator>) => RenderT
 ) => RenderT;
 
 
-type ContainerSubscriber<T, RenderT> = <K extends DeepKeys<T>,> (
+type ContainerSubscriber<T, RenderT> = <K extends PrimitiveDeepKeys<T>,> (
     keys: K[],
     render: ((metadata: FieldMeta[]) => RenderT),
 ) => RenderT;
 
 export const renderForm = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderConfigT extends RenderConfig<RenderT>, TFormValidator extends  Validator<T, unknown> | undefined = undefined>(
     form: FormItems<T, RenderT, ConfigT, RenderConfigT>,
-    formInstance: FormApi<T, TFormValidator>,
+    formInstance: FormApi<UndefinedDeepPrimitives<T>, TFormValidator>,
     renderConfig: RenderConfigT,
     objectConfig: ObjectTypeConfig<T>,
     renderForm: (contents: RenderT) => RenderT,
     containerSubscriber: ContainerSubscriber<T, RenderT>,
     renderField: FieldRenderer<T, RenderT, TFormValidator>,
-    validator: CrudFormValidator<T, TFormValidator> | undefined = undefined,
-
+    validator: CrudFormValidator<T, TFormValidator> | undefined,
 ): RenderT => renderForm(
         renderFormItem(form, formInstance, renderConfig, objectConfig, containerSubscriber, renderField, validator).render)
 
@@ -42,9 +42,12 @@ type RenderNode<T, RenderT> = {
     meta: DeepKeys<T>[]
 }
 
+// TODO make sure the validator can be undefined deep primitives and work some type magic below to fix the errors
+// then confirm it works and write some tests to make sure its working in the general case 
+
 const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderConfigT extends RenderConfig<RenderT>, TFormValidator extends  Validator<T, unknown> | undefined = undefined>(
     item: FormItem<T, RenderT, ConfigT, RenderConfigT>,
-    formInstance: FormApi<T, TFormValidator>,
+    formInstance: FormApi<UndefinedDeepPrimitives<T>, TFormValidator>,
     renderConfig: RenderConfigT,
     objectConfig: ObjectTypeConfig<T>,
     containerSubscriber: ContainerSubscriber<T, RenderT>,
@@ -68,7 +71,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
             },
             field => def.edit({
                 state: field.state as FieldEditOptions<OdataTypeToValue<typeof typeName>>['state'],
-                handleChange: field.handleChange as FieldEditOptions<OdataTypeToValue<typeof typeName>>['handleChange'],
+                handleChange: field.handleChange as FieldEditOptions<OdataTypeToValue<typeof typeName> | null>['handleChange'], // TODO make sure you're happy with this null
                 handleBlur: field.handleBlur,
                 name: `${field.name}`,
                 label: camelToDisplay(propertyKey),
@@ -129,9 +132,9 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
             },
             field => edit({
 
-                state: field.state,
+                state: field.state as FieldEditOptions<DeepValue<T, typeof propertyKey>>['state'],
                 handleBlur: field.handleBlur,
-                handleChange: field.handleChange,
+                handleChange: field.handleChange as FieldEditOptions<DeepValue<T, typeof propertyKey>>['handleChange'],
                 name: field.name as string,
                 label: label ?? camelToDisplay(propertyKey as string),
                 required: validator?.isFieldRequired(propertyKey) ?? false,

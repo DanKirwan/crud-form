@@ -1,9 +1,9 @@
 import { Validator } from '@tanstack/form-core';
 import { z, ZodObject, ZodType, ZodTypeAny } from 'zod';
-import { PrimitiveDeepKeys } from '../form';
 import { FormValidator } from '../validation/validationTypes';
 
 import type { PartialDeep } from 'type-fest';
+import { PrimitiveDeepKeys } from '../typeUtils';
 
 
 
@@ -18,6 +18,20 @@ export const buildZodValidator = <T extends object>(schema: z.ZodType<PartialDee
     isFieldRequired: key => !(accessZodField(schema,key)?.isOptional() ?? true),
 }) 
 
+
+const zodject = z.intersection(z.object({
+    a: z.string(),
+    b: z.string(),
+}), z.object({
+    a: z.string(),
+}));
+
+type Zodject = z.infer<typeof zodject>
+
+const x: Zodject = {
+    a: 'test',
+    b: 'test',
+}
 
 
 type ZodShape<T> = Record<keyof T, ZodTypeAny>;
