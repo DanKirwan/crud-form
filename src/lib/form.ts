@@ -12,6 +12,7 @@ type CustomRenderFormItem<TParentData, TKey extends PrimitiveDeepKeys<TParentDat
     validators?: FieldValidators<TParentData, TKey>
 }
 
+// TODO is there a way to make `${ObjK}.type` more safe?
 export type FormPrimitive<
     T, // The object type
     RenderT,
@@ -22,9 +23,9 @@ export type FormPrimitive<
     | {
         label?: string;
     } & {
-        [ObjK in PrimitiveDeepKeys<T>]: DeepValue<ConfigT, ObjK> extends ObjectMappings['key'] ?
+        [ObjK in PrimitiveDeepKeys<T>]: DeepValue<ConfigT, `${ObjK}.type`> extends ObjectMappings['key'] ?
         {
-            [K in ObjectMappings['key']]: DeepValue<ConfigT, ObjK> extends K ? K extends DeepValue<ConfigT, ObjK> ?
+            [K in ObjectMappings['key']]: DeepValue<ConfigT, `${ObjK}.type`> extends K ? K extends DeepValue<ConfigT, `${ObjK}.type`> ?
             {
                 [ComponentK in ComponentNames<RenderT, MappingT>[K]]: ComponentK extends string ?  
                     Parameters<MappingT[K][ComponentK]['edit']>['1']  extends undefined ? {
@@ -65,11 +66,19 @@ export type FormItems<T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderCon
 
 
 
+type BaseFieldTypeConfig<T, NullT extends boolean> = {
+    type: Extract<ObjectMappings, { value: T }>['key'],
+    isReadOnly?: boolean,
+    isWriteOnly?: boolean
+    isNullable: NullT
+}
+
+export type FieldTypeConfig<T> = null extends T ? BaseFieldTypeConfig<T, true> : BaseFieldTypeConfig<T, false>;
 
 export type ObjectTypeConfig<T> = {[ObjK in keyof T]: 
     IsRecord<T[ObjK]> extends true
         ? ObjectTypeConfig<T[ObjK]>
-        :  Extract<ObjectMappings, { value: T[ObjK] }>['key']
+        :  FieldTypeConfig<T[ObjK]>
 };
 
 // This controls the logic of an item in terms of whether it's visible

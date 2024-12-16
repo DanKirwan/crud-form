@@ -13,7 +13,7 @@ import { PartialZodFormValidator } from './zodAdapter/zodAdapter';
 // The following is purely demonstrative:
 export type BigUserProfile = {
     // Basic Information
-    firstName: string;
+    firstName: string | null;
     lastName: string;
     age: number;
     email: string;
@@ -30,7 +30,7 @@ export type BigUserProfile = {
     // Preferences
     newsletter: boolean;
     notifications: boolean;
-    preferredContactMethods: string[]; // e.g. ["email", "phone", "sms"]
+    // preferredContactMethods: string[]; // e.g. ["email", "phone", "sms"]
 
     // Location
     location: {
@@ -38,25 +38,25 @@ export type BigUserProfile = {
         long: number;
     };
 
-    // Work History
-    previousEmployers: Array<{
-        companyName: string;
-        startDate: Date;
-        endDate?: Date;
-        reasonForLeaving?: string;
-    }>;
+    // // Work History
+    // previousEmployers: Array<{
+    //     companyName: string;
+    //     startDate: Date;
+    //     endDate?: Date;
+    //     reasonForLeaving?: string;
+    // }>;
 
-    // Addresses
-    addresses: Array<{
-        line1: string;
-        line2?: string;
-        city: string;
-        state: string;
-        zip: string;
-    }>;
+    // // Addresses
+    // addresses: Array<{
+    //     line1: string;
+    //     line2?: string;
+    //     city: string;
+    //     state: string;
+    //     zip: string;
+    // }>;
 
-    // Skills
-    skills: string[];
+    // // Skills
+    // skills: string[];
 
     // Terms & Conditions
     acceptedTOS: boolean;
@@ -65,16 +65,16 @@ export type BigUserProfile = {
 
 // Create a refined date schema for certain validations
 const dateInPast = z.date().refine(d => d < new Date(), { message: 'Date must be in the past.' });
-const nonEmptyString = (message: string) => z.string().nonempty({ message });
+// const nonEmptyString = (message: string) => z.string({invalid_type_error: message, message}).min(1, message);
 
 const bigUserProfileSchema = z.strictObject({
     // Basic Information
-    firstName: nonEmptyString('First name is required'),
-    lastName: nonEmptyString('Last name is required'),
+    // firstName: nonEmptyString('First name is required'),
+    // lastName: nonEmptyString('Last name is required'),
     age: z.number({ invalid_type_error: 'Age is required' }).min(1, 'Age should be greater than 0'),
     email: z.string({ invalid_type_error: 'Email is required' })
-        .email('Must be a valid email'),
-    bio: z.string().optional().default(''), // bio can be empty
+        .email('Must be a valid email').optional(),
+    // bio: z.string(), // bio can be empty
     birthDate: dateInPast,
     maritalStatus: z.enum(['single', 'married', 'divorced', 'widowed']),
 
@@ -87,7 +87,7 @@ const bigUserProfileSchema = z.strictObject({
     // Preferences
     newsletter: z.boolean(),
     notifications: z.boolean(),
-    preferredContactMethods: z.array(z.enum(['email', 'phone', 'sms'])).min(1, 'At least one contact method is required'),
+    // preferredContactMethods: z.array(z.enum(['email', 'phone', 'sms'])).min(1, 'At least one contact method is required'),
 
     // Location
     location: z.strictObject({
@@ -95,25 +95,25 @@ const bigUserProfileSchema = z.strictObject({
         long: z.number().min(-180).max(180),
     }),
 
-    // Work History
-    previousEmployers: z.array(z.strictObject({
-        companyName: nonEmptyString('Company name is required'),
-        startDate: dateInPast,
-        endDate: z.date().optional(),
-        reasonForLeaving: z.string().optional(),
-    })).max(5, 'You can list at most 5 previous employers'),
+    // // Work History
+    // previousEmployers: z.array(z.strictObject({
+    //     companyName: nonEmptyString('Company name is required'),
+    //     startDate: dateInPast,
+    //     endDate: z.date().optional(),
+    //     reasonForLeaving: z.string().optional(),
+    // })).max(5, 'You can list at most 5 previous employers'),
 
-    // Addresses
-    addresses: z.array(z.strictObject({
-        line1: nonEmptyString('Address line 1 is required'),
-        line2: z.string().optional(),
-        city: nonEmptyString('City is required'),
-        state: z.string().length(2, 'State must be 2 letters'),
-        zip: z.string().regex(/^\d{5}(-\d{4})?$/, 'Invalid ZIP code format'),
-    })).min(1, 'At least one address is required').max(3, 'No more than 3 addresses allowed'),
+    // // Addresses
+    // addresses: z.array(z.strictObject({
+    //     line1: nonEmptyString('Address line 1 is required'),
+    //     line2: z.string().optional(),
+    //     city: nonEmptyString('City is required'),
+    //     state: z.string().length(2, 'State must be 2 letters'),
+    //     zip: z.string().regex(/^\d{5}(-\d{4})?$/, 'Invalid ZIP code format'),
+    // })).min(1, 'At least one address is required').max(3, 'No more than 3 addresses allowed'),
 
     // Skills
-    skills: z.array(z.string().nonempty()).min(1, 'Please list at least one skill'),
+    // skills: z.array(z.string().nonempty()).min(1, 'Please list at least one skill'),
 
     // Terms & Conditions
     acceptedTOS: z.boolean().refine(v => v === true, { message: 'Please accept the Terms of Service' }),
@@ -123,39 +123,39 @@ const bigUserProfileSchema = z.strictObject({
 // TYPE CONFIG (MAPPING TO EDM TYPES)
 // ---------------------------------------
 export const bigUserProfileTypeConfig = {
-    firstName: 'Edm.String',
-    lastName: 'Edm.String',
-    age: 'Edm.Int32',
-    email: 'Edm.String',
-    bio: 'Edm.String',
-    birthDate: 'Edm.DateTimeOffset',
-    maritalStatus: 'Edm.String',
-    isActive: 'Edm.Boolean',
-    rating: 'Edm.Decimal',
-    registeredAt: 'Edm.DateTimeOffset',
-    lastLogin: 'Edm.DateTimeOffset',
-    newsletter: 'Edm.Boolean',
-    notifications: 'Edm.Boolean',
-    preferredContactMethods: ['Edm.String'],
+    firstName: {type: 'Edm.String', isNullable: true},
+    lastName: {type: 'Edm.String', isNullable: false},
+    age: {type: 'Edm.Int32', isNullable: false},
+    email: {type: 'Edm.String', isNullable: false},
+    bio: {type: 'Edm.String', isNullable: false},
+    birthDate: {type: 'Edm.DateTimeOffset', isNullable: false},
+    maritalStatus: {type: 'Edm.String', isNullable: false},
+    isActive: {type: 'Edm.Boolean', isNullable: false},
+    rating: {type: 'Edm.Decimal', isNullable: false},
+    registeredAt: {type: 'Edm.DateTimeOffset', isNullable: false},
+    lastLogin: {type: 'Edm.DateTimeOffset', isNullable: false},
+    newsletter: {type: 'Edm.Boolean', isNullable: false},
+    notifications: {type: 'Edm.Boolean', isNullable: false},
+    // preferredContactMethods: [{type: 'Edm.String', isNullable: false}],
     location: {
-        lat: 'Edm.Double',
-        long: 'Edm.Double',
+        lat: {type: 'Edm.Double', isNullable: false, isReadOnly: true},
+        long: {type: 'Edm.Double', isNullable: false, isReadOnly: true},
     },
-    previousEmployers: [{
-        companyName: 'Edm.String',
-        startDate: 'Edm.DateTimeOffset',
-        endDate: 'Edm.DateTimeOffset',
-        reasonForLeaving: 'Edm.String',
-    }],
-    addresses: [{
-        line1: 'Edm.String',
-        line2: 'Edm.String',
-        city: 'Edm.String',
-        state: 'Edm.String',
-        zip: 'Edm.String',
-    }],
-    skills: ['Edm.String'],
-    acceptedTOS: 'Edm.Boolean',
+    // previousEmployers: [{
+    //     companyName: {type: 'Edm.String', isNullable: false},
+    //     startDate: {type: 'Edm.DateTimeOffset', isNullable: false},
+    //     endDate: {type: 'Edm.DateTimeOffset', isNullable: false},
+    //     reasonForLeaving: {type: 'Edm.String', isNullable: false},
+    // }],
+    // addresses: [{
+    //     line1: {type: 'Edm.String', isNullable: false},
+    //     line2: {type: 'Edm.String', isNullable: false},
+    //     city: {type: 'Edm.String', isNullable: false},
+    //     state: {type: 'Edm.String', isNullable: false},
+    //     zip: {type: 'Edm.String', isNullable: false},
+    // }],
+    // skills: [{type: 'Edm.String', isNullable: false}],
+    acceptedTOS: {type: 'Edm.Boolean', isNullable: false},
 } as const satisfies ObjectTypeConfig<BigUserProfile>;
 
 
@@ -167,6 +167,7 @@ export type BigUserProfileTypeConfig = typeof bigUserProfileTypeConfig
 // FORM CONFIGURATION (4 PAGES)
 // ---------------------------------------
 // This configuration shows a multi-page (wizard-like) form. Each top-level object in `items` can be considered a page.
+// TODO - can't see 
 export const bigUserProfileForm: FormItems<
     BigUserProfile,
     ReactNode,
@@ -174,8 +175,8 @@ export const bigUserProfileForm: FormItems<
     ReactRenderConfig
 > = {
     layout: 'col',
+    container: 'paper',
     label: 'User Profile Wizard',
-    showStatus: true,
     // We define 4 main pages (accordions, tabs, or steps), each can be navigated sequentially.
     items: [
         // Page 1: Personal Info & Basic Details
@@ -373,13 +374,14 @@ export const bigUserProfileForm: FormItems<
 // ---------------------------------------
 // DEFAULT VALUES
 // ---------------------------------------
+// If you want a value to be optional - you need to set it as null not undefined
 export const emptyBigUserProfileExample: UndefinedDeepPrimitives<BigUserProfile> = {
-    firstName: undefined,
+    firstName: null,
     lastName: undefined,
     age: undefined,
-    email: '',
-    bio: '',
-    birthDate: new Date('1900-01-01'),
+    email: undefined,
+    bio: undefined,
+    birthDate: undefined, 
     maritalStatus: undefined,
 
     isActive: false,
@@ -389,24 +391,24 @@ export const emptyBigUserProfileExample: UndefinedDeepPrimitives<BigUserProfile>
 
     newsletter: false,
     notifications: false,
-    preferredContactMethods: ['email'],
+    // preferredContactMethods: ['email'],
 
     location: {
         lat: 0,
         long: 0,
     },
 
-    previousEmployers: [],
-    addresses: [
-        {
-            line1: '',
-            city: '',
-            state: '',
-            zip: '',
-        },
-    ],
+    // // previousEmployers: [],
+    // addresses: [
+    //     {
+    //         line1: '',
+    //         city: '',
+    //         state: '',
+    //         zip: '',
+    //     },
+    // ],
 
-    skills: [],
+    // skills: [],
 
     acceptedTOS: false,
 };

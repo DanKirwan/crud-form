@@ -1,7 +1,7 @@
 // Get default component 
 
 import { FieldEditOptions, ObjectMappings, OdataTypeToValue, RenderConfig, SingleComponentType } from './domain';
-import { FormItem, FormItems, ObjectTypeConfig } from './form';
+import { FieldTypeConfig, FormItem, FormItems, ObjectTypeConfig } from './form';
 import { camelToDisplay } from './stringUtils';
 
 import { get } from 'lodash-es';
@@ -58,8 +58,8 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
     if (typeof item === 'string') {
         // It's a simple property key
         const propertyKey = item satisfies PrimitiveDeepKeys<T>;
-        const typeName = get(objectConfig, propertyKey) as ObjectMappings['key'];
-        const componentDef = Object.values(renderConfig.fieldComponents[typeName])[0];
+        const typeInfo = get(objectConfig, propertyKey) as FieldTypeConfig<PrimitiveDeepKeys<T>>;
+        const componentDef = Object.values(renderConfig.fieldComponents[typeInfo.type])[0];
         const def = componentDef as SingleComponentType<RenderT, any>;
 
         const render: RenderT = renderField(
@@ -70,8 +70,8 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
                 onBlur: validator?.getFieldValidator(propertyKey) ?? undefined,
             },
             field => def.edit({
-                state: field.state as FieldEditOptions<OdataTypeToValue<typeof typeName>>['state'],
-                handleChange: field.handleChange as FieldEditOptions<OdataTypeToValue<typeof typeName> | null>['handleChange'], // TODO make sure you're happy with this null
+                state: field.state as FieldEditOptions<OdataTypeToValue<typeof typeInfo.type>>['state'],
+                handleChange: field.handleChange as FieldEditOptions<OdataTypeToValue<ObjectMappings['key']> | null>['handleChange'], // TODO make sure you're happy with this null
                 handleBlur: field.handleBlur,
                 name: `${field.name}`,
                 label: camelToDisplay(propertyKey),
@@ -88,18 +88,20 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
     if ('component' in item) {
         // It's a component-based item
         const { key: propertyKey, component, label} = item;
-        const typeName = get(objectConfig, propertyKey) as ObjectMappings['key'];
-        const relevantComponents = renderConfig.fieldComponents[typeName];
+        const typeInfo = get(objectConfig, propertyKey) as FieldTypeConfig<PrimitiveDeepKeys<T>>;
+
+        const relevantComponents = renderConfig.fieldComponents[typeInfo.type];
         const componentDef = relevantComponents[component];
         if (!componentDef)
             throw new Error(
-                `Could not find definition for type ${typeName} and component ${component}`,
+                `Could not find definition for type ${typeInfo.type} and component ${component}`,
             );
 
         const def = componentDef as SingleComponentType<RenderT, any>;
 
         const options = 'options' in item ? item.options : undefined;
 
+        console.log(validator?.getFieldValidator(propertyKey), validator?.formValidator, propertyKey);
         const render: RenderT = renderField(
             propertyKey,
             {
@@ -108,7 +110,7 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
                 onBlur: validator?.getFieldValidator(propertyKey) ?? undefined,
             },
             field => def.edit({
-                state: field.state as FieldEditOptions<OdataTypeToValue<typeof typeName>>['state'],
+                state: field.state as FieldEditOptions<OdataTypeToValue<typeof typeInfo.type>>['state'],
                 handleChange: field.handleChange as FieldEditOptions<unknown>['handleChange'],
                 handleBlur: field.handleBlur,
                 name: field.name as string,

@@ -4,6 +4,7 @@ import { FieldDisplayOptions, FieldEditOptions, SingleComponentType } from '../.
 import { extractRelevantError } from '@src/lib/errorUtils';
 
 
+// TODO do the parsing ater blur so it isn't irritating to type in
 
 const integerField: Pick<SingleComponentType<JSX.Element, 'Edm.Int32'>, 'display' | 'edit'> = {
 

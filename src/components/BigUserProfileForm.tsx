@@ -8,7 +8,7 @@ import { REACT_RENDER_CONFIG } from '../react/config';
 function UserProfileForm() {
 
 
-    const zodSchema = buildZodValidator<BigUserProfile>(bigUserProfileSchema);
+    const zodSchema = buildZodValidator<BigUserProfile>(bigUserProfileTypeConfig, bigUserProfileSchema);
 
     const form = useForm({
         defaultValues: emptyBigUserProfileExample, 

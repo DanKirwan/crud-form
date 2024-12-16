@@ -7,7 +7,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { extractRelevantError } from '@src/lib/errorUtils';
 
-// TODO better handling of null values
+// TODO better handling of null values - at the moment it just sets to min value 
 export const DateTimeOffsetField = {
     type: 'Edm.DateTimeOffset',
     display: ({ state, label }: FieldDisplayOptions<Date | null>) => (
