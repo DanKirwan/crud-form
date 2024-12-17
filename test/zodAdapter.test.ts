@@ -28,12 +28,12 @@ describe('nested object fetching', () => {
 
     const testSchema = z.string();
     const aSchema = z.number();
-    const partialSchema: PartialZodFormValidator<SimpleNested> = z.object({
+    const partialSchema = z.object({
         test: testSchema,
         l2: z.object({
             a: aSchema,
         }),
-    });
+    }) satisfies PartialZodFormValidator<SimpleNested>;
 
     it('find single level object values', () => {
         expect(accessZodField(partialSchema, 'l2.a')).toBe(aSchema);

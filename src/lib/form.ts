@@ -66,7 +66,7 @@ export type FormItems<T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderCon
 
 
 
-type BaseFieldTypeConfig<T, NullT extends boolean> = {
+export type BaseFieldTypeConfig<T, NullT extends boolean> = {
     type: Extract<ObjectMappings, { value: T }>['key'],
     isReadOnly?: boolean,
     isWriteOnly?: boolean

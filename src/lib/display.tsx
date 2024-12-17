@@ -151,9 +151,11 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
 
         const containers: RenderConfigT['containers'] = renderConfig.containers;
         const renderContainer = !!container ?  containers[container] : Object.values(containers)[0] ;
-
+        if(renderContainer === void 0) throw new Error('No containers registered in config')
+            
         const layouts: RenderConfigT['layouts'] = renderConfig.layouts;
         const renderLayout = !!layout ? layouts[layout] : Object.values(layouts)[0];
+        if(renderLayout === void 0) throw new Error('No layouts registered in config')
 
 
         const contents = items.map((nestedItem) =>
