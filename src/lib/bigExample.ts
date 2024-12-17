@@ -71,7 +71,7 @@ const bigUserProfileSchema = z.strictObject({
     // Basic Information
     // firstName: nonEmptyString('First name is required'),
     // lastName: nonEmptyString('Last name is required'),
-    age: z.number({ invalid_type_error: 'Age is required' }).min(1, 'Age should be greater than 0'),
+    age: z.number({ message: 'Age is required' }).min(1, 'Age should be greater than 0'),
     email: z.string({ invalid_type_error: 'Email is required' })
         .email('Must be a valid email').optional(),
     // bio: z.string(), // bio can be empty

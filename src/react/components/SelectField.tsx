@@ -1,4 +1,4 @@
-import { FormControl, InputLabel, Select, MenuItem, CircularProgress, InputAdornment } from '@mui/material';
+import { FormControl, InputLabel, Select, MenuItem, CircularProgress, InputAdornment, FormHelperText } from '@mui/material';
 import { FieldDisplayOptions, FieldEditOptions, SingleComponentType } from '../../lib/domain';
 import { extractRelevantError } from '@src/lib/errorUtils';
 
@@ -72,7 +72,8 @@ const buildSelectField = <T extends string | number>() => ({
                         </MenuItem>
                     ))}
                 </Select>
-                {errorText && <p style={{ color: 'red', margin: '0.5em 0 0 0' }}>{errorText}</p>}
+                
+                {errorText && <FormHelperText>{errorText}</FormHelperText>}
             </FormControl>
         );
     },
