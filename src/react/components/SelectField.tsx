@@ -82,3 +82,11 @@ export const StringSelectField = {
     ...buildSelectField(),
     type: 'Edm.String',
 } as const satisfies SingleComponentType<JSX.Element, 'Edm.String'>;
+
+
+// TODO this needs some work in display - develop storybook to show it
+
+export const IntSelectField = {
+    ...buildSelectField(),
+    type: 'Edm.Int32',
+} as const satisfies SingleComponentType<JSX.Element, 'Edm.Int32'>;

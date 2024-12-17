@@ -7,7 +7,9 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { extractRelevantError } from '@src/lib/errorUtils';
 
-// TODO better handling of null values - at the moment it just sets to min value 
+
+// TODO add to centralized documentation that making sure blur handling is working is very important for showing correct error messages 
+
 export const DateTimeOffsetField = {
     type: 'Edm.DateTimeOffset',
     display: ({ state, label }: FieldDisplayOptions<Date | null>) => (
@@ -21,24 +23,25 @@ export const DateTimeOffsetField = {
     ),
     edit: ({ state, handleBlur, handleChange, label }: FieldEditOptions<Date | null>) => (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
-
-
-
             <DateTimePicker
                 label={label}
                 value={state.value || null}
                 onChange={(date) => {
                     if (!date) return;
+                    console.log(date, typeof date, date?.getTime());
                     handleChange(date)
                 }}
-
+                
+                onClose={handleBlur}
                 onAccept={handleBlur}
 
                 slotProps={{
                     textField: {
+                        onBlur: handleBlur,
                         error: !!extractRelevantError(state.meta.errorMap),
                         helperText: extractRelevantError(state.meta.errorMap) ?? ' ',
                     },
+                    
                 }}
             // renderInput={(params) => (
             //     <TextField

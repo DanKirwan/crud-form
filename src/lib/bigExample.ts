@@ -17,7 +17,7 @@ export type BigUserProfile = {
     lastName: string;
     age: number;
     email: string;
-    bio: string;
+    bio: string | null;
     birthDate: Date;
     maritalStatus: string, // // TODO can't do union types atm 'single' | 'married' | 'divorced' | 'widowed';
     
@@ -64,7 +64,7 @@ export type BigUserProfile = {
 
 
 // Create a refined date schema for certain validations
-const dateInPast = z.date().refine(d => d < new Date(), { message: 'Date must be in the past.' });
+const dateInPast = z.date().refine(d =>  d.getTime() < Date.now(), 'Date must be in the past.' );
 // const nonEmptyString = (message: string) => z.string({invalid_type_error: message, message}).min(1, message);
 
 const bigUserProfileSchema = z.strictObject({
@@ -80,7 +80,7 @@ const bigUserProfileSchema = z.strictObject({
 
     // Account Status & Rating
     isActive: z.boolean(),
-    rating: z.number().min(0).max(10),
+    rating: z.number().min(2).max(10),
     registeredAt: z.date().refine(d => d <= new Date(), { message: 'Registered date cannot be in the future.' }),
     lastLogin: z.date().refine(d => d <= new Date(), { message: 'Last login cannot be in the future.' }),
 
@@ -127,11 +127,11 @@ export const bigUserProfileTypeConfig = {
     lastName: {type: 'Edm.String', isNullable: false},
     age: {type: 'Edm.Int32', isNullable: false},
     email: {type: 'Edm.String', isNullable: false},
-    bio: {type: 'Edm.String', isNullable: false},
+    bio: {type: 'Edm.String', isNullable: true},
     birthDate: {type: 'Edm.DateTimeOffset', isNullable: false},
     maritalStatus: {type: 'Edm.String', isNullable: false},
     isActive: {type: 'Edm.Boolean', isNullable: false},
-    rating: {type: 'Edm.Decimal', isNullable: false},
+    rating: {type: 'Edm.Int32', isNullable: false},
     registeredAt: {type: 'Edm.DateTimeOffset', isNullable: false},
     lastLogin: {type: 'Edm.DateTimeOffset', isNullable: false},
     newsletter: {type: 'Edm.Boolean', isNullable: false},
@@ -214,6 +214,7 @@ export const bigUserProfileForm: FormItems<
                     label: 'Biography',
                 },
                 {
+                    //TODO consider making these keys part of the type config in future?
                     key: 'maritalStatus',
                     component: 'select',
                     label: 'Marital Status',
@@ -292,7 +293,17 @@ export const bigUserProfileForm: FormItems<
                         },
                         {
                             key: 'rating',
-                            component: 'decimal-text-box',
+                            component: 'int-select',
+                            options: {
+                                options: [
+                                    {key: 1, label: 'One'},
+                                    {key: 2, label: 'Two'},
+                                    {key: 3, label: 'Three'},
+                                    {key: 4, label: 'Four'},
+                                    {key: 5, label: 'Five'},
+                                ],
+                                placeholder: 'Rating',
+                            },
                             label: 'User Rating (0-10)',
                         },
                     ],
@@ -380,7 +391,7 @@ export const emptyBigUserProfileExample: UndefinedDeepPrimitives<BigUserProfile>
     lastName: undefined,
     age: undefined,
     email: undefined,
-    bio: undefined,
+    bio: null,
     birthDate: undefined, 
     maritalStatus: undefined,
 

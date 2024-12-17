@@ -10,14 +10,14 @@ import { MultilineStringField, StringField } from './components/StringField';
 import { SwitchField } from './components/SwitchField';
 import { REACT_CONTAINER_WRAPPER_CONFIG } from './containers/wrappers/wrapperConfig';
 import { REACT_LAYOUT_CONFIG } from './containers/layouts/layoutConfig';
-import { StringSelectField } from './components/SelectField';
+import { IntSelectField, StringSelectField } from './components/SelectField';
 
 
 
 export const REACT_COMPONENT_MAP = {
     'Edm.Boolean': {'switch' : SwitchField, 'checkbox': CheckboxField},
     'Edm.String': {'single-line-text-field': StringField, 'multi-line-text-field': MultilineStringField, 'select': StringSelectField},
-    'Edm.Int32': {'int-text-box': Int32Field},
+    'Edm.Int32': {'int-text-box': Int32Field, 'int-select': IntSelectField},
     'Edm.Double': { 'double-text-box': DoubleField},
     'Edm.Decimal': {'decimal-text-box': DecimalField},
     'Edm.Guid': {'guid': GuidField},
