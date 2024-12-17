@@ -3,7 +3,7 @@ import type { Meta } from '@storybook/react';
 import { baseArgs, buildStory } from './storyUtils';
 
 const meta: Meta = {
-    title: 'Fields/SwitchField',
+    title: 'Fields/CheckboxField',
     argTypes: { ...baseArgs, value: { control: 'boolean' } },
 };
 

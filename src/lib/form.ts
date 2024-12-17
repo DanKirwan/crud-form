@@ -35,7 +35,7 @@ export type FormPrimitive<
                     {
                         key: ObjK, 
                         component: ComponentK, 
-                        options?: Parameters<MappingT[K][ComponentK]['edit']>['1'] 
+                        options: Parameters<MappingT[K][ComponentK]['edit']>['1'] 
                     } : 
                 never
                 
@@ -73,13 +73,12 @@ type BaseFieldTypeConfig<T, NullT extends boolean> = {
     isNullable: NullT
 }
 
-export type FieldTypeConfig<T> = null extends T ? BaseFieldTypeConfig<T, true> : BaseFieldTypeConfig<T, false>;
+export type FieldTypeConfig<T> = BaseFieldTypeConfig<T, null extends T ? true : false> 
 
-export type ObjectTypeConfig<T> = {[ObjK in keyof T]: 
-    IsRecord<T[ObjK]> extends true
-        ? ObjectTypeConfig<T[ObjK]>
-        :  FieldTypeConfig<T[ObjK]>
-};
+export type ObjectTypeConfig<T> = 
+    IsRecord<T> extends true
+        ? {[ObjK in keyof T]: ObjectTypeConfig<T[ObjK]>}
+        :  FieldTypeConfig<T>
 
 // This controls the logic of an item in terms of whether it's visible
 export type ObjectControlConfig<T, ValidatorFn = undefined> =  {[ObjK in keyof T]:

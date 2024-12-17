@@ -25,9 +25,8 @@ export type PrimitiveDeepKeys<T> = DeepKeys<T> extends infer K
 
 
     
-
 export type IsRecord<T> = T extends object
-    ? T extends Date | Uint8Array // Add other non-record types here
+    ? T extends Date | Uint8Array | File // Add other non-record types here
         ? false
         : true
     : false;

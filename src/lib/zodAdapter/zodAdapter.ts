@@ -7,6 +7,7 @@ import type { PartialDeep } from 'type-fest';
 import { ObjectMappings, OdataTypeToValue } from '../domain';
 import { FieldTypeConfig, ObjectTypeConfig } from '../form';
 import { IsRecord, PrimitiveDeepKeys } from '../typeUtils';
+import { objectEntries } from '../objectUtils';
 
 
 
@@ -52,7 +53,7 @@ const requiredOptions = {message: requiredMessage, invalid_type_error: requiredM
 // TODO make these slightly more safe e.g. checking bounds on numbers
 const zodDataTypeMap: ZodDataTypeMap = {
     'Edm.Boolean': z.boolean(requiredOptions),
-    'Edm.Byte': z.number(requiredOptions),
+    'Edm.Byte': z.number(requiredOptions).max(256),
     'Edm.Decimal': z.number(requiredOptions),
     'Edm.DateTimeOffset': z.date(requiredOptions),
     'Edm.Double': z.number(requiredOptions),
@@ -66,9 +67,13 @@ const zodDataTypeMap: ZodDataTypeMap = {
 
 type ZodDeep<T> = {[K in keyof T]: IsRecord<T[K]> extends true ? ZodObject<ZodDeep<T[K]>> : ZodType<T[K]>};
 
+
+const isFieldTypeConfig = <T>(typeConfig: ObjectTypeConfig<T>): typeConfig is FieldTypeConfig<unknown> => {
+    return ('type' in typeConfig && typeof typeConfig.type === 'string');
+}
 // TODO write more tests for this
-export const buildTypeConfigValidator = <T extends object>(typeConfig: ObjectTypeConfig<T>): z.ZodObject<ZodDeep<T>> => {
-    const children = Object.entries(typeConfig).map(([key, child]) => {
+export const buildTypeConfigValidator = <T extends object>(typeConfig: ObjectTypeConfig<T>): z.ZodType<T> => {
+    const children = objectEntries(typeConfig).map(([key, child]) => {
 
         if(child === null || child === void 0) throw new Error('Invalid object configuration - no configuration can be null or undefined');
         if(typeof child !== 'object') throw new Error('Invalid object configuration - field configurations must be objects');
@@ -78,13 +83,14 @@ export const buildTypeConfigValidator = <T extends object>(typeConfig: ObjectTyp
             const config = child as FieldTypeConfig<T[keyof T]>;
 
             const baseZod = zodDataTypeMap[config.type];
-            return [key,  config.isNullable ? baseZod.nullable() : baseZod]
+            return [key,  config.isNullable ? baseZod.nullable() : baseZod] as const;
         }
 
-        return [key, buildTypeConfigValidator(child)];
+        return [key, buildTypeConfigValidator(child)] as const;
     });
 
-    return z.object<ZodDeep<T>>(Object.fromEntries(children));
+    const obj = Object.fromEntries(children) as ZodDeep<T>;
+    return z.object(obj);
 
 
 }

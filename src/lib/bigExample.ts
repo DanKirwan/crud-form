@@ -67,7 +67,7 @@ export type BigUserProfile = {
 const dateInPast = z.date().refine(d =>  d.getTime() < Date.now(), 'Date must be in the past.' );
 // const nonEmptyString = (message: string) => z.string({invalid_type_error: message, message}).min(1, message);
 
-const bigUserProfileSchema = z.strictObject({
+const bigUserProfileSchema = z.object({
     // Basic Information
     // firstName: nonEmptyString('First name is required'),
     // lastName: nonEmptyString('Last name is required'),
@@ -400,7 +400,8 @@ export const emptyBigUserProfileExample: UndefinedDeepPrimitives<BigUserProfile>
     registeredAt: new Date('2020-01-01'),
     lastLogin: new Date('2020-01-02'),
 
-    newsletter: false,
+    // undefined doesn't make much sense in the case of booleans - needs to be true if required
+    newsletter: undefined,
     notifications: false,
     // preferredContactMethods: ['email'],
 
