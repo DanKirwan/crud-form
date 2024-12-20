@@ -4,7 +4,7 @@ import {
     Paper,
     Stack,
 } from '@mui/material';
-import { ReactFormExtendedApi, Validator } from '@tanstack/react-form';
+import { Field, ReactFormExtendedApi, Validator } from '@tanstack/react-form';
 import { ReactNode } from 'react';
 import { renderForm } from '../lib/display';
 import { RenderConfig } from '../lib/domain';
@@ -26,6 +26,7 @@ export const EditForm = <T, TObjectConfig extends ObjectTypeConfig<T>, TRenderCo
     form,
     renderConfig,
     validator = undefined,
+    arrayFieldManager,
 }: Props<T, TObjectConfig, TRenderConfig, TFormValidator>) => {
 
 
@@ -78,6 +79,12 @@ export const EditForm = <T, TObjectConfig extends ObjectTypeConfig<T>, TRenderCo
             <value.Field name={key} validators={validators}>
                 {(field) => render(field)}
             </value.Field>),
+
+        (key, render) => (
+            <value.Field name={key} mode='array'>
+                {(field) => field.state.value.map((_, i) => (<))}
+            </value.Field>
+        )
         validator,
     );
 };

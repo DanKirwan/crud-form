@@ -15,7 +15,7 @@ export type BigUserProfile = {
     // Basic Information
     firstName: string | null;
     lastName: string;
-    age: number;
+    age: number | null;
     email: string;
     bio: string | null;
     birthDate: Date;
@@ -47,13 +47,13 @@ export type BigUserProfile = {
     // }>;
 
     // // Addresses
-    // addresses: Array<{
-    //     line1: string;
-    //     line2?: string;
-    //     city: string;
-    //     state: string;
-    //     zip: string;
-    // }>;
+    addresses: {
+        line1: string;
+        line2: string | null;
+        city: string;
+        state: string;
+        zip: string;
+    }[];
 
     // // Skills
     // skills: string[];
@@ -103,14 +103,14 @@ const bigUserProfileSchema = z.object({
     //     reasonForLeaving: z.string().optional(),
     // })).max(5, 'You can list at most 5 previous employers'),
 
-    // // Addresses
-    // addresses: z.array(z.strictObject({
-    //     line1: nonEmptyString('Address line 1 is required'),
-    //     line2: z.string().optional(),
-    //     city: nonEmptyString('City is required'),
-    //     state: z.string().length(2, 'State must be 2 letters'),
-    //     zip: z.string().regex(/^\d{5}(-\d{4})?$/, 'Invalid ZIP code format'),
-    // })).min(1, 'At least one address is required').max(3, 'No more than 3 addresses allowed'),
+    // Addresses
+    addresses: z.array(z.strictObject({
+        line1: z.string(),//nonEmptyString('Address line 1 is required'),
+        line2: z.string().nullable(),
+        city: z.string(), //nonEmptyString('City is required'),
+        state: z.string().length(2, 'State must be 2 letters'),
+        zip: z.string().regex(/^\d{5}(-\d{4})?$/, 'Invalid ZIP code format'),
+    })).min(1, 'At least one address is required').max(3, 'No more than 3 addresses allowed'),
 
     // Skills
     // skills: z.array(z.string().nonempty()).min(1, 'Please list at least one skill'),
@@ -125,7 +125,7 @@ const bigUserProfileSchema = z.object({
 export const bigUserProfileTypeConfig = {
     firstName: {type: 'Edm.String', isNullable: true},
     lastName: {type: 'Edm.String', isNullable: false},
-    age: {type: 'Edm.Int32', isNullable: false},
+    age: {type: 'Edm.Int32', isNullable: true},
     email: {type: 'Edm.String', isNullable: false},
     bio: {type: 'Edm.String', isNullable: true},
     birthDate: {type: 'Edm.DateTimeOffset', isNullable: false},
@@ -147,13 +147,15 @@ export const bigUserProfileTypeConfig = {
     //     endDate: {type: 'Edm.DateTimeOffset', isNullable: false},
     //     reasonForLeaving: {type: 'Edm.String', isNullable: false},
     // }],
-    // addresses: [{
-    //     line1: {type: 'Edm.String', isNullable: false},
-    //     line2: {type: 'Edm.String', isNullable: false},
-    //     city: {type: 'Edm.String', isNullable: false},
-    //     state: {type: 'Edm.String', isNullable: false},
-    //     zip: {type: 'Edm.String', isNullable: false},
-    // }],
+    addresses: { 
+        isRelation: true, 
+        config:{
+            line1: {type: 'Edm.String', isNullable: false},
+            line2: {type: 'Edm.String', isNullable: true},
+            city: {type: 'Edm.String', isNullable: false},
+            state: {type: 'Edm.String', isNullable: false},
+            zip: {type: 'Edm.String', isNullable: false},
+        }},
     // skills: [{type: 'Edm.String', isNullable: false}],
     acceptedTOS: {type: 'Edm.Boolean', isNullable: false},
 } as const satisfies ObjectTypeConfig<BigUserProfile>;
@@ -258,18 +260,19 @@ export const bigUserProfileForm: FormItems<
                     layout: 'col',
                     label: 'Addresses',
                     items: [
-                        // {
-                        //     key: 'addresses',
-                        //     component: 'dynamic-array',
-                        //     label: 'Addresses',
-                        //     itemFields: [
-                        //         { key: 'line1', component: 'text-box', label: 'Line 1' },
-                        //         { key: 'line2', component: 'text-box', label: 'Line 2' },
-                        //         { key: 'city', component: 'text-box', label: 'City' },
-                        //         { key: 'state', component: 'text-box', label: 'State (2-letter)' },
-                        //         { key: 'zip', component: 'text-box', label: 'ZIP Code' },
-                        //     ],
-                        // },
+                        {
+                            
+                            
+                            key: 'addresses',
+                            subForm: {
+                                items: [
+                                    'line1',
+                                    'city',
+                                    'line2',
+                                    'state', 'zip',
+                                ],
+                            },
+                        },
                     ],
                 },
             ],
@@ -411,14 +414,15 @@ export const emptyBigUserProfileExample: UndefinedDeepPrimitives<BigUserProfile>
     },
 
     // // previousEmployers: [],
-    // addresses: [
-    //     {
-    //         line1: '',
-    //         city: '',
-    //         state: '',
-    //         zip: '',
-    //     },
-    // ],
+    addresses: [
+        {
+            line1: undefined,
+            line2: null,
+            city: '',
+            state: '',
+            zip: '',
+        },
+    ],
 
     // skills: [],
 

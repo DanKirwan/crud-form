@@ -7,14 +7,21 @@ import { camelToDisplay } from './stringUtils';
 import { get } from 'lodash-es';
 
 import { DeepKeys, DeepValue, FieldApi, FieldMeta, FieldValidators, FormApi, Validator } from '@tanstack/form-core';
-import { PrimitiveDeepKeys, UndefinedDeepPrimitives } from './typeUtils';
+import { PrimitiveDeepKeys, UndefinedDeepPrimitives, UnnestedArrayItemKey, UnnestedArrayKeys } from './typeUtils';
 import { FormValidator as CrudFormValidator } from './validation/validationTypes';
 
 type FieldRenderer<T, RenderT, TFormValidator extends Validator<T, unknown> | undefined> = <K extends PrimitiveDeepKeys<T>>(
     key: K,
-    validators: FieldValidators<UndefinedDeepPrimitives<T>, K, undefined, TFormValidator>,
-    render: (api: FieldApi<UndefinedDeepPrimitives<T>, K, undefined, TFormValidator>) => RenderT
+    validators: FieldValidators<T, K, undefined, TFormValidator>,
+    render: (api: FieldApi<T, K, undefined, TFormValidator>) => RenderT
 ) => RenderT;
+
+type ArrayRenderer<T, RenderT, TFormValidator extends Validator<UndefinedDeepPrimitives<T>, unknown> | undefined> = <K extends UnnestedArrayKeys<UndefinedDeepPrimitives<T>>>(
+    key: K,
+    render: (api: FieldApi<UndefinedDeepPrimitives<T>, UnnestedArrayItemKey<UndefinedDeepPrimitives<T>, K>, undefined, TFormValidator>) => RenderT
+) => RenderT;
+
+
 
 
 type ContainerSubscriber<T, RenderT> = <K extends PrimitiveDeepKeys<T>,> (
@@ -22,17 +29,23 @@ type ContainerSubscriber<T, RenderT> = <K extends PrimitiveDeepKeys<T>,> (
     render: ((metadata: FieldMeta[]) => RenderT),
 ) => RenderT;
 
-export const renderForm = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderConfigT extends RenderConfig<RenderT>, TFormValidator extends  Validator<T, unknown> | undefined = undefined>(
+export const renderForm = <
+    T, RenderT, 
+    ConfigT extends ObjectTypeConfig<T>, 
+    RenderConfigT extends RenderConfig<RenderT>, 
+    TFormValidator extends  Validator<UndefinedDeepPrimitives<T>, unknown> | undefined = undefined
+>(
     form: FormItems<T, RenderT, ConfigT, RenderConfigT>,
-    formInstance: FormApi<UndefinedDeepPrimitives<T>, TFormValidator>,
+    formInstance: FormApi<T, TFormValidator>,
     renderConfig: RenderConfigT,
     objectConfig: ObjectTypeConfig<T>,
     renderForm: (contents: RenderT) => RenderT,
     containerSubscriber: ContainerSubscriber<T, RenderT>,
     renderField: FieldRenderer<T, RenderT, TFormValidator>,
+    renderArray: ArrayRenderer<T, RenderT, TFormValidator>,
     validator: CrudFormValidator<T, TFormValidator> | undefined,
 ): RenderT => renderForm(
-        renderFormItem(form, formInstance, renderConfig, objectConfig, containerSubscriber, renderField, validator).render)
+        renderFormItem(form, formInstance, renderConfig, objectConfig, containerSubscriber, renderField, renderArray, validator).render)
 
 
 
@@ -45,13 +58,19 @@ type RenderNode<T, RenderT> = {
 // TODO make sure the validator can be undefined deep primitives and work some type magic below to fix the errors
 // then confirm it works and write some tests to make sure its working in the general case 
 
-const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderConfigT extends RenderConfig<RenderT>, TFormValidator extends  Validator<T, unknown> | undefined = undefined>(
+const renderFormItem = <
+    T, RenderT, 
+    ConfigT extends ObjectTypeConfig<T>, 
+    RenderConfigT extends RenderConfig<RenderT>, 
+    TFormValidator extends  Validator<T, unknown> | undefined = undefined
+>(
     item: FormItem<T, RenderT, ConfigT, RenderConfigT>,
-    formInstance: FormApi<UndefinedDeepPrimitives<T>, TFormValidator>,
+    formInstance: FormApi<T, TFormValidator>,
     renderConfig: RenderConfigT,
     objectConfig: ObjectTypeConfig<T>,
     containerSubscriber: ContainerSubscriber<T, RenderT>,
     renderField: FieldRenderer<T, RenderT, TFormValidator>,
+    renderArray: ArrayRenderer<T, RenderT, TFormValidator>,
     validator: CrudFormValidator<T, TFormValidator> | undefined,
 ): RenderNode<T, RenderT> => {
 
@@ -143,6 +162,26 @@ const renderFormItem = <T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderC
             }));
 
         return {render, meta: [propertyKey]};
+    }
+
+    if('subForm' in item) {
+        // This is an array selector
+
+        const {key, subForm } = item;
+
+        renderField(key, {}, (key) => )
+        type CrudFormField = {
+            isLoading: true,
+            page: number,
+            pageSize: number,
+            nextPage: () => void,
+            prevPage: () => void,
+            pushValue: () => void
+        }
+        
+        renderArrayField(crudFormField => {
+            crudFormField.
+        })
     }
 
     if ('items' in item) {
