@@ -1,13 +1,13 @@
 import { DeepValue, Validator } from '@tanstack/form-core';
-import { z, ZodObject, ZodType } from 'zod';
+import { z, ZodArray, ZodBoolean, ZodObject, ZodTuple, ZodType, ZodTypeAny } from 'zod';
 import { FormValidator } from '../validation/validationTypes';
 
 import { get } from 'lodash-es';
 import type { PartialDeep } from 'type-fest';
 import { ObjectMappings, OdataTypeToValue } from '../domain';
-import { FieldTypeConfig, ObjectTypeConfig } from '../form';
+import { ArrayTypeConfig, FieldTypeConfig, ObjectTypeConfig } from '../form';
 import { objectEntries } from '../objectUtils';
-import { IsRecord, PrimitiveDeepKeys } from '../typeUtils';
+import { AllPrimitiveDeepKeys, IsArray, IsRecord, PrimitiveDeepKeys } from '../typeUtils';
 
 
 
@@ -16,12 +16,12 @@ import { IsRecord, PrimitiveDeepKeys } from '../typeUtils';
 export type ZodFormValidator<T> = z.ZodType<T>;
 export type PartialZodFormValidator<T> = z.ZodType<PartialDeep<T>>;
 
-export const buildZodValidator = <T extends object>(typeConfig: ObjectTypeConfig<T>, additionalSchema?: z.ZodObject<ZodDeep<PartialDeep<T>>>): FormValidator<T, Validator<unknown, ZodType>> => {
+export const buildZodValidator = <T extends object>(typeConfig: ObjectTypeConfig<T>, additionalSchema?: ZodDeep<PartialDeep<T>>): FormValidator<T, Validator<unknown, ZodType>> => {
     
 
 
     // TODO figure out why this needs to be cast to unknown first
-    const baseZodTypeSchema = buildTypeConfigValidator(typeConfig);
+    const baseZodTypeSchema = buildTypeConfigValidator<T>(typeConfig);
     
     return {
         formValidator: additionalSchema ? baseZodTypeSchema.pipe(additionalSchema) : baseZodTypeSchema,
@@ -29,14 +29,12 @@ export const buildZodValidator = <T extends object>(typeConfig: ObjectTypeConfig
             const baseValidator = accessZodField(baseZodTypeSchema, key);
             if(!baseValidator) throw new Error('failed to create a base validator');
             if(!additionalSchema) return baseValidator;
-            const additionalValidator = accessZodField(additionalSchema!, key);
+            const additionalValidator = accessZodField<T>(additionalSchema!, key);
             if(!additionalValidator) return baseValidator;
             return additionalValidator.pipe(baseValidator);
         },
         isFieldRequired: key => {
-            const config = get(typeConfig, key) as FieldTypeConfig<DeepValue<T, typeof key>>;
-            if(!config.isNullable || !additionalSchema) return true;
-            return !(accessZodField(additionalSchema, key)?.isOptional() ?? true)
+            return !(accessZodField<T>(baseZodTypeSchema, key)?.isNullable());
         },
     }
 }
@@ -65,21 +63,29 @@ const zodDataTypeMap = {
 } satisfies ZodDataTypeMap;
 
 
-type ZodDeep<T> = {[K in keyof T]: IsRecord<T[K]> extends true ? ZodObject<ZodDeep<T[K]>> : ZodType<T[K]>};
+type ZodDeep<T> = IsRecord<T> extends true ? ZodObject<{[K in keyof T]: ZodDeep<T[K]>}> : T extends unknown[] ? ZodArray<ZodDeep<T[number]>> : T extends boolean ? ZodBoolean :  ZodType<T>;
 
 
-const isFieldTypeConfig = <T>(typeConfig: ObjectTypeConfig<T> | FieldTypeConfig<T> | {}): typeConfig is FieldTypeConfig<T> => {
+const isFieldTypeConfig = <T>(typeConfig: ObjectTypeConfig<T> | FieldTypeConfig<T>): typeConfig is FieldTypeConfig<T> => {
     return ('type' in typeConfig && typeof typeConfig.type === 'string');
 }
 
+const isArrayTypeConfig = <T>(typeConfig: ObjectTypeConfig<T> | ArrayTypeConfig<T>): typeConfig is ArrayTypeConfig<T> => {
+    return ('config' in typeConfig && typeof typeConfig.config === 'object');
+}
 
-type DeepRecord<T> = {[K in keyof T]:  IsRecord<T> extends true ? DeepRecord<T[K]> : T[K]}
+const isEmptyObject = (typeConfig: object | {}): typeConfig is {} => {
+    return Object.values(typeConfig).length == 0;
+}
+
 // TODO write more tests for this
-export const buildTypeConfigValidator = <T>(typeConfig: ObjectTypeConfig<DeepRecord<T>>): z.ZodObject<ZodDeep<DeepRecord<T>>> => {
+export const buildTypeConfigValidator = <T>(typeConfig: ObjectTypeConfig<T>): ZodDeep<T> => {
     const children = objectEntries(typeConfig).map(([key, child]) => {
 
         if(child === null || child === void 0) throw new Error('Invalid object configuration - no configuration can be null or undefined');
         if(typeof child !== 'object') throw new Error('Invalid object configuration - field configurations must be objects');
+
+        if(isEmptyObject(child)) throw new Error('Cannot process empty child');
 
         if(isFieldTypeConfig(child)) {
             // this is a base type config 
@@ -89,30 +95,92 @@ export const buildTypeConfigValidator = <T>(typeConfig: ObjectTypeConfig<DeepRec
             return [key,  config.isNullable ? baseZod.nullable() : baseZod] as const;
         }
 
+        if(isArrayTypeConfig(child)) {
+            const arrayConf = child as ArrayTypeConfig<T[keyof T]>;
+
+            return [key, z.array(buildTypeConfigValidator(arrayConf.config))] as const;   
+        }
+
         return [key, buildTypeConfigValidator(child)] as const;
     });
 
 
-    const obj: ZodDeep<DeepRecord<T>> = Object.fromEntries(children);
-    return z.strictObject(obj);
+    const obj = Object.fromEntries(children);
+    return z.strictObject(obj) as ZodDeep<T>;
 }
 
-export const accessZodField = <T>(schema: z.ZodObject<ZodDeep<T>>, path: PrimitiveDeepKeys<T>) => {
-    const keys = (path as string).split('.');
-    return deepAccessZodField(schema, keys);
-}
 
-const deepAccessZodField = <T>(schema:  z.ZodObject<ZodDeep<T>>,  keys: string[]) => {
-            
-    const [key, ...rest] = keys;
-    if(key === void 0) throw new Error('Cannot index schema without a key');
 
-    const childSchema = schema.shape[key as keyof T];
-
-    if(!(childSchema instanceof ZodObject)) {
-        if(keys.length > 1) throw new Error('Could not find relevant key');
-        return childSchema;
+function parsePath(path: string): string[] {
+    // Split by '.' first
+    const parts = path.split('.');
+  
+    const segments: string[] = [];
+    for (const part of parts) {
+        // For each part, we may have bracket indices like "a[2]" or "c[3]"
+        // Use a regex to capture sequences of characters and indices
+        // This pattern matches sequences of non-bracket chars followed by zero or more [\d+] groups
+        const regex = /([^[\]]+)(?:\[(\d+)\])?/g;
+        let match: RegExpExecArray | null;
+        let remainder = part;
+  
+        while ((match = regex.exec(remainder)) !== null) {
+            const [fullMatch, key, index] = match;
+            if (key) segments.push(key);
+            if (index !== undefined) segments.push(index);
+        }
     }
-
-    return deepAccessZodField(childSchema, rest);
+  
+    return segments;
 }
+  
+
+export function accessZodField<T>(schema: ZodDeep<T> | ZodDeep<PartialDeep<T>>, path: AllPrimitiveDeepKeys<T>) {
+    const segments = parsePath(`${path}`);
+    let current: ZodTypeAny = schema;
+  
+    for (const segment of segments) {
+        const isIndex = /^\d+$/.test(segment);
+  
+        if (current instanceof ZodObject) {
+        // Current is an object
+            if (isIndex) {
+                throw new Error(`Encountered numeric segment "${segment}" on an object field at path "${path}".`);
+            }
+            const shape = current.shape;
+            const nextField = shape[segment];
+            if (!nextField) {
+                console.warn(`No field "${segment}" found in object schema at path "${path}".`);
+                return undefined;
+            }
+            current = nextField;
+  
+        } else if (current instanceof ZodArray) {
+        // Current is an array
+            if (!isIndex) {
+                throw new Error(`Encountered non-numeric segment "${segment}" on an array field at path "${path}".`);
+            }
+            // Arrays share the same schema for all elements
+            current = current.element;
+  
+        } else if (current instanceof ZodTuple) {
+        // Current is a tuple
+            if (!isIndex) {
+                throw new Error(`Encountered non-numeric segment "${segment}" on a tuple field at path "${path}".`);
+            }
+            const index = Number(segment);
+            const items = current.items;
+            if (index < 0 || index >= items.length) {
+                throw new Error(`Index "${segment}" out of range for tuple schema at path "${path}".`);
+            }
+            current = items[index];
+  
+        } else {
+        // Not an object/array/tuple, can't go deeper
+            throw new Error(`Cannot access "${segment}" on a non-object/non-array/non-tuple field at path "${path}".`);
+        }
+    }
+  
+    return current;
+}
+ 

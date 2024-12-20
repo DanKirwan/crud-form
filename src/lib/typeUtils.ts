@@ -1,4 +1,5 @@
 import { DeepKeys, DeepValue } from '@tanstack/form-core';
+import { T } from 'vitest/dist/chunks/environment.LoooBwUu.js';
 
 
 
@@ -36,6 +37,11 @@ type InternalPrimitiveDeepKeys<T, TDepth extends any[] > = {[K in keyof T]:
         : never
 }[keyof T];
 
+
+export type AllPrimitiveDeepKeys<T> = {[K in DeepKeys<T>]: IsPrimitive<DeepValue<T, K>> extends true ? K : never}[DeepKeys<T>];
+
+
+
 export type UnnestedArrayKeys<T> = InternalUnestedArrayKeys<T, []> & DeepKeys<T>;
 // Returns all keys where they are not children of other arrays
 type InternalUnestedArrayKeys<T, TDepth extends any[]> = {[K in keyof T]: 
@@ -50,10 +56,14 @@ export type UnnestedArrayItemKey<T, K extends UnnestedArrayKeys<T>> =
     DeepValue<T, K> extends unknown[] ? `${K}[${number}]` extends DeepKeys<T> ? `${K}[${number}]`: never : never;
 
 
+export type IsPrimitive<T> = IsArray<T> extends false 
+    ? IsRecord<T> extends false 
+        ? true
+        : false
+    : false;
+
 export type IsArray<T> = T extends unknown[] ? true : false;
 
-
-    
 export type IsRecord<T> = T extends object 
     ? T extends any[] 
         ? false 

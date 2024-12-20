@@ -84,7 +84,7 @@ export type FieldTypeConfig<T> = BaseFieldTypeConfig<T,  null extends T ? true :
 
 // TODO figure out what fields we need here
 export type ArrayTypeConfig<T> = null extends T 
-    ? {error: 'Array types cannot be nullable'} 
+    ? never
     : { 
         config: ObjectTypeConfig<T>,
         isRelation: boolean; // determines if this needs to be loaded externally

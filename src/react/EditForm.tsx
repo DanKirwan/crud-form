@@ -26,7 +26,6 @@ export const EditForm = <T, TObjectConfig extends ObjectTypeConfig<T>, TRenderCo
     form,
     renderConfig,
     validator = undefined,
-    arrayFieldManager,
 }: Props<T, TObjectConfig, TRenderConfig, TFormValidator>) => {
 
 
@@ -82,9 +81,9 @@ export const EditForm = <T, TObjectConfig extends ObjectTypeConfig<T>, TRenderCo
 
         (key, render) => (
             <value.Field name={key} mode='array'>
-                {(field) => field.state.value.map((_, i) => (<))}
+                {(field) => field.state.value.map((_, i) => render(i))}
             </value.Field>
-        )
+        ),
         validator,
     );
 };

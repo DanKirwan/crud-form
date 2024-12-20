@@ -1,6 +1,6 @@
 import { ObjectTypeConfig } from '@src/lib/form';
 import { accessZodField, buildTypeConfigValidator, PartialZodFormValidator } from '@src/lib/zodAdapter/zodAdapter';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, test } from 'vitest';
 import { z } from 'zod';
 
 
@@ -9,7 +9,8 @@ type SimpleNested = {
     l2: {
         a: number | null,
         b: boolean
-    }
+    },
+    list: {x: string}[]
 };
 
 describe('basic object fetching', () => {
@@ -58,11 +59,15 @@ describe('base type config validator building', () => {
             isNullable: false,
             type: 'Edm.String',
         },
+        list: { isRelation: false, config: {
+            x: {
+                isNullable: false,
+                type: 'Edm.String',
+            },
+        }},
     }
 
     const generatedSchema = buildTypeConfigValidator<SimpleNested>(typeConfig);
-
-
 
     it('correctly parses valid inputs', () => {
         const validSimpleNested: SimpleNested = {
@@ -71,6 +76,7 @@ describe('base type config validator building', () => {
                 b: true,
             },
             test: 'test',
+            list: [],
         }
 
         expect(generatedSchema.parse(validSimpleNested)).toMatchObject(validSimpleNested)
@@ -83,8 +89,70 @@ describe('base type config validator building', () => {
                 a: 2,
                 b: true,
             },
+            list: [
+                {
+                    x: 'test',
+                },
+            ],
         }
 
         expect(() => generatedSchema.parse(validSimpleNested)).toThrow();
     })
 });
+
+
+describe('accessZodField', () => {
+    // Create a complex schema for testing
+    const schema = z.object({
+        user: z.object({
+            name: z.string(),
+            age: z.number(),
+            tags: z.array(z.string()),
+            address: z.object({
+                street: z.string(),
+            }),
+        }),
+        items: z.array(
+            z.object({
+                id: z.number(),
+                values: z.array(z.boolean()),
+            }),
+        ),
+        matrix: z.array(z.number()),
+    });
+  
+    type SchemaT = z.infer<typeof schema>;
+
+    test('accesses a nested object field', () => {
+        const validator = accessZodField<SchemaT>(schema, 'user.address.street');
+        expect(validator).toBeInstanceOf(z.ZodString);
+    });
+  
+    test('accesses a nested array field', () => {
+        const validator = accessZodField<SchemaT>(schema, 'user.tags[2]');
+        // 'tags' is an array of strings
+        expect(validator).toBeInstanceOf(z.ZodString);
+    });
+  
+    test('accesses an array element field using bracket notation', () => {
+        const validator = accessZodField<SchemaT>(schema, 'items[0].id');
+        expect(validator).toBeInstanceOf(z.ZodNumber);
+    });
+  
+    test('accesses a doubly nested array element using bracket notation', () => {
+        const validator = accessZodField<SchemaT>(schema, 'matrix[2]');
+        expect(validator).toBeInstanceOf(z.ZodNumber);
+    });
+  
+  
+    test('throws if accessing a non-object field as if it were an object', () => {
+        // 'user.name' is a string, not an object or array
+        expect(() => accessZodField(schema, 'user.name.something' as unknown as any)).toThrow();
+    });
+  
+    test('throws if accessing an array with a non-numeric key', () => {
+        expect(() => accessZodField(schema, 'user.tags.notanumber' as unknown as any)).toThrow();
+    });
+  
+});
+

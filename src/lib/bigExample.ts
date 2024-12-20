@@ -161,6 +161,8 @@ export const bigUserProfileTypeConfig = {
 } as const satisfies ObjectTypeConfig<BigUserProfile>;
 
 
+
+
 export type BigUserProfileTypeConfig = typeof bigUserProfileTypeConfig
 // TODO skills needs to handle lists better
 
@@ -415,6 +417,13 @@ export const emptyBigUserProfileExample: UndefinedDeepPrimitives<BigUserProfile>
 
     // // previousEmployers: [],
     addresses: [
+        {
+            line1: undefined,
+            line2: null,
+            city: '',
+            state: '',
+            zip: '',
+        },
         {
             line1: undefined,
             line2: null,
