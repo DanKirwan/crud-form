@@ -3,30 +3,31 @@ import { ContainerLayoutConfig, ContainerWrapperConfig } from './containers';
 import { NonEmptyObject } from 'type-fest';
 
 
+// TODO add support for things like longs
 export type ObjectTypes =
-    'Edm.Double' |
-    'Edm.Single' |
-    'Edm.Int32' |
-    'Edm.Byte' |
-    'Edm.Decimal' |
-    'Edm.Guid' |
-    'Edm.Boolean' |
-    'Edm.DateTimeOffset' |
-    'Edm.String';
+    'Double' |
+    'Single' |
+    'Int32' |
+    'Byte' |
+    'Decimal' |
+    'Guid' |
+    'Boolean' |
+    'DateTimeOffset' |
+    'String';
 
 type ObjectMapping<X extends ObjectTypes, T> = { key: X, value: T }
 
 
 export type ObjectMappings =
-    ObjectMapping<'Edm.Double', number> |
-    ObjectMapping<'Edm.Single', number> |
-    ObjectMapping<'Edm.Int32', number> |
-    ObjectMapping<'Edm.Byte', number> |
-    ObjectMapping<'Edm.Decimal', number> |
-    ObjectMapping<'Edm.Guid', string> |
-    ObjectMapping<'Edm.Boolean', boolean> |
-    ObjectMapping<'Edm.String', string> |
-    ObjectMapping<'Edm.DateTimeOffset', Date> ;
+    ObjectMapping<'Double', number> |
+    ObjectMapping<'Single', number> |
+    ObjectMapping<'Int32', number> |
+    ObjectMapping<'Byte', number> |
+    ObjectMapping<'Decimal', number> |
+    ObjectMapping<'Guid', string> |
+    ObjectMapping<'Boolean', boolean> |
+    ObjectMapping<'String', string> |
+    ObjectMapping<'DateTimeOffset', Date> ;
 
 
 export type OdataTypeToValue<K extends ObjectMappings['key']> =

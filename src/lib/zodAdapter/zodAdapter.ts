@@ -51,15 +51,15 @@ const requiredOptions = {message: requiredMessage, invalid_type_error: requiredM
 
 // TODO make these slightly more safe e.g. checking bounds on numbers
 const zodDataTypeMap = {
-    'Edm.Boolean': z.boolean(requiredOptions),
-    'Edm.Byte': z.number(requiredOptions).max(256),
-    'Edm.Decimal': z.number(requiredOptions),
-    'Edm.DateTimeOffset': z.date(requiredOptions),
-    'Edm.Double': z.number(requiredOptions),
-    'Edm.Guid': z.string(requiredOptions),
-    'Edm.Int32': z.number(requiredOptions).int(requiredMessage),
-    'Edm.Single': z.number(requiredOptions),
-    'Edm.String': z.string(requiredOptions).min(1, requiredMessage),
+    'Boolean': z.boolean(requiredOptions),
+    'Byte': z.number(requiredOptions).max(256),
+    'Decimal': z.number(requiredOptions),
+    'DateTimeOffset': z.date(requiredOptions),
+    'Double': z.number(requiredOptions),
+    'Guid': z.string(requiredOptions),
+    'Int32': z.number(requiredOptions).int(requiredMessage),
+    'Single': z.number(requiredOptions),
+    'String': z.string(requiredOptions).min(1, requiredMessage),
 } satisfies ZodDataTypeMap;
 
 

@@ -48,11 +48,11 @@ const buildStringField = (rows: number) => ({
 
 export const StringField = {
     ...buildStringField(1),
-    type: 'Edm.String',
-} as const satisfies SingleComponentType<JSX.Element, 'Edm.String'>;
+    type: 'String',
+} as const satisfies SingleComponentType<JSX.Element, 'String'>;
 
 
 export const MultilineStringField = {
     ...buildStringField(4),
-    type: 'Edm.String',
-} as const satisfies SingleComponentType<JSX.Element, 'Edm.String'>;
+    type: 'String',
+} as const satisfies SingleComponentType<JSX.Element, 'String'>;

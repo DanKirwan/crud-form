@@ -2,7 +2,7 @@
 import { CircularProgress, FormControlLabel, FormHelperText, Switch } from '@mui/material';
 import { FieldDisplayOptions, FieldEditOptions, SingleComponentType } from '../../lib/domain';
 export const SwitchField = {
-    type: 'Edm.Boolean',
+    type: 'Boolean',
     display: ({ state, label }: FieldDisplayOptions<boolean | null>) => (
         <FormControlLabel
         
@@ -38,4 +38,4 @@ export const SwitchField = {
             )}
         </div>
     ),
-} as const satisfies SingleComponentType<JSX.Element, 'Edm.Boolean'>;
+} as const satisfies SingleComponentType<JSX.Element, 'Boolean'>;

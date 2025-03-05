@@ -4,7 +4,7 @@ import { FieldDisplayOptions, FieldEditOptions, SingleComponentType } from '../.
 import { extractRelevantError } from '@src/lib/errorUtils';
 
 export const GuidField = {
-    type: 'Edm.Guid',
+    type: 'Guid',
     display: ({ state, label }: FieldDisplayOptions<string | null>) => (
         <TextField
             label={label}
@@ -41,4 +41,4 @@ export const GuidField = {
             }}
         />
     ),
-} as const satisfies SingleComponentType<JSX.Element, 'Edm.Guid'>;
+} as const satisfies SingleComponentType<JSX.Element, 'Guid'>;

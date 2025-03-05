@@ -1,7 +1,4 @@
 import { DeepKeys, DeepValue } from '@tanstack/form-core';
-import { T } from 'vitest/dist/chunks/environment.LoooBwUu.js';
-
-
 
 export type NullableDeepPrimitives<T> = AdjustedPrimitivesDeep<T, null>;
 export type UndefinedDeepPrimitives<T> = AdjustedPrimitivesDeep<T, undefined>;

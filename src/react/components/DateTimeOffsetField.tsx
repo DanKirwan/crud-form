@@ -11,7 +11,7 @@ import { extractRelevantError } from '@src/lib/errorUtils';
 // TODO add to centralized documentation that making sure blur handling is working is very important for showing correct error messages 
 
 export const DateTimeOffsetField = {
-    type: 'Edm.DateTimeOffset',
+    type: 'DateTimeOffset',
     display: ({ state, label }: FieldDisplayOptions<Date | null>) => (
         <TextField
             label={label}
@@ -71,4 +71,4 @@ export const DateTimeOffsetField = {
             />
         </LocalizationProvider>
     ),
-} as const satisfies SingleComponentType<JSX.Element, 'Edm.DateTimeOffset'>;
+} as const satisfies SingleComponentType<JSX.Element, 'DateTimeOffset'>;

@@ -48,21 +48,21 @@ describe('base type config validator building', () => {
         l2: {
             a: {
                 isNullable: true,
-                type: 'Edm.Int32',
+                type: 'Int32',
             },
             b: {
                 isNullable: false,
-                type: 'Edm.Boolean',
+                type: 'Boolean',
             },
         },
         test: {
             isNullable: false,
-            type: 'Edm.String',
+            type: 'String',
         },
         list: { isRelation: false, config: {
             x: {
                 isNullable: false,
-                type: 'Edm.String',
+                type: 'String',
             },
         }},
     }

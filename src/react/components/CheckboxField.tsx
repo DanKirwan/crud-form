@@ -3,7 +3,7 @@ import { Checkbox, CircularProgress, FormControlLabel, FormHelperText } from '@m
 import { FieldDisplayOptions, FieldEditOptions, SingleComponentType } from '../../lib/domain';
 
 export const CheckboxField = {
-    type: 'Edm.Boolean',
+    type: 'Boolean',
     display: ({ state, label }: FieldDisplayOptions<boolean | null>) => (
         <FormControlLabel
             control={<Checkbox checked={!!state.value} disabled color="primary" />}
@@ -38,4 +38,4 @@ export const CheckboxField = {
             )}
         </div>
     ),
-} as const satisfies SingleComponentType<JSX.Element, 'Edm.Boolean'>;
+} as const satisfies SingleComponentType<JSX.Element, 'Boolean'>;

@@ -3,7 +3,7 @@ import { CircularProgress, InputAdornment, TextField } from '@mui/material';
 import { FieldDisplayOptions, FieldEditOptions, SingleComponentType } from '../../lib/domain';
 import { extractRelevantError } from '@src/lib/errorUtils';
 
-const floatingFieldParts: Pick<SingleComponentType<JSX.Element, 'Edm.Double'>, 'edit' | 'display'> = {
+const floatingFieldParts: Pick<SingleComponentType<JSX.Element, 'Double'>, 'edit' | 'display'> = {
     display: ({ state, label }: FieldDisplayOptions<number | null>) => (
         <TextField
             label={label}
@@ -51,15 +51,15 @@ const floatingFieldParts: Pick<SingleComponentType<JSX.Element, 'Edm.Double'>, '
 
 export const FloatField = {
     ...floatingFieldParts,
-    type: 'Edm.Single',
-} as const satisfies SingleComponentType<JSX.Element, 'Edm.Single'>;
+    type: 'Single',
+} as const satisfies SingleComponentType<JSX.Element, 'Single'>;
 
 export const DoubleField = {
     ...floatingFieldParts,
-    type: 'Edm.Double',
-} as const satisfies SingleComponentType<JSX.Element, 'Edm.Double'>;
+    type: 'Double',
+} as const satisfies SingleComponentType<JSX.Element, 'Double'>;
 
 export const DecimalField = {
     ...floatingFieldParts,
-    type: 'Edm.Decimal',
-} as const satisfies SingleComponentType<JSX.Element, 'Edm.Decimal'>;
+    type: 'Decimal',
+} as const satisfies SingleComponentType<JSX.Element, 'Decimal'>;

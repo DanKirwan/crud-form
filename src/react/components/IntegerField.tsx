@@ -6,7 +6,7 @@ import { extractRelevantError } from '@src/lib/errorUtils';
 
 // TODO do the parsing ater blur so it isn't irritating to type in
 
-const integerField: Pick<SingleComponentType<JSX.Element, 'Edm.Int32'>, 'display' | 'edit'> = {
+const integerField: Pick<SingleComponentType<JSX.Element, 'Int32'>, 'display' | 'edit'> = {
 
     display: ({ state, label }: FieldDisplayOptions<number | null>) => (
         <TextField
@@ -56,10 +56,10 @@ const integerField: Pick<SingleComponentType<JSX.Element, 'Edm.Int32'>, 'display
 
 export const Int32Field = {
     ...integerField,
-    type: 'Edm.Int32',
-} as const satisfies SingleComponentType<JSX.Element, 'Edm.Int32'>;
+    type: 'Int32',
+} as const satisfies SingleComponentType<JSX.Element, 'Int32'>;
 
 export const ByteField = {
     ...integerField,
-    type: 'Edm.Byte',
-} as const satisfies SingleComponentType<JSX.Element, 'Edm.Byte'>;
+    type: 'Byte',
+} as const satisfies SingleComponentType<JSX.Element, 'Byte'>;

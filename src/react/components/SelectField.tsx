@@ -81,13 +81,13 @@ const buildSelectField = <T extends string | number>() => ({
 
 export const StringSelectField = {
     ...buildSelectField(),
-    type: 'Edm.String',
-} as const satisfies SingleComponentType<JSX.Element, 'Edm.String'>;
+    type: 'String',
+} as const satisfies SingleComponentType<JSX.Element, 'String'>;
 
 
 // TODO this needs some work in display - develop storybook to show it
 
 export const IntSelectField = {
     ...buildSelectField(),
-    type: 'Edm.Int32',
-} as const satisfies SingleComponentType<JSX.Element, 'Edm.Int32'>;
+    type: 'Int32',
+} as const satisfies SingleComponentType<JSX.Element, 'Int32'>;

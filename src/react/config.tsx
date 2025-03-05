@@ -15,16 +15,16 @@ import { IntSelectField, StringSelectField } from './components/SelectField';
 
 
 export const REACT_COMPONENT_MAP = {
-    'Edm.Boolean': {'switch' : SwitchField, 'checkbox': CheckboxField},
-    'Edm.String': {'single-line-text-field': StringField, 'multi-line-text-field': MultilineStringField, 'select': StringSelectField},
-    'Edm.Int32': {'int-text-box': Int32Field, 'int-select': IntSelectField},
-    'Edm.Double': { 'double-text-box': DoubleField},
-    'Edm.Decimal': {'decimal-text-box': DecimalField},
-    'Edm.Guid': {'guid': GuidField},
-    'Edm.DateTimeOffset': {'datetime': DateTimeOffsetField},
+    'Boolean': {'switch' : SwitchField, 'checkbox': CheckboxField},
+    'String': {'single-line-text-field': StringField, 'multi-line-text-field': MultilineStringField, 'select': StringSelectField},
+    'Int32': {'int-text-box': Int32Field, 'int-select': IntSelectField},
+    'Double': { 'double-text-box': DoubleField},
+    'Decimal': {'decimal-text-box': DecimalField},
+    'Guid': {'guid': GuidField},
+    'DateTimeOffset': {'datetime': DateTimeOffsetField},
     // Reusing components for similar types
-    'Edm.Single': {'float-text-box': FloatField},
-    'Edm.Byte': {'byte-text-box': ByteField},
+    'Single': {'float-text-box': FloatField},
+    'Byte': {'byte-text-box': ByteField},
 
 } as const satisfies RenderComponentMap<ReactNode>;
 
