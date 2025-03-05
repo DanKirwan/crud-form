@@ -1,19 +1,22 @@
 import {
     Box,
     Button,
+    IconButton,
+    List,
+    ListItem,
     Paper,
     Stack,
 } from '@mui/material';
-import { Field, ReactFormExtendedApi, Validator } from '@tanstack/react-form';
+import { FormValidator } from '@src/lib/validation/validationTypes';
+import { ReactFormExtendedApi, Validator } from '@tanstack/react-form';
 import { ReactNode } from 'react';
 import { renderForm } from '../lib/display';
 import { RenderConfig } from '../lib/domain';
 import { FormItems, ObjectTypeConfig } from '../lib/form';
-import { FormValidator } from '@src/lib/validation/validationTypes';
-import { UndefinedDeepPrimitives } from '@src/lib/typeUtils';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 type Props<T, TObjectConfig extends ObjectTypeConfig<T>, TRenderConfig extends RenderConfig<ReactNode>, TFormValidator extends Validator<T, unknown> | undefined = undefined> = {
-    value: ReactFormExtendedApi<UndefinedDeepPrimitives<T>, TFormValidator>;
+    value: ReactFormExtendedApi<T, TFormValidator>;
     config: TObjectConfig;
     form: FormItems<T, ReactNode, TObjectConfig, TRenderConfig>;
     renderConfig: TRenderConfig,
@@ -50,17 +53,15 @@ export const EditForm = <T, TObjectConfig extends ObjectTypeConfig<T>, TRenderCo
 
                             
                                 <Box mt={3} mb={1} textAlign="right">
-                                    {/* TODO Fix this to have a nice loading button */}
-                                    {isValidating ? 'Loading' : 
                                         <Button
                                             disabled={!canSubmit}
+                                            loading={isValidating}
                                             variant="contained"
                                             color="primary"
-                                        // onClick={() => onSubmit && onSubmit(value)}
+                                            onClick={() => value.handleSubmit && value.handleSubmit()}
                                         >
-                                Submit
+                                            Submit
                                         </Button>
-                                    }
                                 </Box>
                             )}
                         />
@@ -81,7 +82,26 @@ export const EditForm = <T, TObjectConfig extends ObjectTypeConfig<T>, TRenderCo
 
         (key, render) => (
             <value.Field name={key} mode='array'>
-                {(field) => field.state.value.map((_, i) => render(i))}
+                {(field) => 
+                    <List>
+                        {field.state.value.map((_,i) => (
+                            <ListItem 
+                            secondaryAction={
+                                    <IconButton onClick={() => field.removeValue(i)}>
+                                        <DeleteIcon/>
+                                    </IconButton>
+                            }
+                            >
+                              {render(i)}
+                            </ListItem>
+                        ))}
+                        <ListItem>
+                             <Button onClick={() => field.pushValue(null)} variant='contained'>
+                                Add
+                             </Button>
+                        </ListItem>
+                    </List>
+                    }
             </value.Field>
         ),
         validator,

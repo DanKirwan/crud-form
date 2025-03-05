@@ -1,13 +1,12 @@
-import { DeepValue, Validator } from '@tanstack/form-core';
+import { Validator } from '@tanstack/form-core';
 import { z, ZodArray, ZodBoolean, ZodObject, ZodTuple, ZodType, ZodTypeAny } from 'zod';
 import { FormValidator } from '../validation/validationTypes';
 
-import { get } from 'lodash-es';
 import type { PartialDeep } from 'type-fest';
 import { ObjectMappings, OdataTypeToValue } from '../domain';
 import { ArrayTypeConfig, FieldTypeConfig, ObjectTypeConfig } from '../form';
 import { objectEntries } from '../objectUtils';
-import { AllPrimitiveDeepKeys, IsArray, IsRecord, PrimitiveDeepKeys } from '../typeUtils';
+import { AllPrimitiveDeepKeys, IsRecord} from '../typeUtils';
 
 
 
@@ -16,25 +15,26 @@ import { AllPrimitiveDeepKeys, IsArray, IsRecord, PrimitiveDeepKeys } from '../t
 export type ZodFormValidator<T> = z.ZodType<T>;
 export type PartialZodFormValidator<T> = z.ZodType<PartialDeep<T>>;
 
-export const buildZodValidator = <T extends object>(typeConfig: ObjectTypeConfig<T>, additionalSchema?: ZodDeep<PartialDeep<T>>): FormValidator<T, Validator<unknown, ZodType>> => {
+export const buildZodValidator = <T extends object>(typeConfig: ObjectTypeConfig<T>, additionalSchema?: PartialZodFormValidator<T>): FormValidator<T, Validator<unknown, ZodType>> => {
     
 
 
-    // TODO figure out why this needs to be cast to unknown first
     const baseZodTypeSchema = buildTypeConfigValidator<T>(typeConfig);
     
+    // TODO typing here should work they match? 
+
     return {
         formValidator: additionalSchema ? baseZodTypeSchema.pipe(additionalSchema) : baseZodTypeSchema,
         getFieldValidator: key => {
             const baseValidator = accessZodField(baseZodTypeSchema, key);
             if(!baseValidator) throw new Error('failed to create a base validator');
             if(!additionalSchema) return baseValidator;
-            const additionalValidator = accessZodField<T>(additionalSchema!, key);
+            const additionalValidator = accessZodField(additionalSchema!, key);
             if(!additionalValidator) return baseValidator;
             return additionalValidator.pipe(baseValidator);
         },
         isFieldRequired: key => {
-            return !(accessZodField<T>(baseZodTypeSchema, key)?.isNullable());
+            return !(accessZodField(baseZodTypeSchema, key)?.isNullable());
         },
     }
 }
@@ -135,7 +135,7 @@ function parsePath(path: string): string[] {
 }
   
 
-export function accessZodField<T>(schema: ZodDeep<T> | ZodDeep<PartialDeep<T>>, path: AllPrimitiveDeepKeys<T>) {
+export function accessZodField<T>(schema: PartialZodFormValidator<T> | ZodDeep<T>, path: AllPrimitiveDeepKeys<T>) {
     const segments = parsePath(`${path}`);
     let current: ZodTypeAny = schema;
   

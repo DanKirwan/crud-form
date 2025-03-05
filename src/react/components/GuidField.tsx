@@ -5,7 +5,7 @@ import { extractRelevantError } from '@src/lib/errorUtils';
 
 export const GuidField = {
     type: 'Guid',
-    display: ({ state, label }: FieldDisplayOptions<string | null>) => (
+    display: ({ state, label }: FieldDisplayOptions<string> | FieldDisplayOptions<string | null>) => (
         <TextField
             label={label}
             value={state.value || ''}
@@ -14,7 +14,7 @@ export const GuidField = {
             fullWidth
         />
     ),
-    edit: ({ state, handleBlur, handleChange, name, label, required }: FieldEditOptions<string | null>) => (
+    edit: ({ state, handleBlur, handleChange, name, label, required }: FieldEditOptions<string> | FieldEditOptions<string | null>) => (
         <TextField
             required={required}
             label={label}

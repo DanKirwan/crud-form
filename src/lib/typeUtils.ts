@@ -8,16 +8,30 @@ type PrefixFromDepth<T extends string | number, TDepth extends any[]> = TDepth['
 
 // We don't want to nullify direct children of lists because it is disallowed in this libray 
 
-export type AdjustedPrimitivesDeep<T, AdjT,  IsListChild extends boolean = false> = {[ObjK in keyof T]: 
-    IsRecord<T[ObjK]> extends true
-        ? AdjustedPrimitivesDeep<T[ObjK], AdjT>
-        : IsArray<T[ObjK]> extends true
-            ? AdjustedPrimitivesDeep<T[ObjK], AdjT, true>
-            : IsListChild extends true ? T[ObjK] : T[ObjK] | AdjT
-};
+export type AdjustedPrimitivesDeep<
+  T,
+  AdjT,
+  IsListChild extends boolean = false
+> =
+  // If T is an array, return an array of the adjusted element type.
+  T extends any[]
+    ? Array<AdjustedPrimitivesDeep<T[number], AdjT, true>>
+    : IsRecord<T> extends true
+      ? (
+          // Preserve required keys exactly
+          { [K in RequiredKeys<T>]: AdjustedPrimitivesDeep<T[K], AdjT, false> } &
+          // Preserve optional keys
+          { [K in OptionalKeys<T>]?: AdjustedPrimitivesDeep<T[K], AdjT, false> }
+        )
+      // If T is a primitive:
+      : IsListChild extends true ? T : T | AdjT;
 
-
-
+type OptionalKeys<T> = {
+    [K in keyof T]-?: {} extends Pick<T, K> ? K : never
+  }[keyof T];
+  
+  type RequiredKeys<T> = Exclude<keyof T, OptionalKeys<T>>;
+  
 
 
 /** Extracts all primitive values of fields that are not inside arrays */

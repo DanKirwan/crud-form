@@ -73,7 +73,7 @@ const bigUserProfileSchema = z.object({
     // lastName: nonEmptyString('Last name is required'),
     age: z.number({ message: 'Age is required' }).min(1, 'Age should be greater than 0'),
     email: z.string({ invalid_type_error: 'Email is required' })
-        .email('Must be a valid email').optional(),
+        .email('Must be a valid email'),
     // bio: z.string(), // bio can be empty
     birthDate: dateInPast,
     maritalStatus: z.enum(['single', 'married', 'divorced', 'widowed']),
@@ -110,7 +110,9 @@ const bigUserProfileSchema = z.object({
         city: z.string(), //nonEmptyString('City is required'),
         state: z.string().length(2, 'State must be 2 letters'),
         zip: z.string().regex(/^\d{5}(-\d{4})?$/, 'Invalid ZIP code format'),
-    })).min(1, 'At least one address is required').max(3, 'No more than 3 addresses allowed'),
+    }))
+        .min(1, 'At least one address is required')
+        .max(3, 'No more than 3 addresses allowed'),
 
     // Skills
     // skills: z.array(z.string().nonempty()).min(1, 'Please list at least one skill'),
@@ -222,7 +224,9 @@ export const bigUserProfileForm: FormItems<
                     key: 'maritalStatus',
                     component: 'select',
                     label: 'Marital Status',
-                    options: { placeholder: 'Status', options: 
+                    options: { 
+                        placeholder: 'Status', 
+                        options: 
                         [
                             {key: 'single', label: 'Single'},
                             {key: 'married', label: 'Married'},
@@ -263,7 +267,6 @@ export const bigUserProfileForm: FormItems<
                     label: 'Addresses',
                     items: [
                         {
-                            
                             
                             key: 'addresses',
                             subForm: {
@@ -402,7 +405,7 @@ export const emptyBigUserProfileExample: UndefinedDeepPrimitives<BigUserProfile>
 
     isActive: false,
     rating: 0,
-    registeredAt: new Date('2020-01-01'),
+    registeredAt: undefined,
     lastLogin: new Date('2020-01-02'),
 
     // undefined doesn't make much sense in the case of booleans - needs to be true if required
@@ -425,8 +428,69 @@ export const emptyBigUserProfileExample: UndefinedDeepPrimitives<BigUserProfile>
             zip: '',
         },
         {
-            line1: undefined,
+            line1: '',
             line2: null,
+            city: '',
+            state: '',
+            zip: '',
+        },
+    ],
+
+    // skills: [],
+
+    acceptedTOS: false,
+};
+
+// Example usage (uncomment if needed):
+// try {
+//     const validated = userProfileSchema.parse(emptyUserProfileExample);
+//     console.log('Validated user profile:', validated);
+// } catch (err) {
+//     console.error('Validation errors:', err);
+// }
+
+
+
+// ---------------------------------------
+// DEFAULT VALUES
+// ---------------------------------------
+// If you want a value to be optional - you need to set it as null not undefined
+export const bigUserProfileExample: BigUserProfile = {
+    firstName: null,
+    lastName: '',
+    age: 25,
+    email: '',
+    bio: null,
+    birthDate: new Date("2000-01-01"), 
+    maritalStatus: '',
+
+    isActive: false,
+    rating: 0,
+    registeredAt: new Date('2020-01-02'),
+    lastLogin: new Date('2020-01-02'),
+
+    // undefined doesn't make much sense in the case of booleans - needs to be true if required
+    newsletter: false,
+    notifications: false,
+    // preferredContactMethods: ['email'],
+
+    location: {
+        lat: 0,
+        long: 0,
+    },
+
+    // // previousEmployers: [],
+    addresses: [
+        {
+            line1: '',
+            line2: null,
+            city: '',
+            state: '',
+            zip: '',
+        },
+        {
+            line1: '',
+            line2: '',
             city: '',
             state: '',
             zip: '',

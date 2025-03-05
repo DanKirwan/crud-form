@@ -7,7 +7,7 @@ import { camelToDisplay } from './stringUtils';
 import { get } from 'lodash-es';
 
 import { DeepKeys, DeepValue, FieldApi, FieldMeta, FieldValidators, FormApi, Validator } from '@tanstack/form-core';
-import { AllPrimitiveDeepKeys, PrimitiveDeepKeys, UndefinedDeepPrimitives, UnnestedArrayItemKey, UnnestedArrayKeys } from './typeUtils';
+import { AllPrimitiveDeepKeys, PrimitiveDeepKeys, UnnestedArrayKeys } from './typeUtils';
 import { FormValidator as CrudFormValidator } from './validation/validationTypes';
 
 type FieldRenderer<T, RenderT, TFormValidator extends Validator<T, unknown> | undefined> = <K extends AllPrimitiveDeepKeys<T>>(
@@ -16,7 +16,9 @@ type FieldRenderer<T, RenderT, TFormValidator extends Validator<T, unknown> | un
     render: (api: FieldApi<T, K, undefined, TFormValidator>) => RenderT
 ) => RenderT;
 
-type ArrayRenderer<T, RenderT, TFormValidator extends Validator<UndefinedDeepPrimitives<T>, unknown> | undefined> = <K extends DeepKeys<T>>(
+
+
+type ArrayRenderer<T, RenderT, TFormValidator extends Validator<T, unknown> | undefined> = <K extends DeepKeys<T>>(
     key: K,
     render: (index: number) => RenderT
 ) => RenderT;
@@ -29,11 +31,13 @@ type ContainerSubscriber<T, RenderT> = <K extends PrimitiveDeepKeys<T>,> (
     render: ((metadata: FieldMeta[]) => RenderT),
 ) => RenderT;
 
+
 export const renderForm = <
-    T, RenderT, 
+    T,
+    RenderT, 
     ConfigT extends ObjectTypeConfig<T>, 
     RenderConfigT extends RenderConfig<RenderT>, 
-    TFormValidator extends  Validator<UndefinedDeepPrimitives<T>, unknown> | undefined = undefined
+    TFormValidator extends  Validator<T, unknown> | undefined = undefined
 >(
         form: FormItems<T, RenderT, ConfigT, RenderConfigT>,
         formInstance: FormApi<T, TFormValidator>,
@@ -43,7 +47,7 @@ export const renderForm = <
         containerSubscriber: ContainerSubscriber<T, RenderT>,
         renderField: FieldRenderer<T, RenderT, TFormValidator>,
         renderArray: ArrayRenderer<T, RenderT, TFormValidator>,
-        validator: CrudFormValidator<T, TFormValidator> | undefined,
+        validator: CrudFormValidator<T, TFormValidator> | undefined ,
     ): RenderT => renderForm(
         renderFormItem(form, formInstance, renderConfig, objectConfig, containerSubscriber, renderField, renderArray, validator, undefined).render)
 
@@ -93,8 +97,11 @@ const convertPath = (path: string | number): string => {
     return `${path}`.replace(/\[\d+\]/, '.config');
 }
 
+
+
 const renderFormItem = <
-    TFormData, RenderT, 
+    TFormData,
+    RenderT, 
     ConfigT extends ObjectTypeConfig<TChildData>, 
     RenderConfigT extends RenderConfig<RenderT>, 
     TFormValidator extends  Validator<TFormData, unknown> | undefined = undefined,
@@ -122,6 +129,7 @@ const renderFormItem = <
         const componentDef = Object.values(renderConfig.fieldComponents[typeInfo.type])[0];
         const def = componentDef as SingleComponentType<RenderT, any>;
 
+        // TODO make typeinfo.type better typed
         const render: RenderT = renderField(
             propertyKey,
             {
@@ -218,11 +226,12 @@ const renderFormItem = <
         const subformConfig = get(objectConfig, childKey) as ArrayTypeConfig<SubformDataT>;
 
 
-        const render = renderArray(propertyKey, (index) => renderFormItem<TFormData, RenderT, ObjectTypeConfig<SubformDataT>, RenderConfigT, TFormValidator, any, SubformDataT>(
-            subForm as any, formInstance, renderConfig, 
-            subformConfig.config, 
-            containerSubscriber, renderField, renderArray,
-            validator, `${propertyKey}[${index}]`).render);
+        const render = renderArray(propertyKey, 
+            (index) => renderFormItem<TFormData, RenderT, ObjectTypeConfig<SubformDataT>, RenderConfigT, TFormValidator, any, SubformDataT>(
+                subForm as any , formInstance, renderConfig, 
+                subformConfig.config, 
+                containerSubscriber, renderField, renderArray,
+                validator, `${propertyKey}[${index}]`).render);
 
         return {render, meta: []}
 

@@ -1,4 +1,4 @@
-import { AdjustedPrimitivesDeep, NullableDeepPrimitives, PrimitiveDeepKeys, UnnestedArrayItemKey, UnnestedArrayKeys } from '@src/lib/typeUtils';
+import { AdjustedPrimitivesDeep, NullableDeepPrimitives, PrimitiveDeepKeys, UnnestedArrayKeys } from '@src/lib/typeUtils';
 import { describe, it } from 'vitest';
 import type { TypeMatchGuard } from './testTypeUtils';
 import { assertTypeEqual } from './testTypeUtils';
@@ -148,6 +148,7 @@ describe('adjusted primitives', () => {
 
 
 })
+// TODO
 
 describe('deep primitive keys', () => {
     type PrimitiveTypeGuard<T> = TypeMatchGuard<PrimitiveDeepKeys<T>, PrimitiveDeepKeys<NullableDeepPrimitives<T>>>;
@@ -169,6 +170,7 @@ describe('deep primitive keys', () => {
   
 })
 
+// TODO
 describe('array keys', () => {
     type PrimitiveTypeGuard<T> = TypeMatchGuard<UnnestedArrayKeys<T>, UnnestedArrayKeys<NullableDeepPrimitives<T>>>;
     it('works regardless of if wrapped in null', () => {
@@ -186,7 +188,6 @@ describe('array keys', () => {
     it('works with lists if wrapped in null', () => {
         type Lists = {a: {b: string | null}[]};
 
-        type U = UnnestedArrayItemKey<Lists, 'a'>
         assertTypeEqual<PrimitiveTypeGuard<Lists>>();
     })
 

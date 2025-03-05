@@ -123,6 +123,7 @@ export type ArrayConfigValue<
 
 
 
+    // Currently unused
 // This controls the logic of an item in terms of whether it's visible
 export type ObjectControlConfig<T, ValidatorFn = undefined> =  {[ObjK in keyof T]:
     IsRecord<T[ObjK]> extends true

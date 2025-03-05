@@ -1,4 +1,4 @@
-import { BigUserProfile, bigUserProfileForm, bigUserProfileSchema, bigUserProfileTypeConfig, emptyBigUserProfileExample } from '@src/lib/bigExample';
+import { BigUserProfile, bigUserProfileExample, bigUserProfileForm, bigUserProfileSchema, bigUserProfileTypeConfig, emptyBigUserProfileExample } from '@src/lib/bigExample';
 import { buildZodValidator } from '@src/lib/zodAdapter/zodAdapter';
 import { useForm } from '@tanstack/react-form';
 import { zodValidator } from '@tanstack/zod-form-adapter';
@@ -11,7 +11,7 @@ function UserProfileForm() {
     const zodSchema = buildZodValidator<BigUserProfile>(bigUserProfileTypeConfig, bigUserProfileSchema);
 
     const form = useForm({
-        defaultValues: emptyBigUserProfileExample, 
+        defaultValues: bigUserProfileExample, 
         defaultState: {
             canSubmit: false,
         },

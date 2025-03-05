@@ -22,7 +22,6 @@ export const REACT_COMPONENT_MAP = {
     'Decimal': {'decimal-text-box': DecimalField},
     'Guid': {'guid': GuidField},
     'DateTimeOffset': {'datetime': DateTimeOffsetField},
-    // Reusing components for similar types
     'Single': {'float-text-box': FloatField},
     'Byte': {'byte-text-box': ByteField},
 
