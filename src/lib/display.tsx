@@ -20,6 +20,7 @@ type FieldRenderer<T, RenderT, TFormValidator extends Validator<T, unknown> | un
 
 type ArrayRenderer<T, RenderT, TFormValidator extends Validator<T, unknown> | undefined> = <K extends DeepKeys<T>>(
     key: K,
+    validators: FieldValidators<T, K, undefined, TFormValidator>,
     render: (index: number) => RenderT
 ) => RenderT;
 
@@ -219,31 +220,28 @@ const renderFormItem = <
         // This is an array selector
 
         const {key: childKey, subForm } = item;
+        // Typing magic here needs sorting
         const propertyKey = joinArrayPaths(prefix, childKey) as unknown as DeepKeys<TFormData>;
-
-
         type SubformDataT = DeepValue<TChildData, typeof propertyKey>;
         const subformConfig = get(objectConfig, childKey) as ArrayTypeConfig<SubformDataT>;
+        const subFormT = subForm as unknown as FormItems<SubformDataT, RenderT, ObjectTypeConfig<SubformDataT>, RenderConfigT>;
 
-
-        const render = renderArray(propertyKey, 
+        const render = renderArray(
+            propertyKey, 
+            {
+                onMount: validator?.getFieldValidator(propertyKey as any) ?? undefined,
+                onChange: validator?.getFieldValidator(propertyKey as any) ?? undefined,
+                onBlur: validator?.getFieldValidator(propertyKey as any) ?? undefined,
+            },
             (index) => renderFormItem<TFormData, RenderT, ObjectTypeConfig<SubformDataT>, RenderConfigT, TFormValidator, any, SubformDataT>(
-                subForm as any , formInstance, renderConfig, 
+                subFormT, formInstance, renderConfig, 
                 subformConfig.config, 
                 containerSubscriber, renderField, renderArray,
                 validator, `${propertyKey}[${index}]`).render);
 
-        return {render, meta: []}
-
-        type CrudFormField = {
-            isLoading: true,
-            page: number,
-            pageSize: number,
-            nextPage: () => void,
-            prevPage: () => void,
-            pushValue: () => void
-        }
-       
+        // At some point we need to extract the child meta's here too
+        return {render, meta: [propertyKey]}
+      
     }
 
 

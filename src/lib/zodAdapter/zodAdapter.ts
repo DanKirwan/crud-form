@@ -125,7 +125,7 @@ function parsePath(path: string): string[] {
         let remainder = part;
   
         while ((match = regex.exec(remainder)) !== null) {
-            const [fullMatch, key, index] = match;
+            const [, key, index] = match;
             if (key) segments.push(key);
             if (index !== undefined) segments.push(index);
         }

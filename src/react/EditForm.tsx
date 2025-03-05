@@ -80,8 +80,8 @@ export const EditForm = <T, TObjectConfig extends ObjectTypeConfig<T>, TRenderCo
                 {(field) => render(field)}
             </value.Field>),
 
-        (key, render) => (
-            <value.Field name={key} mode='array'>
+        (key, validators, render) => (
+            <value.Field name={key} mode='array' validators={validators}>
                 {(field) => 
                     <List>
                         {field.state.value.map((_,i) => (
