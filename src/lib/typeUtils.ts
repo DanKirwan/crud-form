@@ -84,3 +84,9 @@ export type IsRecord<T> = T extends object
     : false;
 
 export  type NonEmptyList<T> = [T, ...T[]];
+
+
+export type IsExactlyUndefined<T> =
+    [T] extends [undefined]
+    ? ([undefined] extends [T] ? true : false)
+    : false;

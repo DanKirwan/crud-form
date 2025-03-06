@@ -1,6 +1,7 @@
 import { FieldApi, Validator } from '@tanstack/form-core';
 import { ContainerLayoutConfig, ContainerWrapperConfig } from './containers';
 import { NonEmptyObject } from 'type-fest';
+import { ArrayContainerConfig } from './arrays';
 
 
 // TODO add support for things like longs
@@ -48,8 +49,6 @@ export type SingleComponentType<RenderT, K extends ObjectMappings['key'], TOptio
 };
 
 
-
-
 export type ComponentMap<RenderT> = {
     [K in ObjectMappings['key']]: NonEmptyObject<Record<string, SingleComponentType<RenderT, K>>>
 }
@@ -72,5 +71,6 @@ export type RenderConfig<RenderT> = {
     fieldComponents: ComponentMap<RenderT>;
     layouts: ContainerLayoutConfig<RenderT>;
     containers: ContainerWrapperConfig<RenderT>;
+    arrayContainers: ArrayContainerConfig<RenderT>;
 }
 

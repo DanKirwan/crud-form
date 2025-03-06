@@ -4,11 +4,12 @@ import { FieldEditOptions, ObjectMappings, OdataTypeToValue, RenderConfig, Singl
 import { ArrayTypeConfig, FieldTypeConfig, FormItem, FormItems, ObjectTypeConfig } from './form';
 import { camelToDisplay } from './stringUtils';
 
-import { get } from 'lodash-es';
+import { first, get } from 'lodash-es';
 
 import { DeepKeys, DeepValue, FieldApi, FieldMeta, FieldValidators, FormApi, Validator } from '@tanstack/form-core';
 import { AllPrimitiveDeepKeys, PrimitiveDeepKeys, UnnestedArrayKeys } from './typeUtils';
 import { FormValidator as CrudFormValidator } from './validation/validationTypes';
+import { ArrayEditOptions } from './arrays';
 
 type FieldRenderer<T, RenderT, TFormValidator extends Validator<T, unknown> | undefined> = <K extends AllPrimitiveDeepKeys<T>>(
     key: K,
@@ -18,10 +19,12 @@ type FieldRenderer<T, RenderT, TFormValidator extends Validator<T, unknown> | un
 
 
 
+
+// TODO if I replace DeepKeys<T> with some recursive array keys here would it type check nicely?
 type ArrayRenderer<T, RenderT, TFormValidator extends Validator<T, unknown> | undefined> = <K extends DeepKeys<T>>(
     key: K,
     validators: FieldValidators<T, K, undefined, TFormValidator>,
-    render: (index: number) => RenderT
+    renderContainer: (api: FieldApi<T, K, undefined, TFormValidator>) => RenderT
 ) => RenderT;
 
 
@@ -219,13 +222,16 @@ const renderFormItem = <
     if('subForm' in item) {
         // This is an array selector
 
-        const {key: childKey, subForm } = item;
+        const {key: childKey, subForm, type, options } = item;
         // Typing magic here needs sorting
         const propertyKey = joinArrayPaths(prefix, childKey) as unknown as DeepKeys<TFormData>;
         type SubformDataT = DeepValue<TChildData, typeof propertyKey>;
         const subformConfig = get(objectConfig, childKey) as ArrayTypeConfig<SubformDataT>;
         const subFormT = subForm as unknown as FormItems<SubformDataT, RenderT, ObjectTypeConfig<SubformDataT>, RenderConfigT>;
+        const arrayContainers: RenderConfigT['arrayContainers'] = renderConfig.arrayContainers;
+        const arrayContainer = type === undefined ? first(Object.values(arrayContainers)) : arrayContainers[type];
 
+        if(!arrayContainer) throw new Error(`Could not find array container to for type ${String(type)} ensure at least one array container is defined`)
         const render = renderArray(
             propertyKey, 
             {
@@ -233,11 +239,16 @@ const renderFormItem = <
                 onChange: validator?.getFieldValidator(propertyKey as any) ?? undefined,
                 onBlur: validator?.getFieldValidator(propertyKey as any) ?? undefined,
             },
-            (index) => renderFormItem<TFormData, RenderT, ObjectTypeConfig<SubformDataT>, RenderConfigT, TFormValidator, any, SubformDataT>(
-                subFormT, formInstance, renderConfig, 
-                subformConfig.config, 
-                containerSubscriber, renderField, renderArray,
-                validator, `${propertyKey}[${index}]`).render);
+            (field) => arrayContainer.edit({
+                add: () => field.pushValue(null!),
+                content: field.state.value.map((_, index) => renderFormItem<TFormData, RenderT, ObjectTypeConfig<SubformDataT>, RenderConfigT, TFormValidator, any, SubformDataT>(
+                    subFormT, formInstance, renderConfig, 
+                    subformConfig.config, 
+                    containerSubscriber, renderField, renderArray,
+                    validator, `${propertyKey}[${index}]`).render),
+                remove: field.removeValue
+            }, options));
+                
 
         // At some point we need to extract the child meta's here too
         return {render, meta: [propertyKey]}

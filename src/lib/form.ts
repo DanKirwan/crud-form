@@ -1,6 +1,6 @@
 import { DeepKeys, DeepValue, FieldValidators, Validator } from '@tanstack/form-core';
 import { ComponentNames, FieldDisplayOptions, FieldEditOptions, ObjectMappings, RenderConfig } from './domain';
-import { IsRecord, PrimitiveDeepKeys, UnnestedArrayKeys } from './typeUtils';
+import { IsExactlyUndefined, IsRecord, PrimitiveDeepKeys, UnnestedArrayKeys } from './typeUtils';
 
 export type FormDirection = 'row' | 'column';
 
@@ -13,11 +13,19 @@ type CustomRenderFormItem<TParentData, TKey extends PrimitiveDeepKeys<TParentDat
 }
 
 
-type ArraySelector<T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderConfigT extends RenderConfig<RenderT>, TKey extends UnnestedArrayKeys<T>> = {
-    key: TKey,
-    subForm: FormItems<DeepValue<T, `${TKey}[${number}]`>, RenderT, ArrayConfigValue<T, ConfigT, TKey>, RenderConfigT>;
+type ArraySelector<T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderConfigT extends RenderConfig<RenderT>, TKey extends UnnestedArrayKeys<T>> = 
+    {
+        key: TKey,
+        subForm: FormItems<DeepValue<T, `${TKey}[${number}]`>, RenderT, ArrayConfigValue<T, ConfigT, TKey>, RenderConfigT>;
+    } & 
+    {
+    [K in keyof RenderConfigT['arrayContainers']] : IsExactlyUndefined<Parameters<RenderConfigT['arrayContainers'][K]['edit']>[1]> extends true
+        ? {type: K}
+        : {type: K, options: Parameters<RenderConfigT['arrayContainers'][K]['edit']>[1]}
+    }[keyof RenderConfigT['arrayContainers']] 
+    
 
-}
+
 // TODO is there a way to make `${ObjK}.type` more safe?
 export type FormPrimitive<
     T, // The object type

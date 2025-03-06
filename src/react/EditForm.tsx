@@ -80,28 +80,9 @@ export const EditForm = <T, TObjectConfig extends ObjectTypeConfig<T>, TRenderCo
                 {(field) => render(field)}
             </value.Field>),
 
-        (key, validators, render) => (
+        (key, validators, renderContainer) => (
             <value.Field name={key} mode='array' validators={validators}>
-                {(field) => 
-                    <List>
-                        {field.state.value.map((_,i) => (
-                            <ListItem 
-                            secondaryAction={
-                                    <IconButton onClick={() => field.removeValue(i)}>
-                                        <DeleteIcon/>
-                                    </IconButton>
-                            }
-                            >
-                              {render(i)}
-                            </ListItem>
-                        ))}
-                        <ListItem>
-                             <Button onClick={() => field.pushValue(null)} variant='contained'>
-                                Add
-                             </Button>
-                        </ListItem>
-                    </List>
-                    }
+                {(field) => renderContainer(field)}
             </value.Field>
         ),
         validator,

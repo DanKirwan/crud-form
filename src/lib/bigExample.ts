@@ -269,6 +269,8 @@ export const bigUserProfileForm: FormItems<
                         {
                             
                             key: 'addresses',
+                            type: 'customizableList',
+                            options: {color: 'warning', dense: true},
                             subForm: {
                                 items: [
                                     'line1',

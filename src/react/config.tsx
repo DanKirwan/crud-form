@@ -11,6 +11,7 @@ import { SwitchField } from './components/SwitchField';
 import { REACT_CONTAINER_WRAPPER_CONFIG } from './containers/wrappers/wrapperConfig';
 import { REACT_LAYOUT_CONFIG } from './containers/layouts/layoutConfig';
 import { IntSelectField, StringSelectField } from './components/SelectField';
+import { REACT_ARRAY_CONTAINER_CONFIG } from './containers/arrayContainers/arrayConfig';
 
 
 
@@ -32,8 +33,8 @@ export const REACT_RENDER_CONFIG = {
     containers: REACT_CONTAINER_WRAPPER_CONFIG,
     layouts: REACT_LAYOUT_CONFIG,
     fieldComponents: REACT_COMPONENT_MAP,
+    arrayContainers: REACT_ARRAY_CONTAINER_CONFIG,
 } satisfies RenderConfig<ReactNode>;
 
 export type ReactRenderComponentMap = typeof REACT_COMPONENT_MAP;
-
 export type ReactRenderConfig = typeof REACT_RENDER_CONFIG;
