@@ -1,0 +1,180 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+      "title": "ZARP",
+      "version": "1.0"
+    },
+    "paths": {
+
+    },
+    "components": {
+      "schemas": {
+        "CaptureInstanceODataPost": {
+            "required": [
+              "captureTicksSinceStart",
+              "speedInMetersPerSec",
+              "pitchInRadians",
+              "rollInRadians",
+              "headingInRadians",
+              "forwardDirection",
+              "latitudeInDegrees",
+              "longitudeInDegrees",
+              "altitudeInMeters",
+              "metersToNextCaptureInstance",
+              "run",
+              "networkLocationSurvey",
+              "edge",
+              "cumulativeDistance",
+              "majorUnit",
+              "minorUnit",
+              "minorUnitScaled",
+              "projectedMajorUnit",
+              "projectedMinorUnit",
+              "projectedMinorUnitScaled",
+              "coordinates",
+              "captureTime",
+              "measuredElapsedDistance",
+              "runId",
+              "networkLocationSurveyId",
+              "edgeId"
+            ],
+            "type": "object",
+            "properties": {
+              "captureTicksSinceStart": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "speedInMetersPerSec": {
+                "type": "number",
+                "format": "double"
+              },
+              "pitchInRadians": {
+                "type": "number",
+                "format": "double"
+              },
+              "rollInRadians": {
+                "type": "number",
+                "format": "double"
+              },
+              "headingInRadians": {
+                "type": "number",
+                "format": "double"
+              },
+              "forwardDirection": {
+                "type": "boolean",
+                "readOnly": true
+              },
+              "latitudeInDegrees": {
+                "type": "number",
+                "format": "double"
+              },
+              "longitudeInDegrees": {
+                "type": "number",
+                "format": "double"
+              },
+              "altitudeInMeters": {
+                "type": "number",
+                "format": "float",
+                "nullable": true
+              },
+              "metersToNextCaptureInstance": {
+                "type": "number",
+                "format": "double"
+              },
+              "run": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Run"
+                  }
+                ],
+                "nullable": true
+              },
+              "networkLocationSurvey": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/NetworkLocationSurvey"
+                  }
+                ],
+                "nullable": true
+              },
+              "edge": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/GraphEdge"
+                  }
+                ],
+                "nullable": true
+              },
+              "cumulativeDistance": {
+                "type": "number",
+                "format": "double"
+              },
+              "majorUnit": {
+                "type": "number",
+                "format": "double"
+              },
+              "minorUnit": {
+                "type": "number",
+                "format": "double"
+              },
+              "minorUnitScaled": {
+                "type": "number",
+                "format": "double"
+              },
+              "projectedMajorUnit": {
+                "type": "number",
+                "format": "double"
+              },
+              "projectedMinorUnit": {
+                "type": "number",
+                "format": "double"
+              },
+              "projectedMinorUnitScaled": {
+                "type": "number",
+                "format": "double"
+              },
+              "coordinates": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/DoubleDoubleValueTuple"
+                  }
+                ],
+                "readOnly": true
+              },
+              "captureTime": {
+                "type": "string",
+                "format": "date-time",
+                "readOnly": true
+              },
+              "measuredElapsedDistance": {
+                "type": "number",
+                "format": "double"
+              },
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "runId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "networkLocationSurveyId": {
+                "type": "string",
+                "format": "uuid",
+                "nullable": true
+              },
+              "edgeId": {
+                "type": "string",
+                "format": "uuid",
+                "nullable": true
+              },
+              "isDeleted": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false,
+            "description": "Post for CaptureInstance"
+          },
+      }
+    }
+  }
