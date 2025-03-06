@@ -1,11 +1,8 @@
 import {
     Box,
     Button,
-    IconButton,
-    List,
-    ListItem,
     Paper,
-    Stack,
+    Stack
 } from '@mui/material';
 import { FormValidator } from '@src/lib/validation/validationTypes';
 import { ReactFormExtendedApi, Validator } from '@tanstack/react-form';
@@ -13,7 +10,6 @@ import { ReactNode } from 'react';
 import { renderForm } from '../lib/display';
 import { RenderConfig } from '../lib/domain';
 import { FormItems, ObjectTypeConfig } from '../lib/form';
-import DeleteIcon from '@mui/icons-material/Delete';
 
 type Props<T, TObjectConfig extends ObjectTypeConfig<T>, TRenderConfig extends RenderConfig<ReactNode>, TFormValidator extends Validator<T, unknown> | undefined = undefined> = {
     value: ReactFormExtendedApi<T, TFormValidator>;

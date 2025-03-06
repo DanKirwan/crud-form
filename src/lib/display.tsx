@@ -3,13 +3,10 @@
 import { FieldEditOptions, ObjectMappings, OdataTypeToValue, RenderConfig, SingleComponentType } from './domain';
 import { ArrayTypeConfig, FieldTypeConfig, FormItem, FormItems, ObjectTypeConfig } from './form';
 import { camelToDisplay } from './stringUtils';
-
 import { first, get } from 'lodash-es';
-
 import { DeepKeys, DeepValue, FieldApi, FieldMeta, FieldValidators, FormApi, Validator } from '@tanstack/form-core';
 import { AllPrimitiveDeepKeys, PrimitiveDeepKeys, UnnestedArrayKeys } from './typeUtils';
 import { FormValidator as CrudFormValidator } from './validation/validationTypes';
-import { ArrayEditOptions } from './arrays';
 
 type FieldRenderer<T, RenderT, TFormValidator extends Validator<T, unknown> | undefined> = <K extends AllPrimitiveDeepKeys<T>>(
     key: K,
@@ -222,7 +219,7 @@ const renderFormItem = <
     if('subForm' in item) {
         // This is an array selector
 
-        const {key: childKey, subForm, type, options } = item;
+        const {key: childKey, subForm, type } = item;
         // Typing magic here needs sorting
         const propertyKey = joinArrayPaths(prefix, childKey) as unknown as DeepKeys<TFormData>;
         type SubformDataT = DeepValue<TChildData, typeof propertyKey>;
@@ -231,6 +228,8 @@ const renderFormItem = <
         const arrayContainers: RenderConfigT['arrayContainers'] = renderConfig.arrayContainers;
         const arrayContainer = type === undefined ? first(Object.values(arrayContainers)) : arrayContainers[type];
 
+
+        const options = 'options' in item ? item['options'] : undefined;
         if(!arrayContainer) throw new Error(`Could not find array container to for type ${String(type)} ensure at least one array container is defined`)
         const render = renderArray(
             propertyKey, 

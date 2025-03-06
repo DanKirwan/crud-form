@@ -1,4 +1,4 @@
-import { BigUserProfile, bigUserProfileExample, bigUserProfileForm, bigUserProfileSchema, bigUserProfileTypeConfig, emptyBigUserProfileExample } from '@src/lib/bigExample';
+import { BigUserProfile, bigUserProfileExample, bigUserProfileForm, bigUserProfileSchema, bigUserProfileTypeConfig } from '@src/lib/bigExample';
 import { buildZodValidator } from '@src/lib/zodAdapter/zodAdapter';
 import { useForm } from '@tanstack/react-form';
 import { zodValidator } from '@tanstack/zod-form-adapter';
