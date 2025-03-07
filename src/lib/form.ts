@@ -1,6 +1,7 @@
 import { DeepKeys, DeepValue, FieldValidators, Validator } from '@tanstack/form-core';
 import { ComponentNames, FieldDisplayOptions, FieldEditOptions, ObjectMappings, RenderConfig } from './domain';
-import { IsExactlyUndefined, IsRecord, PrimitiveDeepKeys, UnnestedArrayKeys } from './typeUtils';
+import { IsExactlyUndefined, IsNullableRecord, IsRecord, PrimitiveDeepKeys, UnnestedArrayKeys } from './typeUtils';
+import { Except, NonEmptyObject, Simplify } from 'type-fest';
 
 export type FormDirection = 'row' | 'column';
 
@@ -80,36 +81,43 @@ export type FormItems<T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderCon
 };
 
 
-
-export type BaseFieldTypeConfig<T, NullT extends boolean> = {
-    type: Extract<ObjectMappings, { value: T }>['key'],
+type BaseTypeConfig<T, NullT extends boolean> = {
     isReadOnly?: boolean,
     isWriteOnly?: boolean
     isNullable: NullT
 }
 
+export type EnumTypeConfig<T> = Readonly<Record<string,T>>;
+
+
+export type BaseFieldTypeConfig<T, NullT extends boolean> = {
+    type: Extract<ObjectMappings, { value: T }>['key'] | EnumTypeConfig<T>,
+} & BaseTypeConfig<T, NullT>
+
+
+
 export type FieldTypeConfig<T> = BaseFieldTypeConfig<T,  null extends T ? true : false> 
 
 // TODO figure out what fields we need here
-export type ArrayTypeConfig<T> = null extends T 
-    ? never
-    : { 
-        config: ObjectTypeConfig<T>,
-        isRelation: boolean; // determines if this needs to be loaded externally
-    };
+export type ArrayTypeConfig<T extends (unknown[] | null), NullT extends boolean> = {
+    array: DomainObjectTypeConfig<Exclude<T, null>[number]>;
+    isRelation: boolean; 
+  } & BaseTypeConfig<T, NullT>;
+  
+
+export type DomainObjectTypeConfig<T> = {
+    [K in keyof T]: ObjectTypeConfig<T[K]>
+};
 
 
-
-type IsArray<T> = T extends unknown[] ? true : false;
-
-export type ObjectTypeConfig<T> = 
-    IsRecord<T> extends true
-    ? {[ObjK in keyof T]: ObjectTypeConfig<T[ObjK]>}
-    : IsArray<T> extends false 
-        ? FieldTypeConfig<T> 
-        : T extends unknown[] ? ArrayTypeConfig<T[number]> : never
-
-
+export type ObjectTypeConfig<T> =
+    IsNullableRecord<T> extends true
+    ? {
+        config: DomainObjectTypeConfig<T>
+      } & BaseTypeConfig<T, null extends T ? true : false>
+    : [T] extends [null | (infer U)[]]
+    ? ArrayTypeConfig<T, null extends T ? true : false>
+    : FieldTypeConfig<T>;
 
 export type ArrayConfigValue<
     T,

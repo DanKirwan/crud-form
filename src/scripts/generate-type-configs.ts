@@ -5,8 +5,11 @@ import path from 'path';
 import SwaggerParser from '@apidevtools/swagger-parser';
 import { OpenAPIV3 } from 'openapi-types';
 import { ObjectMappings } from '@src/lib/domain';
-import { camelCase, first, uniq } from 'lodash-es';
+import { camelCase, first, isArray, keyBy, range, uniq, zip } from 'lodash-es';
 import { genResultError, genResultMap, genResultOf } from '../generator/generation/generationResultUtils';
+
+const enumNamesField = 'x-enumNames' as const;
+
 
 // Type guard for ReferenceObject
 function isReferenceObject(
@@ -37,6 +40,7 @@ export const schemaToType = (lookup: LookupType): ObjectMappings['key'] => {
     case 'string': 
       switch(lookup.format) {
         case 'uuid': return 'Guid';
+        case 'date': // we may ened a second type here
         case 'date-time': return 'DateTimeOffset' // TODO this will need changing when we swap to actually using date time offsets
         default: return 'String';
       }
@@ -53,11 +57,10 @@ const parseRef = (reference: string): GenerationResult => {
       value: '' 
     };
   }
-  const actualRef = camelCase(match[1]);
   return {
     errors: [],
-    references: [actualRef],
-    value: actualRef
+    references: [match[1]],
+    value: camelCase(match[1])
   };
 };
 
@@ -68,14 +71,19 @@ type GenerationResult = {
   references: string[];
 }
 
+const tabChar = '\t';
+
 /**
  * Recursively maps a property schema to an EDM-style type configuration.
  * Returns a string representing the configuration.
  */
 const mapPropertyToTypeConfig = (
   propSchema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject,
+  tabDepth: number
 ): GenerationResult => {
   
+  const newLine = `\n${range(0, tabDepth).map(() => tabChar).join('')}`;
+
   if (isReferenceObject(propSchema)) {
     const propResult = parseRef(propSchema.$ref);
     return genResultMap(propResult, getTypeConfigName);
@@ -86,21 +94,22 @@ const mapPropertyToTypeConfig = (
 
   // When the property is an array, handle items separately.
   if (propSchema.type === 'array') {
-    const childResult = mapPropertyToTypeConfig(propSchema.items);
-    return genResultMap(childResult, r => `{ isRelation: true, config: ${r} }`)
+    const childResult = mapPropertyToTypeConfig(propSchema.items, tabDepth + 1);
+    return genResultMap(childResult, r => `{ isRelation: true, isNullable: ${isNullable}, array: ${r} }`)
   }
 
   // For non-array types, if it’s an object with properties then recurse.
   if (propSchema.type === 'object') {
     // const nestedRequired = propSchema.required ?? [];
     const entries = Object.entries(propSchema.properties ?? []).map(([key, value]) => {
-      const childResult = mapPropertyToTypeConfig(value);
-      return genResultMap(childResult, r => `${key}: ${r}`)
+      const childResult = mapPropertyToTypeConfig(value, tabDepth + 1);
+      // THese are one level deeper so new line needs to be one level deeper too
+      return genResultMap(childResult, r => `${newLine}${tabChar}${key}: ${r}`)
     });
     return {
       errors: entries.flatMap(e => e.errors),
       references: entries.flatMap(e => e.references),
-      value: `{\n${entries.map(e => e.value).join(',\n')}\n  }`
+      value: `{${newLine}${tabChar}config: {\n${entries.map(e => `${e.value}`).join(',')}${newLine}},${newLine}isNullable: ${isNullable}${newLine}}`
     }
   }
 
@@ -114,9 +123,35 @@ const mapPropertyToTypeConfig = (
   const firstAllOf = first(propSchema.allOf)
   if(!firstAllOf || !isReferenceObject(firstAllOf)) return genResultError('Could not match any type, array or object and no references found in "allOf"');
   const propResult = parseRef(firstAllOf.$ref);
-  return genResultMap(propResult, getTypeConfigName);
+
+  const refIsEnum = enumNamesField in propSchema;
+  const childName = refIsEnum ? 'type' : 'config'; // If its an enum, this is a field reference rather than a child
+  return genResultMap(propResult, r => `{ ${childName}: ${getTypeConfigName(r)}, isNullable: ${isNullable}}`);
 }
 
+type SchemaGenerationResult = GenerationResult & {isEnum?: boolean};
+
+const generateEnum = (schema: OpenAPIV3.SchemaObject): GenerationResult => {
+  if(!(enumNamesField in schema)) return genResultError(`Enums expect ${enumNamesField} to be available, cannot generate type configs without this`);
+  const names = schema[enumNamesField];
+  if(!isArray(names)) return genResultError(`${enumNamesField} is expected to be an array`);
+
+  const values = schema.enum;
+  if(!isArray(values)) genResultError('Cannot generate enum without enum values in schema');
+  
+  const isString = schema.type === 'string';
+  
+  const quote = isString ? '\'' : '';
+  const pairs = zip(names, values)
+    .map(([name, value]) => `${tabChar}'${name}': ${quote}${value}${quote}`)
+    .join(',\n');
+    
+  return genResultOf(`{\n${pairs}\n}`);
+
+  
+
+
+}
 
 const getTypeConfigName = (name: string) => `${camelCase(name)}TypeConfig`
 /**
@@ -126,18 +161,39 @@ const getTypeConfigName = (name: string) => `${camelCase(name)}TypeConfig`
 function generateTypeConfigForSchema(
   schemaName: string,
   schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject
-): GenerationResult {
+): SchemaGenerationResult {
   if (isReferenceObject(schema)) {
     return genResultError(`// Skipping schema ${schemaName} because it is a reference: ${schema.$ref}\n`);
   }
+
+
+  if(schema.enum) {
+    const enumResult = generateEnum(schema);
+    return {
+      ...genResultMap(enumResult, r => `export const ${getTypeConfigName(schemaName)} = ${r} as const satisfies EnumTypeConfig<${schemaName}>`),
+      isEnum: true
+    };
+  }
+
   if (schema.type !== 'object' || !schema.properties) {
     return genResultError(`// Skipping non-object schema: ${schemaName}\n`);
   }
-  const result = mapPropertyToTypeConfig(schema);
 
-  return genResultMap(
+  const entries = Object.entries(schema.properties ?? []).map(([key, value]) => {
+    const childResult = mapPropertyToTypeConfig(value, 0);
+    // THese are one level deeper so new line needs to be one level deeper too
+    return genResultMap(childResult, r => `${tabChar}${key}: ${r}`)
+  });
+  const result = {
+    errors: entries.flatMap(e => e.errors),
+    references: entries.flatMap(e => e.references),
+    value: `{\n${entries.map(e => `${e.value}`).join(',\n')}\n}`
+  }
+
+  const finalResult =  genResultMap(
     result, 
-    r =>`export const ${getTypeConfigName(schemaName)} = ${r} as const satisfies ObjectTypeConfig<${schemaName}>;\n` );
+    r =>`export const ${getTypeConfigName(schemaName)} = ${r} as const satisfies DomainObjectTypeConfig<${schemaName}>;\n` );
+    return {...finalResult, isEnum: false}
 }
 
 /**
@@ -172,10 +228,11 @@ function generateTypeConfigForSchema(
 //   console.log(`Type configurations generated at: ${outputFilePath}`);
 // }
 
+const typePath = '../exampleTypes.ts';
 const generateTypeConfigs = async (): Promise<void> => {
   // Use the first CLI argument as the OpenAPI file path or default to an example file.
   const openApiPath =
-    process.argv[2] || path.join(__dirname, '../../example-schema copy.json');
+    process.argv[2] || path.join(__dirname, '../../smallerTest.json');
   console.log(`Parsing OpenAPI spec from: ${openApiPath}`);
 
   const api = (await SwaggerParser.parse(openApiPath)) as OpenAPIV3.Document;
@@ -183,24 +240,34 @@ const generateTypeConfigs = async (): Promise<void> => {
     throw new Error('No schemas found in the OpenAPI document.');
   }
   const schemas = api.components.schemas;
+  const outputFolder = path.join(__dirname, 'generated');
+  if(!fs.existsSync(outputFolder)){
+
+    fs.mkdirSync(outputFolder);
+  }
 
   // Process each schema individually.
   for (const [schemaName, schema] of Object.entries(schemas)) {
-    const result: GenerationResult = generateTypeConfigForSchema(schemaName, schema);
+    const result: SchemaGenerationResult = generateTypeConfigForSchema(schemaName, schema);
     // Deduplicate references.
     const uniqueReferences = uniq(result.references);
 
     // Build the file header with a notice, generation source, and distinct references.
     let fileContent = `// AUTO-GENERATED FILE - DO NOT EDIT\n`;
     fileContent += `// Generated from ${path.basename(openApiPath)}\n\n`;
+    fileContent += `import {${schemaName}} from '${typePath}'\n`
     if (uniqueReferences.length > 0) {
       fileContent += `// Distinct References:\n`;
       uniqueReferences.forEach((ref) => {
-        fileContent += ` import { ${getTypeConfigName(ref)} } from './${ref}.generated.ts'\n`;
+        fileContent += `import { ${getTypeConfigName(ref)} } from './${camelCase(ref)}.generated.ts'\n`;
       });
       fileContent += '\n';
     }
-    fileContent += `import { ObjectTypeConfig } from '@src/lib/form';\n\n`;
+    fileContent += result.isEnum 
+      ?  `import { EnumTypeConfig } from '@src/lib/form';\n\n`
+      :  `import { DomainObjectTypeConfig } from '@src/lib/form';\n\n`;
+    
+    // TODO handle errors here
     fileContent += result.value;
 
     // Write each schema's type config to its own file.

@@ -75,6 +75,17 @@ export type IsPrimitive<T> = IsArray<T> extends false
 
 export type IsArray<T> = T extends unknown[] ? true : false;
 
+
+export type IsNullableRecord<T> = T extends (object | null) 
+    ? T extends any[] 
+        ? false 
+        : T extends Function | Date | Uint8Array | File
+            ? false 
+            : true
+    : false;
+
+
+
 export type IsRecord<T> = T extends object 
     ? T extends any[] 
         ? false 

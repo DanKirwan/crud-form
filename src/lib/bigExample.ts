@@ -1,9 +1,11 @@
 import { ReactRenderConfig } from '@src/react/config';
 import { ReactNode } from 'react';
 import { z } from 'zod';
-import { FormItems, ObjectTypeConfig } from './form';
+import { BaseFieldTypeConfig, FormItems, ObjectTypeConfig } from './form';
 import { UndefinedDeepPrimitives } from './typeUtils';
 import { PartialZodFormValidator } from './zodAdapter/zodAdapter';
+import { Exact, Simplify } from 'type-fest';
+import { ObjectMappings } from './domain';
 
 // ---------------------------------------
 // EXTENDED USER PROFILE INTERFACE
@@ -30,6 +32,7 @@ export type BigUserProfile = {
     // Preferences
     newsletter: boolean;
     notifications: boolean;
+    jobStatus: JobStatusEnum,
     // preferredContactMethods: string[]; // e.g. ["email", "phone", "sms"]
 
     // Location
@@ -121,15 +124,27 @@ const bigUserProfileSchema = z.object({
     acceptedTOS: z.boolean().refine(v => v === true, { message: 'Please accept the Terms of Service' }),
 }) satisfies  PartialZodFormValidator<BigUserProfile>;
 
+
+
+enum JobStatusEnum {
+    A = 1,
+    B = 2,
+    C = 4,
+};
+
 // ---------------------------------------
 // TYPE CONFIG (MAPPING TO EDM TYPES)
 // ---------------------------------------
 export const bigUserProfileTypeConfig = {
-    firstName: {type: 'String', isNullable: true},
+    isNullable: false,
+    config: {
+
+    jobStatus: {type: {'A': 1, 'B': 2, 'C': 4}, isNullable: false },
+    firstName: {type: {'Not Selected': 'undefined'}, isNullable: true},
     lastName: {type: 'String', isNullable: false},
-    age: {type: 'Int32', isNullable: true},
+    age:  {type: 'Int32', isNullable: true},
     email: {type: 'String', isNullable: false},
-    bio: {type: 'String', isNullable: true},
+    bio: {type: 'Guid', isNullable: true},
     birthDate: {type: 'DateTimeOffset', isNullable: false},
     maritalStatus: {type: 'String', isNullable: false},
     isActive: {type: 'Boolean', isNullable: false},
@@ -140,18 +155,23 @@ export const bigUserProfileTypeConfig = {
     notifications: {type: 'Boolean', isNullable: false},
     // preferredContactMethods: [{type: 'String', isNullable: false}],
     location: {
-        lat: {type: 'Double', isNullable: false, isReadOnly: true},
-        long: {type: 'Double', isNullable: false, isReadOnly: true},
+        config: {
+
+            lat: {type: 'Double', isNullable: false, isReadOnly: true},
+            long: {type: 'Double', isNullable: false, isReadOnly: true},
+        },
+        isNullable: false,
     },
     // previousEmployers: [{
     //     companyName: {type: 'String', isNullable: false},
     //     startDate: {type: 'DateTimeOffset', isNullable: false},
     //     endDate: {type: 'DateTimeOffset', isNullable: false},
     //     reasonForLeaving: {type: 'String', isNullable: false},
-    // }],
+    // }],  
     addresses: { 
         isRelation: true, 
-        config:{
+        isNullable: false,
+        array:{ // TODO maybe this thing should be called array
             line1: {type: 'String', isNullable: false},
             line2: {type: 'String', isNullable: true},
             city: {type: 'String', isNullable: false},
@@ -160,8 +180,8 @@ export const bigUserProfileTypeConfig = {
         }},
     // skills: [{type: 'String', isNullable: false}],
     acceptedTOS: {type: 'Boolean', isNullable: false},
+}
 } as const satisfies ObjectTypeConfig<BigUserProfile>;
-
 
 
 
