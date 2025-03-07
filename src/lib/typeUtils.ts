@@ -49,6 +49,22 @@ type InternalPrimitiveDeepKeys<T, TDepth extends any[] > = {[K in keyof T]:
 }[keyof T];
 
 
+type ConfigPrefixFromDepth<T extends string | number, TDepth extends any[]> = TDepth['length'] extends 0 ? T : `.config.${T}`;
+
+export type PrimitiveConfigDeepKeys<T> = InternalPrimitiveConfigDeepKeys<T, []>; // DeepKeys required for 
+
+// Filters existing deep keys to give only the primitive fields not in arrays
+type InternalPrimitiveConfigDeepKeys<T, TDepth extends any[] > = {[K in keyof T]: 
+    K extends string 
+        ? IsArray<T[K]> extends false
+            ? IsRecord<T[K]> extends true 
+                ?  `${ConfigPrefixFromDepth<K, TDepth>}${InternalPrimitiveConfigDeepKeys<T[K], [...TDepth, any]>}` 
+                : ConfigPrefixFromDepth<K, TDepth>
+            : never
+        : never
+}[keyof T];
+
+
 export type AllPrimitiveDeepKeys<T> = {[K in DeepKeys<T>]: IsPrimitive<DeepValue<T, K>> extends true ? K : never}[DeepKeys<T>];
 
 
@@ -76,7 +92,7 @@ export type IsPrimitive<T> = IsArray<T> extends false
 export type IsArray<T> = T extends unknown[] ? true : false;
 
 
-export type IsNullableRecord<T> = T extends (object | null) 
+export type IsNullishRecord<T> = T extends (object | null | undefined) 
     ? T extends any[] 
         ? false 
         : T extends Function | Date | Uint8Array | File

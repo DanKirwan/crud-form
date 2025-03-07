@@ -1,6 +1,6 @@
 import { DeepKeys, DeepValue, FieldValidators, Validator } from '@tanstack/form-core';
 import { ComponentNames, FieldDisplayOptions, FieldEditOptions, ObjectMappings, RenderConfig } from './domain';
-import { IsExactlyUndefined, IsNullableRecord, IsRecord, PrimitiveDeepKeys, UnnestedArrayKeys } from './typeUtils';
+import { IsExactlyUndefined, IsNullishRecord, IsRecord, PrimitiveConfigDeepKeys, PrimitiveDeepKeys, UnnestedArrayKeys } from './typeUtils';
 import { Except, NonEmptyObject, Simplify } from 'type-fest';
 
 export type FormDirection = 'row' | 'column';
@@ -14,7 +14,7 @@ type CustomRenderFormItem<TParentData, TKey extends PrimitiveDeepKeys<TParentDat
 }
 
 
-type ArraySelector<T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderConfigT extends RenderConfig<RenderT>, TKey extends UnnestedArrayKeys<T>> = 
+type ArraySelector<T, RenderT, ConfigT extends DomainObjectTypeConfig<T>, RenderConfigT extends RenderConfig<RenderT>, TKey extends UnnestedArrayKeys<T>> = 
     {
         key: TKey,
         subForm: FormItems<DeepValue<T, `${TKey}[${number}]`>, RenderT, ArrayConfigValue<T, ConfigT, TKey>, RenderConfigT>;
@@ -27,18 +27,31 @@ type ArraySelector<T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderConfig
     
 
 
+
+
+type X = {
+    a: {
+        b: {
+            c: number
+        },
+        d: string
+    }
+}
+
+type T = PrimitiveConfigDeepKeys<X>;
+
 // TODO is there a way to make `${ObjK}.type` more safe?
 export type FormPrimitive<
     T, // The object type
     RenderT,
-    ConfigT extends ObjectTypeConfig<T>,
+    ConfigT extends DomainObjectTypeConfig<T>,
     RenderConfigT extends RenderConfig<RenderT>
 > =
     | PrimitiveDeepKeys<T>
     | {
         label?: string;
     } & {
-        [ObjK in PrimitiveDeepKeys<T>]: DeepValue<ConfigT, `${ObjK}.type`> extends ObjectMappings['key'] ?
+        [ObjK in PrimitiveConfigDeepKeys<T>]: DeepValue<ConfigT, `${ObjK}.type`> extends ObjectMappings['key'] ?
         {
             [K in ObjectMappings['key']]: DeepValue<ConfigT, `${ObjK}.type`> extends K ? K extends DeepValue<ConfigT, `${ObjK}.type`> ?
             {
@@ -60,7 +73,7 @@ export type FormPrimitive<
         }[ObjectMappings['key']]
         // Enforce type compatibility between the object key and component
         : never
-    }[PrimitiveDeepKeys<T>]
+    }[PrimitiveConfigDeepKeys<T>]
     | CustomRenderFormItem<T, PrimitiveDeepKeys<T>, RenderT>
     | ArraySelector<T, RenderT, ConfigT, RenderConfigT, UnnestedArrayKeys<T>>;
 
@@ -68,11 +81,11 @@ export type FormPrimitive<
 
 
 
-export type FormItem<T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderConfigT extends RenderConfig<RenderT>> =
+export type FormItem<T, RenderT, ConfigT extends DomainObjectTypeConfig<T>, RenderConfigT extends RenderConfig<RenderT>> =
     FormPrimitive<T, RenderT, ConfigT, RenderConfigT> |
     FormItems<T, RenderT, ConfigT, RenderConfigT>;
 
-export type FormItems<T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderConfigT extends RenderConfig<RenderT>> = {
+export type FormItems<T, RenderT, ConfigT extends DomainObjectTypeConfig<T>, RenderConfigT extends RenderConfig<RenderT>> = {
     label?: string;
     layout?: keyof RenderConfigT['layouts']
     container?: keyof RenderConfigT['containers']
@@ -81,28 +94,29 @@ export type FormItems<T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderCon
 };
 
 
-type BaseTypeConfig<T, NullT extends boolean> = {
+type BaseTypeConfig<T, NullT extends boolean, UndefinedT extends boolean> = {
     isReadOnly?: boolean,
     isWriteOnly?: boolean
     isNullable: NullT
+    isUndefinable: UndefinedT
 }
 
 export type EnumTypeConfig<T> = Readonly<Record<string,T>>;
 
 
-export type BaseFieldTypeConfig<T, NullT extends boolean> = {
+export type BaseFieldTypeConfig<T, NullT extends boolean, UndefinedT extends boolean> = {
     type: Extract<ObjectMappings, { value: T }>['key'] | EnumTypeConfig<T>,
-} & BaseTypeConfig<T, NullT>
+} & BaseTypeConfig<T, NullT, UndefinedT>
 
 
 
-export type FieldTypeConfig<T> = BaseFieldTypeConfig<T,  null extends T ? true : false> 
+export type FieldTypeConfig<T> = BaseFieldTypeConfig<T,  null extends T ? true : false, undefined extends T ? true : false> 
 
 // TODO figure out what fields we need here
-export type ArrayTypeConfig<T extends (unknown[] | null), NullT extends boolean> = {
-    array: DomainObjectTypeConfig<Exclude<T, null>[number]>;
+export type ArrayTypeConfig<T extends (unknown[] | null)> = {
+    array: ObjectTypeConfig<Exclude<T, null>[number]>;
     isRelation: boolean; 
-  } & BaseTypeConfig<T, NullT>;
+  } & BaseTypeConfig<T, null extends T ? true : false, undefined extends T ? true : false>;
   
 
 export type DomainObjectTypeConfig<T> = {
@@ -111,17 +125,20 @@ export type DomainObjectTypeConfig<T> = {
 
 
 export type ObjectTypeConfig<T> =
-    IsNullableRecord<T> extends true
+    IsNullishRecord<T> extends true
     ? {
         config: DomainObjectTypeConfig<T>
-      } & BaseTypeConfig<T, null extends T ? true : false>
+      } & BaseTypeConfig<T, null extends T ? true : false, undefined extends T ? true : false>
     : [T] extends [null | (infer U)[]]
-    ? ArrayTypeConfig<T, null extends T ? true : false>
+    ? ArrayTypeConfig<T>
     : FieldTypeConfig<T>;
+
+
+
 
 export type ArrayConfigValue<
     T,
-    TConfig extends ObjectTypeConfig<T>,
+    TConfig extends DomainObjectTypeConfig<T>,
     TAccessor extends string // Relaxing from UnnestedArrayKeys<T> to string
 > = IsRecord<T> extends true 
     ? TAccessor extends `${infer THead}.${infer TTail}`
@@ -129,7 +146,7 @@ export type ArrayConfigValue<
             ? THead extends keyof TConfig
                 ? ArrayConfigValue<
                     T[THead],
-                    TConfig[THead] extends ObjectTypeConfig<T[THead]> ? TConfig[THead] : never,
+                    TConfig[THead] extends DomainObjectTypeConfig<T[THead]> ? TConfig[THead] : never,
                     TTail // Just a string now
                   >
                 : never

@@ -1,8 +1,8 @@
 import { ReactRenderConfig } from '@src/react/config';
 import { ReactNode } from 'react';
 import { z } from 'zod';
-import { BaseFieldTypeConfig, FormItems, ObjectTypeConfig } from './form';
-import { UndefinedDeepPrimitives } from './typeUtils';
+import { BaseFieldTypeConfig, DomainObjectTypeConfig, FormItems, ObjectTypeConfig } from './form';
+import { PrimitiveConfigDeepKeys, UndefinedDeepPrimitives } from './typeUtils';
 import { PartialZodFormValidator } from './zodAdapter/zodAdapter';
 import { Exact, Simplify } from 'type-fest';
 import { ObjectMappings } from './domain';
@@ -57,12 +57,13 @@ export type BigUserProfile = {
         state: string;
         zip: string;
     }[];
+    tests: (string | null)[],
 
     // // Skills
     // skills: string[];
 
     // Terms & Conditions
-    acceptedTOS: boolean;
+    acceptedTOS?: boolean;
 }
 
 
@@ -136,53 +137,58 @@ enum JobStatusEnum {
 // TYPE CONFIG (MAPPING TO EDM TYPES)
 // ---------------------------------------
 export const bigUserProfileTypeConfig = {
-    isNullable: false,
-    config: {
-
-    jobStatus: {type: {'A': 1, 'B': 2, 'C': 4}, isNullable: false },
-    firstName: {type: {'Not Selected': 'undefined'}, isNullable: true},
-    lastName: {type: 'String', isNullable: false},
-    age:  {type: 'Int32', isNullable: true},
-    email: {type: 'String', isNullable: false},
-    bio: {type: 'Guid', isNullable: true},
-    birthDate: {type: 'DateTimeOffset', isNullable: false},
-    maritalStatus: {type: 'String', isNullable: false},
-    isActive: {type: 'Boolean', isNullable: false},
-    rating: {type: 'Int32', isNullable: false},
-    registeredAt: {type: 'DateTimeOffset', isNullable: false},
-    lastLogin: {type: 'DateTimeOffset', isNullable: false},
-    newsletter: {type: 'Boolean', isNullable: false},
-    notifications: {type: 'Boolean', isNullable: false},
-    // preferredContactMethods: [{type: 'String', isNullable: false}],
+    jobStatus: {type: {'A': 1, 'B': 2, 'C': 4}, isNullable: false, isUndefinable: false},
+    firstName: {type: {'Not Selected': 'undefined'}, isNullable: true, isUndefinable: false},
+    lastName: {type: 'String', isNullable: false, isUndefinable: false},
+    age:  {type: 'Int32', isNullable: true, isUndefinable: false},
+    email: {type: 'String', isNullable: false, isUndefinable: false},
+    bio: {type: 'String', isNullable: true, isUndefinable: false},
+    birthDate: {type: 'DateTimeOffset', isNullable: false, isUndefinable: false},
+    maritalStatus: {type: 'String', isNullable: false, isUndefinable: false},
+    isActive: {type: 'Boolean', isNullable: false, isUndefinable: false},
+    rating: {type: 'Int32', isNullable: false, isUndefinable: false},
+    registeredAt: {type: 'DateTimeOffset', isNullable: false, isUndefinable: false},
+    lastLogin: {type: 'DateTimeOffset', isNullable: false, isUndefinable: false},
+    newsletter: {type: 'Boolean', isNullable: false, isUndefinable: false},
+    notifications: {type: 'Boolean', isNullable: false, isUndefinable: false},
+    // preferredContactMethods: [{type: 'String', isNullable: false, isUndefinable: false}],
     location: {
         config: {
 
-            lat: {type: 'Double', isNullable: false, isReadOnly: true},
-            long: {type: 'Double', isNullable: false, isReadOnly: true},
+            lat: {type: 'Double', isNullable: false, isUndefinable: false, isReadOnly: true},
+            long: {type: 'Double', isNullable: false, isUndefinable: false, isReadOnly: true},
         },
-        isNullable: false,
+        isNullable: false, isUndefinable: false,
     },
     // previousEmployers: [{
-    //     companyName: {type: 'String', isNullable: false},
-    //     startDate: {type: 'DateTimeOffset', isNullable: false},
-    //     endDate: {type: 'DateTimeOffset', isNullable: false},
-    //     reasonForLeaving: {type: 'String', isNullable: false},
+    //     companyName: {type: 'String', isNullable: false, isUndefinable: false},
+    //     startDate: {type: 'DateTimeOffset', isNullable: false, isUndefinable: false},
+    //     endDate: {type: 'DateTimeOffset', isNullable: false, isUndefinable: false},
+    //     reasonForLeaving: {type: 'String', isNullable: false, isUndefinable: false},
     // }],  
     addresses: { 
         isRelation: true, 
-        isNullable: false,
+        isNullable: false, isUndefinable: false,
         array:{ // TODO maybe this thing should be called array
-            line1: {type: 'String', isNullable: false},
-            line2: {type: 'String', isNullable: true},
-            city: {type: 'String', isNullable: false},
-            state: {type: 'String', isNullable: false},
-            zip: {type: 'String', isNullable: false},
-        }},
-    // skills: [{type: 'String', isNullable: false}],
-    acceptedTOS: {type: 'Boolean', isNullable: false},
-}
-} as const satisfies ObjectTypeConfig<BigUserProfile>;
+            config: {
 
+                line1: {type: 'String', isNullable: false, isUndefinable: false},
+                line2: {type: 'String', isNullable: true, isUndefinable: false},
+                city: {type: 'String', isNullable: false, isUndefinable: false},
+                state: {type: 'String', isNullable: false, isUndefinable: false},
+                zip: {type: 'String', isNullable: false, isUndefinable: false},
+            },
+            isNullable: false,
+            isUndefinable: false
+        }},
+
+        tests: {array: {type: 'Guid', isNullable: true, isUndefinable: false}, isNullable: false, isRelation: true, isUndefinable: false},
+    // skills: [{type: 'String', isNullable: false, isUndefinsable: false}],
+    acceptedTOS: {type: 'Boolean', isNullable: false, isUndefinable: true},
+} as const satisfies DomainObjectTypeConfig<BigUserProfile>;
+
+
+type T = PrimitiveConfigDeepKeys<BigUserProfile>;
 
 
 export type BigUserProfileTypeConfig = typeof bigUserProfileTypeConfig
@@ -223,6 +229,7 @@ export const bigUserProfileForm: FormItems<
                     items: [
                         {
                             key: 'age',
+                            
                             component: 'int-text-box',
                             label: 'Age',
                         },
@@ -243,6 +250,7 @@ export const bigUserProfileForm: FormItems<
                     //TODO consider making these keys part of the type config in future?
                     key: 'maritalStatus',
                     component: 'select',
+
                     label: 'Marital Status',
                     options: { 
                         placeholder: 'Status', 
