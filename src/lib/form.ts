@@ -64,14 +64,15 @@ export type FormItems<T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderCon
 
 
 
-export type BaseFieldTypeConfig<T, NullT extends boolean> = {
+export type BaseFieldTypeConfig<T, NullT extends boolean, UndefinedT extends boolean > = {
     type: Extract<ObjectMappings, { value: T }>['key'],
     isReadOnly?: boolean,
-    isWriteOnly?: boolean
-    isNullable: NullT
+    isWriteOnly?: boolean,
+    isNullable: NullT,
+    isOptional: UndefinedT,
 }
 
-export type FieldTypeConfig<T> = BaseFieldTypeConfig<T,  null extends T ? true : false> 
+export type FieldTypeConfig<T> = BaseFieldTypeConfig<T,  null extends T ? true : false, undefined extends T ? true : false > 
 
 export type ObjectTypeConfig<T> =  {[ObjK in PrimitiveShallowKeys<T>]: FieldTypeConfig<T[ObjK]>}
 

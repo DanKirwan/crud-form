@@ -22,7 +22,7 @@ export type BigUserProfile = {
     maritalStatus: string, // // TODO can't do union types atm 'single' | 'married' | 'divorced' | 'widowed';
     
     // Account Status & Rating
-    isActive: boolean;
+    isActive?: boolean;
     rating: number;
     registeredAt: Date;
     lastLogin: Date;
@@ -125,20 +125,20 @@ const bigUserProfileSchema = z.object({
 // TYPE CONFIG (MAPPING TO EDM TYPES)
 // ---------------------------------------
 export const bigUserProfileTypeConfig = {
-    firstName: {type: 'String', isNullable: true},
-    lastName: {type: 'String', isNullable: false},
-    age: {type: 'Int32', isNullable: true},
-    email: {type: 'String', isNullable: false},
-    bio: {type: 'String', isNullable: true},
-    birthDate: {type: 'DateTimeOffset', isNullable: false},
-    maritalStatus: {type: 'String', isNullable: false},
-    isActive: {type: 'Boolean', isNullable: false},
-    rating: {type: 'Int32', isNullable: false},
-    registeredAt: {type: 'DateTimeOffset', isNullable: false},
-    lastLogin: {type: 'DateTimeOffset', isNullable: false},
-    newsletter: {type: 'Boolean', isNullable: false},
-    notifications: {type: 'Boolean', isNullable: false},
-    acceptedTOS: {type: 'Boolean', isNullable: false},
+    firstName: {type: 'String', isNullable: true, isOptional: false},
+    lastName: {type: 'String', isNullable: false, isOptional: false},
+    age: {type: 'Int32', isNullable: true, isOptional: false},
+    email: {type: 'String', isNullable: false, isOptional: false},
+    bio: {type: 'String', isNullable: true, isOptional: false},
+    birthDate: {type: 'DateTimeOffset', isNullable: false, isOptional: false},
+    maritalStatus: {type: 'String', isNullable: false, isOptional: false},
+    isActive: {type: 'Boolean', isNullable: false, isOptional: true},
+    rating: {type: 'Int32', isNullable: false, isOptional: false},
+    registeredAt: {type: 'DateTimeOffset', isNullable: false, isOptional: false},
+    lastLogin: {type: 'DateTimeOffset', isNullable: false, isOptional: false},
+    newsletter: {type: 'Boolean', isNullable: false, isOptional: false},
+    notifications: {type: 'Boolean', isNullable: false, isOptional: false},
+    acceptedTOS: {type: 'Boolean', isNullable: false, isOptional: false},
 } as const satisfies ObjectTypeConfig<BigUserProfile>;
 
 
@@ -269,7 +269,7 @@ export const bigUserProfileForm: FormItems<
                     label: 'Registration & Login Dates',
                     items: [
                         {
-                            key: 'lastLogin',
+                            key: 'registeredAt',
                             component: 'datetime',
                             label: 'Registered At',
                         },
