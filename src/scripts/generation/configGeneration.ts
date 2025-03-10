@@ -1,15 +1,12 @@
 #!/usr/bin/env ts-node
 
-import SwaggerParser from '@apidevtools/swagger-parser';
 import { ObjectMappings } from '@src/lib/domain';
-import fs from 'fs';
 import { camelCase, first, isArray, range, zip } from 'lodash-es';
 import { OpenAPIV3 } from 'openapi-types';
-import path from 'path';
 import { genResultError, genResultMap, genResultOf } from './generationTypeUtils';
 
 const enumNamesField = 'x-enumNames' as const;
-
+export const typeAlias = 'types';
 
 // Type guard for ReferenceObject
 function isReferenceObject(
@@ -136,7 +133,7 @@ const getTypeConfigName = (name: string) => `${camelCase(name)}TypeConfig`
  * Generates a type configuration for a given schema.
  * Only object schemas with properties are processed.
  */
-function generateTypeConfigForSchema(
+export function generateTypeConfigForSchema(
     schemaName: string,
     schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject,
 ): SchemaGenerationResult {
@@ -173,98 +170,4 @@ function generateTypeConfigForSchema(
         r =>`export const ${getTypeConfigName(schemaName)} = ${r} as const satisfies ObjectTypeConfig<${typeAlias}.${schemaName}>;\n` );
     return {...finalResult, isEnum: false}
 }
-
-/**
- * Main function:
- * 1. Loads the OpenAPI spec.
- * 2. Locates the schemas under components.schemas.
- * 3. Generates type configurations for each object schema.
- * 4. Writes the generated code to a file.
-//  */
-// async function generateTypeConfigs(): Promise<void> {
-//   // Use the first CLI argument as the OpenAPI file path or default to 'openapi.yaml'
-//   const openApiPath = process.argv[2] || path.join(__dirname, '../../example-schema copy.json');
-//   console.log(`Parsing OpenAPI spec from: ${openApiPath}`);
-//   const api = (await SwaggerParser.parse(openApiPath)) as OpenAPIV3.Document;
-
-//   if (!api.components || !api.components.schemas) {
-//     throw new Error("No schemas found in the OpenAPI document.");
-//   }
-//   const schemas = api.components.schemas;
-//   let generatedConfigs = `// AUTO-GENERATED FILE - DO NOT EDIT\n`;
-//   generatedConfigs += `// Generated from ${path.basename(openApiPath)}\n\n`;
-//   generatedConfigs += `import { ObjectTypeConfig } from '@src/lib/domain';\n\n`;
-
-//   // Generate a type config for each schema
-//   for (const [schemaName, schema] of Object.entries(schemas)) {
-//     generatedConfigs += generateTypeConfigForSchema(schemaName, schema).value;
-//     generatedConfigs += '\n';
-//   }
-
-//   const outputFilePath = path.join(__dirname, 'object-type-configs.generated.ts');
-//   fs.writeFileSync(outputFilePath, generatedConfigs, 'utf8');
-//   console.log(`Type configurations generated at: ${outputFilePath}`);
-// }
-
-const typeAlias = 'types'; 
-
-const typePath = '../exampleTypes.ts'; // Should point to the client types (most likely from nswag)
-const dataPath = '../../smallerTest.json'; // Reference to Odata specificationNeeds to support a url or local file path
-const outputFilePath = path.join(__dirname,  'generated', `objectTypeConfigs.generated.ts`); // This shold be a relative path
-
-
-// TODOs
-// Support url or local file path
-// add a help method for querying the parameters
-// fetch all the parameters based on a -typePath or -dataPath etc
-// add option to load them from .env maybe?
-// Add general stability fixes
-const generateTypeConfigs = async (): Promise<void> => {
-    // Use the first CLI argument as the OpenAPI file path or default to an example file.
-    const openApiPath =
-    process.argv[2] || path.join(__dirname, dataPath);
-    console.log(`Parsing OpenAPI spec from: ${openApiPath}`);
-
-    const api = (await SwaggerParser.parse(openApiPath)) as OpenAPIV3.Document;
-    if (!api.components || !api.components.schemas) {
-        throw new Error('No schemas found in the OpenAPI document (currently only v3 onwards is supported).');
-    }
-    const schemas = api.components.schemas;
-
-    const results = Object.entries(schemas).map(([schemaName, schema]) => {
-        return [schemaName, generateTypeConfigForSchema(schemaName, schema)] as const;
-    });
-
-    const enums = results.filter(([_, r]) => r.isEnum);
-    const objects = results.filter(([_, r]) => !r.isEnum);
-    
-    let fileContent = `// AUTO-GENERATED FILE - DO NOT EDIT\n`;
-    fileContent += `// Generated from ${path.basename(openApiPath)}\n\n`;
-    fileContent += `import * as ${typeAlias} from '${typePath}'\n`
-    
-    const formImports = `${enums.length > 0 ? 'EnumTypeConfig, ' : ''}${objects.length > 0 ? 'ObjectTypeConfig' : ''}`;
-    fileContent += `import { ${formImports} } from '@src/lib/form';\n\n`
-    
-    // Process each schema individually.
-    for (const [_, result] of enums) {
-        // TODO write errors as comments here above the class definition (result has a .errors field)
-        fileContent += result.value;
-        fileContent += '\n';
-    }
-    
-    for (const [_, result] of objects) {
-        fileContent += result.value;
-        fileContent += '\n';
-    }
-
-    fs.writeFileSync(outputFilePath, fileContent, 'utf8');
-    console.log(`Type configuration for object type configs generated at: ${outputFilePath}`);
-
-};
-
-generateTypeConfigs().catch((err) => {
-    console.error('Error generating type configs:', err);
-    process.exit(1);
-});
-
 

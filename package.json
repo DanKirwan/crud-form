@@ -13,6 +13,7 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@apidevtools/swagger-parser": "^10.1.1",
     "@emotion/react": "^11.13.5",
     "@emotion/styled": "^11.13.5",
     "@mui/icons-material": "^6.2.0",
@@ -22,8 +23,10 @@
     "@tanstack/form-core": "^0.39.0",
     "@tanstack/react-form": "^0.39.0",
     "@tanstack/zod-form-adapter": "^0.40.1",
+    "ajv": "^8.17.1",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
+    "dotenv": "^16.4.7",
     "lodash-es": "^4.17.21",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

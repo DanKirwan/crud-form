@@ -12,6 +12,7 @@ type CustomRenderFormItem<TParentData, TKey extends DeepKeys<TParentData>, Rende
     validators?: FieldValidators<TParentData, TKey>
 }
 
+export type EnumTypeConfig<T> = Readonly<Record<string, T>>;
 // TODO is there a way to make `${ObjK}.type` more safe?
 export type FormPrimitive<
     T, // The object type
