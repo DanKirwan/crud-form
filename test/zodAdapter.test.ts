@@ -45,26 +45,11 @@ describe('nested object fetching', () => {
 describe('base type config validator building', () => {
     
     const typeConfig: ObjectTypeConfig<SimpleNested> = {
-        l2: {
-            a: {
-                isNullable: true,
-                type: 'Int32',
-            },
-            b: {
-                isNullable: false,
-                type: 'Boolean',
-            },
-        },
         test: {
             isNullable: false,
+            isOptional: false,
             type: 'String',
         },
-        list: { isRelation: false, config: {
-            x: {
-                isNullable: false,
-                type: 'String',
-            },
-        }},
     }
 
     const generatedSchema = buildTypeConfigValidator<SimpleNested>(typeConfig);

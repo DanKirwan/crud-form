@@ -1,6 +1,6 @@
-import { DeepKeys, DeepValue, FieldValidators, Validator } from '@tanstack/form-core';
+import { DeepKeys, DeepValue, FieldValidators } from '@tanstack/form-core';
 import { ComponentNames, FieldDisplayOptions, FieldEditOptions, ObjectMappings, RenderConfig } from './domain';
-import { IsExactlyUndefined, IsRecord, PrimitiveDeepKeys, PrimitiveShallowKeys, UnnestedArrayKeys } from './typeUtils';
+import { PrimitiveShallowKeys } from './typeUtils';
 
 export type FormDirection = 'row' | 'column';
 
@@ -47,7 +47,7 @@ export type FormPrimitive<
         // Enforce type compatibility between the object key and component
         : never
     }[PrimitiveShallowKeys<T>]
-    | CustomRenderFormItem<T, PrimitiveDeepKeys<T>, RenderT>;
+    | CustomRenderFormItem<T, DeepKeys<T>, RenderT>;
 
 
 
@@ -65,13 +65,17 @@ export type FormItems<T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderCon
 
 
 
-export type BaseFieldTypeConfig<T, NullT extends boolean, UndefinedT extends boolean > = {
-    type: Extract<ObjectMappings, { value: T }>['key'],
+type BaseTypeConfigMeta<NullT extends boolean, UndefinedT extends boolean> = {
     isReadOnly?: boolean,
     isWriteOnly?: boolean,
     isNullable: NullT,
     isOptional: UndefinedT,
 }
+export type BaseFieldTypeConfig<T, NullT extends boolean, UndefinedT extends boolean > = 
+    (
+        { type: Extract<ObjectMappings, { value: T }>['key'] } 
+        | { options: EnumTypeConfig<T>})
+    & BaseTypeConfigMeta<NullT, UndefinedT>
 
 export type FieldTypeConfig<T> = BaseFieldTypeConfig<T,  null extends T ? true : false, undefined extends T ? true : false > 
 

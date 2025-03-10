@@ -34,7 +34,7 @@ type OptionalKeys<T> = {
   
 
 
-export type PrimitiveShallowKeys<T> = keyof T & InternalPrimitiveShallowKeys<T> & DeepKeys<T>; // DeepKeys required for 
+export type PrimitiveShallowKeys<T> = keyof T & InternalPrimitiveShallowKeys<T>; // DeepKeys required for 
 
 // Filters existing deep keys to give only the primitive fields not in arrays
 type InternalPrimitiveShallowKeys<T> = {[K in keyof T]: 

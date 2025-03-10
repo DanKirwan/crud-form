@@ -94,7 +94,7 @@ const mapPropertyToTypeConfig = (
 
     // Lookup the EDM type using the nonArrayTypeMap
     if(propSchema.type) {
-        return genResultOf(`{ type: '${schemaToType(propSchema)}', isNullable: ${isNullable}, isUndefinable: ${!isRequired} }`);
+        return genResultOf(`{ type: '${schemaToType(propSchema)}', isNullable: ${isNullable}, isOptional: ${!isRequired} }`);
     }
     // ReferenceTypes
     if(!propSchema?.allOf) return genResultError('Could not match any type, array or object and no references found in "allOf"');
@@ -104,8 +104,8 @@ const mapPropertyToTypeConfig = (
 
     const refIsEnum = enumNamesField in propSchema;
     if(!refIsEnum) return genResultError('Non enum references are ignored currently');
-    const childName = refIsEnum ? 'type' : 'config'; // If its an enum, this is a field reference rather than a child
-    return genResultMap(propResult, r => `{ ${childName}: ${getTypeConfigName(r)}, isNullable: ${isNullable}, isUndefinable: ${!isRequired}}`);
+    const childName = refIsEnum ? 'options' : 'config'; // If its an enum, this is a field reference rather than a child
+    return genResultMap(propResult, r => `{ ${childName}: ${getTypeConfigName(r)}, isNullable: ${isNullable}, isOptional: ${!isRequired}}`);
 }
 
 type SchemaGenerationResult = GenerationResult & {isEnum?: boolean};

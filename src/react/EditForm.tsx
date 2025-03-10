@@ -2,7 +2,7 @@ import {
     Box,
     Button,
     Paper,
-    Stack
+    Stack,
 } from '@mui/material';
 import { FormValidator } from '@src/lib/validation/validationTypes';
 import { ReactFormExtendedApi, Validator } from '@tanstack/react-form';
@@ -49,15 +49,15 @@ export const EditForm = <T, TObjectConfig extends ObjectTypeConfig<T>, TRenderCo
 
                             
                                 <Box mt={3} mb={1} textAlign="right">
-                                        <Button
-                                            disabled={!canSubmit}
-                                            loading={isValidating}
-                                            variant="contained"
-                                            color="primary"
-                                            onClick={() => value.handleSubmit && value.handleSubmit()}
-                                        >
+                                    <Button
+                                        disabled={!canSubmit}
+                                        loading={isValidating}
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={() => value.handleSubmit && value.handleSubmit()}
+                                    >
                                             Submit
-                                        </Button>
+                                    </Button>
                                 </Box>
                             )}
                         />
@@ -76,11 +76,6 @@ export const EditForm = <T, TObjectConfig extends ObjectTypeConfig<T>, TRenderCo
                 {(field) => render(field)}
             </value.Field>),
 
-        (key, validators, renderContainer) => (
-            <value.Field name={key} mode='array' validators={validators}>
-                {(field) => renderContainer(field)}
-            </value.Field>
-        ),
         validator,
     );
 };

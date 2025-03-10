@@ -1,11 +1,11 @@
 // Get default component 
 
-import { FieldEditOptions, ObjectMappings, OdataTypeToValue, RenderConfig, SingleComponentType } from './domain';
-import {  FieldTypeConfig, FormItem, FormItems, ObjectTypeConfig } from './form';
-import { camelToDisplay } from './stringUtils';
-import { first, get } from 'lodash-es';
 import { DeepKeys, DeepValue, FieldApi, FieldMeta, FieldValidators, FormApi, Validator } from '@tanstack/form-core';
-import { AllPrimitiveDeepKeys, PrimitiveDeepKeys, PrimitiveShallowKeys, UnnestedArrayKeys } from './typeUtils';
+import { get } from 'lodash-es';
+import { FieldEditOptions, ObjectMappings, OdataTypeToValue, RenderConfig, SingleComponentType } from './domain';
+import { FormItem, FormItems, ObjectTypeConfig } from './form';
+import { camelToDisplay } from './stringUtils';
+import { AllPrimitiveDeepKeys, PrimitiveShallowKeys } from './typeUtils';
 import { FormValidator as CrudFormValidator } from './validation/validationTypes';
 
 type FieldRenderer<T, RenderT, TFormValidator extends Validator<T, unknown> | undefined> = <K extends DeepKeys<T>>(
@@ -16,7 +16,7 @@ type FieldRenderer<T, RenderT, TFormValidator extends Validator<T, unknown> | un
 
 
 
-type ContainerSubscriber<T, RenderT> = <K extends PrimitiveDeepKeys<T>,> (
+type ContainerSubscriber<T, RenderT> = <K extends DeepKeys<T>,> (
     keys: K[],
     render: ((metadata: FieldMeta[]) => RenderT),
 ) => RenderT;
@@ -82,18 +82,6 @@ const appendSuffix = <
 };
 
 
-const joinArrayPaths = <
-    TParentData,
-    TPrefix extends DeepKeys<TParentData> & string | undefined,
-    TChildData = ExtractChild<TParentData, TPrefix>
->(
-        prefix: TPrefix,
-        suffix: UnnestedArrayKeys<TChildData>, 
-    ): DeepKeys<TParentData> => {
-    if (prefix === undefined) return suffix as unknown as DeepKeys<TParentData>; // TODO fix a nicer way to do this
-    return `${prefix}.${suffix}` as unknown as DeepKeys<TParentData>;
-};
-
 type PrefixT<T> = (DeepKeys<T> & string) | undefined;
 
 
@@ -129,6 +117,7 @@ const renderFormItem = <
         console.log(propertyKey, convertPath(propertyKey))
         const typeInfo = objectConfig[childKey]; // as FieldTypeConfig<PrimitiveShallowKeys<TFormData>>;
         console.log(typeInfo)
+        if('options' in typeInfo) throw new Error('Cannot support options yet');
         const componentDef = Object.values(renderConfig.fieldComponents[typeInfo.type])[0];
         const def = componentDef as SingleComponentType<RenderT, any>;
 
@@ -161,7 +150,7 @@ const renderFormItem = <
         const { key: childKey, component, label} = item;
         const propertyKey = appendPrimitiveSuffix<TFormData, TPrefix, TChildData>(prefix, childKey);
         const typeInfo = get(objectConfig, childKey); // as FieldTypeConfig<PrimitiveShallowKeys<TFormData>>;
-
+        if('options' in typeInfo) throw new Error('Options not yet supported')
         const relevantComponents = renderConfig.fieldComponents[typeInfo.type];
         const componentDef = relevantComponents[component];
         if (!componentDef)
@@ -245,7 +234,7 @@ const renderFormItem = <
             ),
         );
 
-        const keys = contents.flatMap(c => c.meta) as PrimitiveDeepKeys<TFormData>[];
+        const keys = contents.flatMap(c => c.meta);
         const render = containerSubscriber(keys, fieldMetas => 
         {
 

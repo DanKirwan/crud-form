@@ -138,7 +138,7 @@ const generateTypeConfigs = async (): Promise<void> => {
 
     const formImports =
     (enums.length > 0 ? 'EnumTypeConfig, ' : '') +
-    (objects.length > 0 ? 'ShallowObjectTypeConfig' : '');
+    (objects.length > 0 ? 'ObjectTypeConfig' : '');
     fileContent += `import { ${formImports} } from '@src/lib/form';\n\n`;
 
     // Process enums first.
