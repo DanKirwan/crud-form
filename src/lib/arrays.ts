@@ -1,4 +1,4 @@
-import { NonEmptyObject } from "type-fest";
+import { NonEmptyObject } from 'type-fest';
 
 export type ArrayEditOptions<RenderT> = {content: RenderT[], remove: (index: number) => void, add: () => void }
 

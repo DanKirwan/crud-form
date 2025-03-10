@@ -138,27 +138,6 @@ export const bigUserProfileTypeConfig = {
     lastLogin: {type: 'DateTimeOffset', isNullable: false},
     newsletter: {type: 'Boolean', isNullable: false},
     notifications: {type: 'Boolean', isNullable: false},
-    // preferredContactMethods: [{type: 'String', isNullable: false}],
-    location: {
-        lat: {type: 'Double', isNullable: false, isReadOnly: true},
-        long: {type: 'Double', isNullable: false, isReadOnly: true},
-    },
-    // previousEmployers: [{
-    //     companyName: {type: 'String', isNullable: false},
-    //     startDate: {type: 'DateTimeOffset', isNullable: false},
-    //     endDate: {type: 'DateTimeOffset', isNullable: false},
-    //     reasonForLeaving: {type: 'String', isNullable: false},
-    // }],
-    addresses: { 
-        isRelation: true, 
-        config:{
-            line1: {type: 'String', isNullable: false},
-            line2: {type: 'String', isNullable: true},
-            city: {type: 'String', isNullable: false},
-            state: {type: 'String', isNullable: false},
-            zip: {type: 'String', isNullable: false},
-        }},
-    // skills: [{type: 'String', isNullable: false}],
     acceptedTOS: {type: 'Boolean', isNullable: false},
 } as const satisfies ObjectTypeConfig<BigUserProfile>;
 
@@ -215,7 +194,7 @@ export const bigUserProfileForm: FormItems<
                 },
                 'email',
                 {
-                    key: 'bio',
+                    key: 'lastName',
                     component: 'multi-line-text-field',
                     label: 'Biography',
                 },
@@ -237,54 +216,6 @@ export const bigUserProfileForm: FormItems<
                 },
             ],
         },
-
-        // Page 2: Employment History & Addresses
-        {
-            showStatus: true,
-            layout: 'col',
-            container: 'accordion',
-            label: 'Employment & Address',
-            items: [
-                {
-                    layout: 'col',
-                    label: 'Previous Employers',
-                    items: [
-                        // {
-                        //     key: 'previousEmployers',
-                        //     component: 'dynamic-array',
-                        //     label: 'Previous Employers',
-                        //     itemFields: [
-                        //         { key: 'companyName', component: 'text-box', label: 'Company Name' },
-                        //         { key: 'startDate', component: 'date-picker', label: 'Start Date' },
-                        //         { key: 'endDate', component: 'date-picker', label: 'End Date' },
-                        //         { key: 'reasonForLeaving', component: 'text-box', label: 'Reason for Leaving' },
-                        //     ],
-                        // },
-                    ],
-                },
-                {
-                    layout: 'col',
-                    label: 'Addresses',
-                    items: [
-                        {
-                            
-                            key: 'addresses',
-                            type: 'customizableList',
-                            options: {color: 'warning', dense: true},
-                            subForm: {
-                                items: [
-                                    'line1',
-                                    'city',
-                                    'line2',
-                                    'state', 'zip',
-                                ],
-                            },
-                        },
-                    ],
-                },
-            ],
-        },
-
         // Page 3: Preferences & Status
         {
             showStatus: true,
@@ -333,34 +264,12 @@ export const bigUserProfileForm: FormItems<
                         },
                     ],
                 },
-                // {
-                //     key: 'preferredContactMethods',
-                //     component: 'multi-select',
-                //     label: 'Preferred Contact Methods',
-                //     options: ['email', 'phone', 'sms'],
-                // },
-                {
-                    layout: 'row',
-                    label: 'Location',
-                    items: [
-                        { key: 'location.lat', component: 'double-text-box', label: 'Latitude' },
-                        { key: 'location.long', component: 'double-text-box', label: 'Longitude' },
-                    ],
-                },
-                // {
-                //     key: 'skills',
-                //     component: 'dynamic-array',
-                //     label: 'Skills',
-                //     itemFields: [
-                //         { component: 'text-box', label: 'Skill' },
-                //     ],
-                // },
                 {
                     layout: 'row',
                     label: 'Registration & Login Dates',
                     items: [
                         {
-                            key: 'registeredAt',
+                            key: 'lastLogin',
                             component: 'datetime',
                             label: 'Registered At',
                         },
@@ -463,7 +372,7 @@ export const bigUserProfileExample: BigUserProfile = {
     age: 25,
     email: '',
     bio: null,
-    birthDate: new Date("2000-01-01"), 
+    birthDate: new Date('2000-01-01'), 
     maritalStatus: '',
 
     isActive: false,

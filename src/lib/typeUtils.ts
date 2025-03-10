@@ -34,6 +34,20 @@ type OptionalKeys<T> = {
   
 
 
+export type PrimitiveShallowKeys<T> = keyof T & InternalPrimitiveShallowKeys<T> & DeepKeys<T>; // DeepKeys required for 
+
+// Filters existing deep keys to give only the primitive fields not in arrays
+type InternalPrimitiveShallowKeys<T> = {[K in keyof T]: 
+    K extends string 
+        ? IsArray<T[K]> extends false
+            ? IsRecord<T[K]> extends false 
+                ?  K 
+                : never
+            : never
+        : never
+}[keyof T];
+
+
 /** Extracts all primitive values of fields that are not inside arrays */
 export type PrimitiveDeepKeys<T> = InternalPrimitiveDeepKeys<T, []> & DeepKeys<T>; // DeepKeys required for 
 

@@ -1,29 +1,18 @@
 // Get default component 
 
 import { FieldEditOptions, ObjectMappings, OdataTypeToValue, RenderConfig, SingleComponentType } from './domain';
-import { ArrayTypeConfig, FieldTypeConfig, FormItem, FormItems, ObjectTypeConfig } from './form';
+import {  FieldTypeConfig, FormItem, FormItems, ObjectTypeConfig } from './form';
 import { camelToDisplay } from './stringUtils';
 import { first, get } from 'lodash-es';
 import { DeepKeys, DeepValue, FieldApi, FieldMeta, FieldValidators, FormApi, Validator } from '@tanstack/form-core';
-import { AllPrimitiveDeepKeys, PrimitiveDeepKeys, UnnestedArrayKeys } from './typeUtils';
+import { AllPrimitiveDeepKeys, PrimitiveDeepKeys, PrimitiveShallowKeys, UnnestedArrayKeys } from './typeUtils';
 import { FormValidator as CrudFormValidator } from './validation/validationTypes';
 
-type FieldRenderer<T, RenderT, TFormValidator extends Validator<T, unknown> | undefined> = <K extends AllPrimitiveDeepKeys<T>>(
+type FieldRenderer<T, RenderT, TFormValidator extends Validator<T, unknown> | undefined> = <K extends DeepKeys<T>>(
     key: K,
     validators: FieldValidators<T, K, undefined, TFormValidator>,
     render: (api: FieldApi<T, K, undefined, TFormValidator>) => RenderT
 ) => RenderT;
-
-
-
-
-// TODO if I replace DeepKeys<T> with some recursive array keys here would it type check nicely?
-type ArrayRenderer<T, RenderT, TFormValidator extends Validator<T, unknown> | undefined> = <K extends DeepKeys<T>>(
-    key: K,
-    validators: FieldValidators<T, K, undefined, TFormValidator>,
-    renderContainer: (api: FieldApi<T, K, undefined, TFormValidator>) => RenderT
-) => RenderT;
-
 
 
 
@@ -47,10 +36,9 @@ export const renderForm = <
         renderForm: (contents: RenderT) => RenderT,
         containerSubscriber: ContainerSubscriber<T, RenderT>,
         renderField: FieldRenderer<T, RenderT, TFormValidator>,
-        renderArray: ArrayRenderer<T, RenderT, TFormValidator>,
         validator: CrudFormValidator<T, TFormValidator> | undefined ,
     ): RenderT => renderForm(
-        renderFormItem(form, formInstance, renderConfig, objectConfig, containerSubscriber, renderField, renderArray, validator, undefined).render)
+        renderFormItem(form, formInstance, renderConfig, objectConfig, containerSubscriber, renderField,  validator, undefined).render)
 
 
 
@@ -73,11 +61,26 @@ const appendPrimitiveSuffix = <
     TChildData = ExtractChild<TParentData, TPrefix>
 >(
         prefix: TPrefix, 
-        suffix: PrimitiveDeepKeys<TChildData>,
+        suffix: PrimitiveShallowKeys<TChildData>,
     ): AllPrimitiveDeepKeys<TParentData> => {
     if (prefix === undefined) return suffix as unknown as AllPrimitiveDeepKeys<TParentData>; // TODO fix a nicer way to do this
     return `${prefix}.${suffix}` as unknown as AllPrimitiveDeepKeys<TParentData>;
 };
+
+
+// This appends the suffix without any guarantee on primitiveness - used for customs
+const appendSuffix = <
+    TParentData,
+    TPrefix extends DeepKeys<TParentData> | undefined,
+    TChildData = ExtractChild<TParentData, TPrefix>
+>(
+        prefix: TPrefix, 
+        suffix: DeepKeys<TChildData>,
+    ): DeepKeys<TParentData> => {
+    if (prefix === undefined) return suffix as unknown as DeepKeys<TParentData>;
+    return `${prefix}.${suffix}` as unknown as DeepKeys<TParentData>;
+};
+
 
 const joinArrayPaths = <
     TParentData,
@@ -115,17 +118,16 @@ const renderFormItem = <
         objectConfig: ObjectTypeConfig<TChildData>,
         containerSubscriber: ContainerSubscriber<TFormData, RenderT>,
         renderField: FieldRenderer<TFormData, RenderT, TFormValidator>,
-        renderArray: ArrayRenderer<TFormData, RenderT, TFormValidator>,
         validator: CrudFormValidator<TFormData, TFormValidator> | undefined,
         prefix: TPrefix,
     ): RenderNode<TFormData, RenderT> => {
 
     if (typeof item === 'string') {
         // It's a simple property key
-        const childKey = item satisfies PrimitiveDeepKeys<TChildData>;
+        const childKey = item satisfies PrimitiveShallowKeys<TChildData>;
         const propertyKey = appendPrimitiveSuffix(prefix, childKey) satisfies AllPrimitiveDeepKeys<TFormData>;
         console.log(propertyKey, convertPath(propertyKey))
-        const typeInfo = get(objectConfig, childKey) as FieldTypeConfig<PrimitiveDeepKeys<TFormData>>;
+        const typeInfo = objectConfig[childKey]; // as FieldTypeConfig<PrimitiveShallowKeys<TFormData>>;
         console.log(typeInfo)
         const componentDef = Object.values(renderConfig.fieldComponents[typeInfo.type])[0];
         const def = componentDef as SingleComponentType<RenderT, any>;
@@ -158,7 +160,7 @@ const renderFormItem = <
         // It's a component-based item
         const { key: childKey, component, label} = item;
         const propertyKey = appendPrimitiveSuffix<TFormData, TPrefix, TChildData>(prefix, childKey);
-        const typeInfo = get(objectConfig, childKey) as FieldTypeConfig<PrimitiveDeepKeys<TFormData>>;
+        const typeInfo = get(objectConfig, childKey); // as FieldTypeConfig<PrimitiveShallowKeys<TFormData>>;
 
         const relevantComponents = renderConfig.fieldComponents[typeInfo.type];
         const componentDef = relevantComponents[component];
@@ -194,7 +196,7 @@ const renderFormItem = <
     if ('display' in item && 'edit' in item) {
         // It's a custom render
         const { key: childKey, edit, label } = item;
-        const propertyKey = appendPrimitiveSuffix<TFormData, TPrefix, TChildData>(prefix, childKey);
+        const propertyKey = appendSuffix<TFormData, TPrefix, TChildData>(prefix, childKey);
 
         const render: RenderT = renderField(
             propertyKey,
@@ -214,44 +216,6 @@ const renderFormItem = <
             }));
 
         return {render, meta: [propertyKey]};
-    }
-
-    if('subForm' in item) {
-        // This is an array selector
-
-        const {key: childKey, subForm, type } = item;
-        // Typing magic here needs sorting
-        const propertyKey = joinArrayPaths(prefix, childKey) as unknown as DeepKeys<TFormData>;
-        type SubformDataT = DeepValue<TChildData, typeof propertyKey>;
-        const subformConfig = get(objectConfig, childKey) as ArrayTypeConfig<SubformDataT>;
-        const subFormT = subForm as unknown as FormItems<SubformDataT, RenderT, ObjectTypeConfig<SubformDataT>, RenderConfigT>;
-        const arrayContainers: RenderConfigT['arrayContainers'] = renderConfig.arrayContainers;
-        const arrayContainer = type === undefined ? first(Object.values(arrayContainers)) : arrayContainers[type];
-
-
-        const options = 'options' in item ? item['options'] : undefined;
-        if(!arrayContainer) throw new Error(`Could not find array container to for type ${String(type)} ensure at least one array container is defined`)
-        const render = renderArray(
-            propertyKey, 
-            {
-                onMount: validator?.getFieldValidator(propertyKey as any) ?? undefined,
-                onChange: validator?.getFieldValidator(propertyKey as any) ?? undefined,
-                onBlur: validator?.getFieldValidator(propertyKey as any) ?? undefined,
-            },
-            (field) => arrayContainer.edit({
-                add: () => field.pushValue(null!),
-                content: field.state.value.map((_, index) => renderFormItem<TFormData, RenderT, ObjectTypeConfig<SubformDataT>, RenderConfigT, TFormValidator, any, SubformDataT>(
-                    subFormT, formInstance, renderConfig, 
-                    subformConfig.config, 
-                    containerSubscriber, renderField, renderArray,
-                    validator, `${propertyKey}[${index}]`).render),
-                remove: field.removeValue
-            }, options));
-                
-
-        // At some point we need to extract the child meta's here too
-        return {render, meta: [propertyKey]}
-      
     }
 
 
@@ -276,7 +240,6 @@ const renderFormItem = <
                 objectConfig,
                 containerSubscriber,
                 renderField,
-                renderArray,
                 validator,
                 prefix,
             ),
