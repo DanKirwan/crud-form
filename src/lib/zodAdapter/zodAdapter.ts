@@ -1,10 +1,10 @@
-import { Validator } from '@tanstack/form-core';
+import { DeepKeys, Validator } from '@tanstack/form-core';
 import { z, ZodArray, ZodBoolean, ZodObject, ZodTuple, ZodType, ZodTypeAny } from 'zod';
 import { FormValidator } from '../validation/validationTypes';
 
 import type { PartialDeep } from 'type-fest';
 import { ObjectMappings, OdataTypeToValue } from '../domain';
-import { ArrayTypeConfig, FieldTypeConfig, ObjectTypeConfig } from '../form';
+import {  EnumTypeConfig, FieldTypeConfig, ObjectTypeConfig } from '../form';
 import { objectEntries } from '../objectUtils';
 import { AllPrimitiveDeepKeys, IsRecord} from '../typeUtils';
 
@@ -67,15 +67,29 @@ type ZodDeep<T> = IsRecord<T> extends true ? ZodObject<{[K in keyof T]: ZodDeep<
 
 
 const isFieldTypeConfig = <T>(typeConfig: ObjectTypeConfig<T> | FieldTypeConfig<T>): typeConfig is FieldTypeConfig<T> => {
-    return ('type' in typeConfig && typeof typeConfig.type === 'string');
-}
-
-const isArrayTypeConfig = <T>(typeConfig: ObjectTypeConfig<T> | ArrayTypeConfig<T>): typeConfig is ArrayTypeConfig<T> => {
-    return ('config' in typeConfig && typeof typeConfig.config === 'object');
+    return (
+        ('type' in typeConfig && typeof typeConfig.type === 'string')
+        || ('options' in typeConfig && typeof typeConfig.options == 'object'));
 }
 
 const isEmptyObject = (typeConfig: object | {}): typeConfig is {} => {
     return Object.values(typeConfig).length == 0;
+}
+
+const createEnumValidator = <T extends string | number | undefined | null, TConfig extends EnumTypeConfig<T>>(
+    record: TConfig,
+): z.ZodType<T[keyof T]> => {
+    // Extract all the valid values from the record.
+    const validValues = Object.values(record) as T[keyof T][];
+    // Gather the keys so we can include them in the error message.
+    const allowedKeys = Object.keys(record);
+    
+    return z.custom<T[keyof T]>(
+        (val): val is T[keyof T] => validValues.includes(val),
+        {
+            message: `Expected one of: ${allowedKeys.join(', ')}`,
+        },
+    );
 }
 
 // TODO write more tests for this
@@ -90,15 +104,12 @@ export const buildTypeConfigValidator = <T>(typeConfig: ObjectTypeConfig<T>): Zo
         if(isFieldTypeConfig(child)) {
             // this is a base type config 
             const config = child as FieldTypeConfig<T[keyof T]>;
+            if('type' in config) {
 
-            const baseZod = zodDataTypeMap[config.type];
-            return [key,  config.isNullable ? baseZod.nullable() : baseZod] as const;
-        }
-
-        if(isArrayTypeConfig(child)) {
-            const arrayConf = child as ArrayTypeConfig<T[keyof T]>;
-
-            return [key, z.array(buildTypeConfigValidator(arrayConf.config))] as const;   
+                const baseZod = zodDataTypeMap[config.type];
+                return [key,  config.isNullable ? baseZod.nullable() : baseZod] as const;
+            }
+            return [key, createEnumValidator(config.options)]
         }
 
         return [key, buildTypeConfigValidator(child)] as const;
@@ -135,7 +146,7 @@ function parsePath(path: string): string[] {
 }
   
 
-export function accessZodField<T>(schema: PartialZodFormValidator<T> | ZodDeep<T>, path: AllPrimitiveDeepKeys<T>) {
+export function accessZodField<T>(schema: PartialZodFormValidator<T> | ZodDeep<T>, path: DeepKeys<T>) {
     const segments = parsePath(`${path}`);
     let current: ZodTypeAny = schema;
   
@@ -177,7 +188,8 @@ export function accessZodField<T>(schema: PartialZodFormValidator<T> | ZodDeep<T
   
         } else {
         // Not an object/array/tuple, can't go deeper
-            throw new Error(`Cannot access "${segment}" on a non-object/non-array/non-tuple field at path "${path}".`);
+            return undefined;
+            console.log(`Cannot access "${segment}" on a non-object/non-array/non-tuple field at path "${path}".`);
         }
     }
   

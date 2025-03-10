@@ -2,6 +2,7 @@ import { FieldApi, Validator } from '@tanstack/form-core';
 import { ContainerLayoutConfig, ContainerWrapperConfig } from './containers';
 import { NonEmptyObject } from 'type-fest';
 import { ArrayContainerConfig } from './arrays';
+import { EnumTypeConfig } from './form';
 
 
 // TODO add support for things like longs
@@ -51,7 +52,7 @@ export type SingleComponentType<RenderT, K extends ObjectMappings['key'], TOptio
 
 export type ComponentMap<RenderT> = {
     [K in ObjectMappings['key']]: NonEmptyObject<Record<string, SingleComponentType<RenderT, K>>>
-}
+} 
 
 
 
@@ -65,10 +66,20 @@ export type ComponentNames<RenderT, MapT extends ComponentMap<RenderT>> = {
     [K in ObjectMappings['key']]: keyof MapT[K]
 };
 
+export type SelectComponent<RenderT, T = string | number | null | undefined> = 
+    [T] extends [string | number | null | undefined] 
+        ? {
+            edit: (field: FieldEditOptions<T>, options: EnumTypeConfig<T>) => RenderT
+            display: (field: FieldDisplayOptions<T>, options: EnumTypeConfig<T>) => RenderT
+        } 
+        : never;
+
+export type SelectComponentMap<RenderT> = Readonly<Record<string, SelectComponent<RenderT>>>;
 
 
 export type RenderConfig<RenderT> = {
     fieldComponents: ComponentMap<RenderT>;
+    selectComponents: SelectComponentMap<RenderT>;
     layouts: ContainerLayoutConfig<RenderT>;
     containers: ContainerWrapperConfig<RenderT>;
     arrayContainers: ArrayContainerConfig<RenderT>;

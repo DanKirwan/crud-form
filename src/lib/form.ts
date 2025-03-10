@@ -12,8 +12,19 @@ type CustomRenderFormItem<TParentData, TKey extends DeepKeys<TParentData>, Rende
     validators?: FieldValidators<TParentData, TKey>
 }
 
-export type EnumTypeConfig<T> = Readonly<Record<string, T>>;
+export type EnumTypeConfig<T> = [T] extends [string | number | undefined | null] ? Readonly<Record<string, T>> : never;
 // TODO is there a way to make `${ObjK}.type` more safe?
+
+export type FormSelectPrimitive<
+    T,
+    RenderT,
+    ObjK extends PrimitiveShallowKeys<T>,
+    RenderConfigT extends RenderConfig<RenderT>
+> = {
+    key: ObjK,
+    selectComponent: keyof RenderConfigT['selectComponents']
+}
+
 export type FormPrimitive<
     T, // The object type
     RenderT,
@@ -24,27 +35,31 @@ export type FormPrimitive<
     | {
         label?: string;
     } & {
-        [ObjK in PrimitiveShallowKeys<T>]: DeepValue<ConfigT, `${ObjK}.type`> extends ObjectMappings['key'] ?
-        {
-            [K in ObjectMappings['key']]: DeepValue<ConfigT, `${ObjK}.type`> extends K ? K extends DeepValue<ConfigT, `${ObjK}.type`> ?
-            {
-                [ComponentK in ComponentNames<RenderT, RenderConfigT['fieldComponents']>[K]]: ComponentK extends string ?  
-                    Parameters<RenderConfigT['fieldComponents'][K][ComponentK]['edit']>['1']  extends undefined ? {
-                        key: ObjK, 
-                        component: ComponentK, 
-                    } : 
-                    {
-                        key: ObjK, 
-                        component: ComponentK, 
-                        options: Parameters<RenderConfigT['fieldComponents'][K][ComponentK]['edit']>['1'] 
-                    } : 
-                never
-                
-               
-            }[ComponentNames<RenderT, RenderConfigT['fieldComponents']>[K]]:
-            never : never
-        }[ObjectMappings['key']]
-        // Enforce type compatibility between the object key and component
+        [ObjK in PrimitiveShallowKeys<T>]: 'options' extends keyof ConfigT[ObjK]
+            ? FormSelectPrimitive<T, RenderT, ObjK, RenderConfigT>
+            : 'type' extends keyof ConfigT[ObjK]
+                ? ConfigT[ObjK]['type'] extends ObjectMappings['key'] 
+                    ? {
+                        [K in ObjectMappings['key']]: ConfigT[ObjK]['type'] extends K ? K extends  ConfigT[ObjK]['type']
+                        ?{
+                            [ComponentK in ComponentNames<RenderT, RenderConfigT['fieldComponents']>[K]]: ComponentK extends string 
+                                ? Parameters<RenderConfigT['fieldComponents'][K][ComponentK]['edit']>['1']  extends undefined 
+                                    ? {
+                                        key: ObjK, 
+                                        component: ComponentK, 
+                                    } 
+                                    : {
+                                        key: ObjK, 
+                                        component: ComponentK, 
+                                        options: Parameters<RenderConfigT['fieldComponents'][K][ComponentK]['edit']>['1'] 
+                                    }  
+                                : never
+                            }[ComponentNames<RenderT, RenderConfigT['fieldComponents']>[K]]
+                        : never 
+                    : never
+                }[ObjectMappings['key']]
+                // Enforce type compatibility between the object key and component
+            : never 
         : never
     }[PrimitiveShallowKeys<T>]
     | CustomRenderFormItem<T, DeepKeys<T>, RenderT>;

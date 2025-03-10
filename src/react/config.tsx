@@ -12,6 +12,7 @@ import { REACT_CONTAINER_WRAPPER_CONFIG } from './containers/wrappers/wrapperCon
 import { REACT_LAYOUT_CONFIG } from './containers/layouts/layoutConfig';
 import { IntSelectField, StringSelectField } from './components/SelectField';
 import { REACT_ARRAY_CONTAINER_CONFIG } from './containers/arrayContainers/arrayConfig';
+import { REACT_SELECT_CONFIG } from './selectComponents';
 
 
 
@@ -34,6 +35,7 @@ export const REACT_RENDER_CONFIG = {
     layouts: REACT_LAYOUT_CONFIG,
     fieldComponents: REACT_COMPONENT_MAP,
     arrayContainers: REACT_ARRAY_CONTAINER_CONFIG,
+    selectComponents: REACT_SELECT_CONFIG,
 } satisfies RenderConfig<ReactNode>;
 
 export type ReactRenderComponentMap = typeof REACT_COMPONENT_MAP;

@@ -60,8 +60,15 @@ export type BigUserProfile = {
 
     // Terms & Conditions
     acceptedTOS: boolean;
+    jobStatus: JobStatus | null;
 }
 
+
+enum JobStatus {
+    Employed = 0,
+    Unemployed = 1,
+    SelfEmployed = 4
+};
 
 // Create a refined date schema for certain validations
 const dateInPast = z.date().refine(d =>  d.getTime() < Date.now(), 'Date must be in the past.' );
@@ -139,6 +146,7 @@ export const bigUserProfileTypeConfig = {
     newsletter: {type: 'Boolean', isNullable: false, isOptional: false},
     notifications: {type: 'Boolean', isNullable: false, isOptional: false},
     acceptedTOS: {type: 'Boolean', isNullable: false, isOptional: false},
+    jobStatus: {options: {'Employed': JobStatus.Employed, 'Test': JobStatus.SelfEmployed}, isNullable: true, isOptional: false},
 } as const satisfies ObjectTypeConfig<BigUserProfile>;
 
 
@@ -175,7 +183,7 @@ export const bigUserProfileForm: FormItems<
                     layout: 'row',
                     container: 'identity',
                     label: 'Name',
-                    items: ['firstName', 'lastName'],
+                    items: ['acceptedTOS', 'lastName'],
                 },
                 {
                     layout: 'row',
@@ -192,9 +200,13 @@ export const bigUserProfileForm: FormItems<
                         },
                     ],
                 },
+                {
+                    key: 'jobStatus',
+                    selectComponent: 'basic-select',
+                },
                 'email',
                 {
-                    key: 'lastName',
+                    key: 'bio',
                     component: 'multi-line-text-field',
                     label: 'Biography',
                 },
@@ -319,6 +331,7 @@ export const emptyBigUserProfileExample: UndefinedDeepPrimitives<BigUserProfile>
     registeredAt: undefined,
     lastLogin: new Date('2020-01-02'),
 
+    jobStatus: undefined,
     // undefined doesn't make much sense in the case of booleans - needs to be true if required
     newsletter: undefined,
     notifications: false,
@@ -374,6 +387,7 @@ export const bigUserProfileExample: BigUserProfile = {
     bio: null,
     birthDate: new Date('2000-01-01'), 
     maritalStatus: '',
+    jobStatus: null,
 
     isActive: false,
     rating: 0,

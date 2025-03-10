@@ -150,7 +150,7 @@ const renderFormItem = <
         const { key: childKey, component, label} = item;
         const propertyKey = appendPrimitiveSuffix<TFormData, TPrefix, TChildData>(prefix, childKey);
         const typeInfo = get(objectConfig, childKey); // as FieldTypeConfig<PrimitiveShallowKeys<TFormData>>;
-        if('options' in typeInfo) throw new Error('Options not yet supported')
+        if('options' in typeInfo) throw new Error('Enum fields cannot use normal components - use the "selectComponent" key');
         const relevantComponents = renderConfig.fieldComponents[typeInfo.type];
         const componentDef = relevantComponents[component];
         if (!componentDef)
@@ -181,6 +181,43 @@ const renderFormItem = <
 
         return {meta: [propertyKey], render};
     }
+
+    if ('selectComponent' in item) {
+        // It's a component-based item
+        const { key: childKey, selectComponent, label} = item;
+        const propertyKey = appendPrimitiveSuffix<TFormData, TPrefix, TChildData>(prefix, childKey);
+        const typeInfo = get(objectConfig, childKey); // as FieldTypeConfig<PrimitiveShallowKeys<TFormData>>;
+        const componentDef = renderConfig.selectComponents[selectComponent as string];
+        if(!('options' in typeInfo)) throw new Error('Cannot use a select component without options in type config');
+        if (!componentDef){
+
+            throw new Error(
+                `Could not find definition for key ${propertyKey} and component ${String(selectComponent)}`,
+            );
+        }
+
+        // TODO add options to select components
+        // const options = 'options' in item ? item.options : undefined;
+
+        const render: RenderT = renderField(
+            propertyKey,
+            {
+                onMount: validator?.getFieldValidator(propertyKey) ?? undefined,
+                onChange: validator?.getFieldValidator(propertyKey) ?? undefined,
+                onBlur: validator?.getFieldValidator(propertyKey) ?? undefined,
+            },
+            field => componentDef.edit({
+                state: field.state  as FieldEditOptions<string | number>['state'],
+                handleChange: field.handleChange as FieldEditOptions<unknown>['handleChange'],
+                handleBlur: field.handleBlur,
+                name: field.name as string,
+                label: label ?? camelToDisplay(propertyKey as string),
+                required: validator?.isFieldRequired(propertyKey) ?? false,
+            }, typeInfo.options));
+
+        return {meta: [propertyKey], render};
+    }
+
 
     if ('display' in item && 'edit' in item) {
         // It's a custom render
