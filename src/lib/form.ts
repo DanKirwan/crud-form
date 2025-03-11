@@ -63,7 +63,7 @@ export type FormPrimitive<
             : never 
         : never
     }[PrimitiveShallowKeys<T>]
-    | CustomRenderFormItem<T, DeepKeys<T>, RenderT>;
+    // | CustomRenderFormItem<T, DeepKeys<T>, RenderT>;
 
 
 

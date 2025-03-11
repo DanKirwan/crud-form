@@ -1,9 +1,9 @@
-import BigUserProfileForm from './components/BigUserProfileForm'
+import UserProfileForm from './components/BigUserProfileForm'
 
 function App() {
     return (
         <>
-            <BigUserProfileForm />
+            <UserProfileForm />
 
             {/* <ObjectList objectType='user' formType='admin-user-form' formOpenMode='modal | accordion | newpage' /> */}
         </>

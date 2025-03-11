@@ -11,6 +11,8 @@ import { renderForm } from '../lib/display';
 import { RenderConfig } from '../lib/domain';
 import { FormItems, ObjectTypeConfig } from '../lib/form';
 
+
+
 type Props<T, TObjectConfig extends ObjectTypeConfig<T>, TRenderConfig extends RenderConfig<ReactNode>, TFormValidator extends Validator<T, unknown> | undefined = undefined> = {
     value: ReactFormExtendedApi<T, TFormValidator>;
     config: TObjectConfig;
