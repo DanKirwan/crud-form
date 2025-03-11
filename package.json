@@ -1,7 +1,5 @@
 {
-  "name": "crud-form",
-  "private": true,
-  "version": "0.0.0",
+  "name": "@ccq/crud-form",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -34,6 +32,7 @@
     "vite-tsconfig-paths": "^5.1.4",
     "zod": "^3.24.1"
   },
+  "exports": "./src/index.ts",
   "devDependencies": {
     "@chromatic-com/storybook": "^3.2.2",
     "@eslint/js": "^9.13.0",
@@ -65,5 +64,6 @@
     "extends": [
       "plugin:storybook/recommended"
     ]
-  }
+  },
+  "license": "UNLICENSED"
 }

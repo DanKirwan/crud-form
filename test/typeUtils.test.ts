@@ -1,5 +1,5 @@
 import { AdjustedPrimitivesDeep, IsExactlyUndefined, NullableDeepPrimitives, PrimitiveDeepKeys, UnnestedArrayKeys } from '@src/lib/typeUtils';
-import { describe, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type { TypeMatchGuard } from './testTypeUtils';
 import { assertTypeEqual } from './testTypeUtils';
 
@@ -144,20 +144,17 @@ describe('adjusted primitives', () => {
     
     
     })
-        
+});
 
-
-})
-
-
-describe('Exactly Undefined', () => {
+//Exactly Undefined 
+() => {
     type X = undefined;
     type Y = X | null;
     type Z = number;
     assertTypeEqual<TypeMatchGuard<true, IsExactlyUndefined<X>>>();
     assertTypeEqual<TypeMatchGuard<false, IsExactlyUndefined<Y>>>();
     assertTypeEqual<TypeMatchGuard<false, IsExactlyUndefined<Z>>>();
-})
+};
 // TODO
 
 describe('deep primitive keys', () => {

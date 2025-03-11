@@ -145,8 +145,8 @@ function parsePath(path: string): string[] {
     return segments;
 }
   
-
-export function accessZodField<T>(schema: PartialZodFormValidator<T> | ZodDeep<T>, path: DeepKeys<T>) {
+/** Returns a Zod field if available and null if not */
+export function accessZodField<T>(schema: PartialZodFormValidator<T> | ZodDeep<T>, path: DeepKeys<T>, strict: boolean = false) {
     const segments = parsePath(`${path}`);
     let current: ZodTypeAny = schema;
   
@@ -187,9 +187,11 @@ export function accessZodField<T>(schema: PartialZodFormValidator<T> | ZodDeep<T
             current = items[index];
   
         } else {
-        // Not an object/array/tuple, can't go deeper
-            return undefined;
-            console.log(`Cannot access "${segment}" on a non-object/non-array/non-tuple field at path "${path}".`);
+            const message = `Cannot access "${segment}" on a non-object/non-array/non-tuple field at path "${path}".`
+            console.log(message);
+            if(!strict) return undefined;
+            throw new Error(message);
+            // Not an object/array/tuple, can't go deeper
         }
     }
   

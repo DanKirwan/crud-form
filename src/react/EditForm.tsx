@@ -75,7 +75,6 @@ export const EditForm = <T, TObjectConfig extends ObjectTypeConfig<T>, TRenderCo
             <value.Field name={key} validators={validators}>
                 {(field) => render(field)}
             </value.Field>),
-
         validator,
     );
 };
