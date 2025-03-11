@@ -1,6 +1,7 @@
 import { DeepKeys, DeepValue, FieldValidators } from '@tanstack/form-core';
 import { ComponentNames, FieldDisplayOptions, FieldEditOptions, ObjectMappings, RenderConfig } from './domain';
-import { PrimitiveShallowKeys } from './typeUtils';
+import { IsNullishArray, IsNullishRecord, IsPrimitive, IsRecord, PrimitiveShallowKeys } from './typeUtils';
+import { T } from 'vitest/dist/chunks/environment.LoooBwUu.js';
 
 export type FormDirection = 'row' | 'column';
 
@@ -80,7 +81,7 @@ export type FormItems<T, RenderT, ConfigT extends ObjectTypeConfig<T>, RenderCon
 
 
 
-type BaseTypeConfigMeta<NullT extends boolean, UndefinedT extends boolean> = {
+export type BaseTypeConfigMeta<NullT extends boolean, UndefinedT extends boolean> = {
     isReadOnly?: boolean,
     isWriteOnly?: boolean,
     isNullable: NullT,
@@ -94,7 +95,21 @@ export type BaseFieldTypeConfig<T, NullT extends boolean, UndefinedT extends boo
 
 export type FieldTypeConfig<T> = BaseFieldTypeConfig<T,  null extends T ? true : false, undefined extends T ? true : false > 
 
-export type ObjectTypeConfig<T> =  {[ObjK in PrimitiveShallowKeys<T>]: FieldTypeConfig<T[ObjK]>}
+export type NestedType<T> = IsNullishRecord<T> extends true 
+    ? 'object' 
+    : IsNullishArray<T> extends true 
+        ? 'array' 
+        : never;
+
+
+export type NestedTypeConfig<T> = { nested: NestedType<T>} & BaseTypeConfigMeta<null extends T ? true : false, undefined extends T ? true : false>;
+
+
+export type ObjectTypeConfig<T> =  {
+    [ObjK in keyof T]: ObjK extends string 
+        ? IsPrimitive<T[ObjK]> extends true ? FieldTypeConfig<T[ObjK]> : NestedTypeConfig<T[ObjK]>
+        : never 
+}
 
 
 

@@ -80,8 +80,6 @@ const mapPropertyToTypeConfig = (
     tabDepth: number,
 ): GenerationResult => {
   
-    const newLine = `\n${range(0, tabDepth).map(() => tabChar).join('')}`;
-
     if (isReferenceObject(propSchema)) {
         const propResult = parseRef(propSchema.$ref);
         return genResultMap(propResult, getTypeConfigName);
@@ -89,8 +87,7 @@ const mapPropertyToTypeConfig = (
   
     const isNullable = propSchema.nullable ?? false;
 
-    if (propSchema.type === 'array') return genResultError('Cannot generate for arrays');
-    if (propSchema.type === 'object') return genResultError('Cannot generate for nested objects');
+    if (propSchema.type === 'array' || propSchema.type === 'object') return genResultOf(`{ nested: '${propSchema.type}', isNullable: ${isNullable}, isOptional: ${!isRequired} }`);
 
     // Lookup the EDM type using the nonArrayTypeMap
     if(propSchema.type) {
@@ -103,7 +100,7 @@ const mapPropertyToTypeConfig = (
     const propResult = parseRef(firstAllOf.$ref);
 
     const refIsEnum = enumNamesField in propSchema;
-    if(!refIsEnum) return genResultError('Non enum references are ignored currently');
+    if(!refIsEnum) return genResultOf(`{ nested: 'object', isNullable: ${isNullable}, isOptional: ${!isRequired} }`);
     const childName = refIsEnum ? 'options' : 'config'; // If its an enum, this is a field reference rather than a child
     return genResultMap(propResult, r => `{ ${childName}: ${getTypeConfigName(r)}, isNullable: ${isNullable}, isOptional: ${!isRequired}}`);
 }

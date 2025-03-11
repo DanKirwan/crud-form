@@ -1,10 +1,10 @@
 import { DeepKeys, Validator } from '@tanstack/form-core';
-import { z, ZodArray, ZodBoolean, ZodObject, ZodTuple, ZodType, ZodTypeAny } from 'zod';
+import { optional, z, ZodAny, ZodArray, ZodBoolean, ZodObject, ZodTuple, ZodType, ZodTypeAny } from 'zod';
 import { FormValidator } from '../validation/validationTypes';
 
 import type { PartialDeep } from 'type-fest';
 import { ObjectMappings, OdataTypeToValue } from '../domain';
-import {  EnumTypeConfig, FieldTypeConfig, ObjectTypeConfig } from '../form';
+import {  BaseTypeConfigMeta, EnumTypeConfig, FieldTypeConfig, NestedTypeConfig, ObjectTypeConfig } from '../form';
 import { objectEntries } from '../objectUtils';
 import { AllPrimitiveDeepKeys, IsRecord} from '../typeUtils';
 
@@ -72,6 +72,11 @@ const isFieldTypeConfig = <T>(typeConfig: ObjectTypeConfig<T> | FieldTypeConfig<
         || ('options' in typeConfig && typeof typeConfig.options == 'object'));
 }
 
+const isNestedTypeConfig = <T>(typeConfig: ObjectTypeConfig<T> | FieldTypeConfig<T> | NestedTypeConfig<T>): typeConfig is NestedTypeConfig<T> => {
+    return ('nested' in typeConfig && typeof typeConfig.nested === 'string')
+}
+
+
 const isEmptyObject = (typeConfig: object | {}): typeConfig is {} => {
     return Object.values(typeConfig).length == 0;
 }
@@ -92,6 +97,14 @@ const createEnumValidator = <T extends string | number | undefined | null, TConf
     );
 }
 
+
+/** This is the entry point for validating more metadata things in future e.g. descriptions or other restrictions */
+const adjustWithMeta = <ZodT extends ZodType>(validator: ZodT, meta: BaseTypeConfigMeta<boolean, boolean>) => {
+    const nullAdjust = meta.isNullable ? validator.nullable() : validator;
+    const optionalAdjust = meta.isOptional ? nullAdjust.optional() : nullAdjust;
+    return optionalAdjust;
+}
+
 // TODO write more tests for this
 export const buildTypeConfigValidator = <T>(typeConfig: ObjectTypeConfig<T>): ZodDeep<T> => {
     const children = objectEntries(typeConfig).map(([key, child]) => {
@@ -107,12 +120,27 @@ export const buildTypeConfigValidator = <T>(typeConfig: ObjectTypeConfig<T>): Zo
             if('type' in config) {
 
                 const baseZod = zodDataTypeMap[config.type];
-                return [key,  config.isNullable ? baseZod.nullable() : baseZod] as const;
+                return [key, adjustWithMeta(baseZod, config)] as const;
             }
             return [key, createEnumValidator(config.options)]
         }
 
-        return [key, buildTypeConfigValidator(child)] as const;
+        if(isNestedTypeConfig(child)) {
+            const config = child as NestedTypeConfig<T[keyof T]>;
+            const baseZod = config.nested === 'object' 
+                ? z.unknown({}) 
+                : config.nested === 'array' 
+                    ? z.array(z.unknown({}))
+                    : void 0;
+
+            if(baseZod === void 0) throw new Error(`Nested objects must be defined as "object" or "array" - found ${config.nested}`);
+
+            return [key, adjustWithMeta(baseZod, config)];
+        }
+
+        throw new Error('Object Type configs currently only support primitive fields');
+        // Re-implement once nested included
+        // return [key, buildTypeConfigValidator(child)] as const;
     });
 
 

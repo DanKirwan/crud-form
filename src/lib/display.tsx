@@ -118,6 +118,7 @@ const renderFormItem = <
         const typeInfo = objectConfig[childKey]; // as FieldTypeConfig<PrimitiveShallowKeys<TFormData>>;
         console.log(typeInfo)
         if('options' in typeInfo) throw new Error('Cannot support options yet');
+        if('nested' in typeInfo) throw new Error('Cannot support nested fields yet');
         const componentDef = Object.values(renderConfig.fieldComponents[typeInfo.type])[0];
         const def = componentDef as SingleComponentType<RenderT, any>;
 
@@ -151,6 +152,7 @@ const renderFormItem = <
         const propertyKey = appendPrimitiveSuffix<TFormData, TPrefix, TChildData>(prefix, childKey);
         const typeInfo = get(objectConfig, childKey); // as FieldTypeConfig<PrimitiveShallowKeys<TFormData>>;
         if('options' in typeInfo) throw new Error('Enum fields cannot use normal components - use the "selectComponent" key');
+        if('nested' in typeInfo) throw new Error('Cannot support nested fields yet');
         const relevantComponents = renderConfig.fieldComponents[typeInfo.type];
         const componentDef = relevantComponents[component];
         if (!componentDef)

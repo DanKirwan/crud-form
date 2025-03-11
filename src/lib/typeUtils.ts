@@ -81,6 +81,7 @@ export type UnnestedArrayItemKey<T, K extends UnnestedArrayKeys<T>> =
     DeepValue<T, K> extends unknown[] ? `${K}[${number}]` extends DeepKeys<T> ? `${K}[${number}]`: never : never;
 
 
+// TODO this needs to include nullability
 export type IsPrimitive<T> = IsArray<T> extends false 
     ? IsRecord<T> extends false 
         ? true
@@ -96,6 +97,33 @@ export type IsRecord<T> = T extends object
             ? false 
             : true
     : false;
+
+
+
+
+export type IsNullishRecord<T> =
+  // If T is exactly null, it’s not a record.
+  [T] extends [null] ? false :
+  // Remove null from T and check if the remainder is an object.
+  [Exclude<T, null | undefined>] extends [object]
+    ? // If the non-null part is an array, then it isn’t a record.
+      [Exclude<T, null | undefined>] extends [any[]]
+        ? false
+        : // Exclude special cases (functions, Date, Uint8Array, File)
+          [Exclude<T, null> | undefined] extends [Function | Date | Uint8Array | File]
+            ? false
+            : true
+    : false;
+
+export type IsNullishArray<T> =
+  // If T is exactly null, it isn’t considered an array.
+  [T] extends [null] ? false :
+  // Exclude null and check if the remaining type is an array.
+  [Exclude<T, null | undefined>] extends [any[]]
+    ? true
+    : false;
+
+
 
 export  type NonEmptyList<T> = [T, ...T[]];
 
