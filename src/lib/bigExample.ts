@@ -147,6 +147,8 @@ export const bigUserProfileTypeConfig = {
     notifications: {type: 'Boolean', isNullable: false, isOptional: false},
     acceptedTOS: {type: 'Boolean', isNullable: false, isOptional: false},
     jobStatus: {options: {'Employed': JobStatus.Employed, 'Test': JobStatus.SelfEmployed}, isNullable: true, isOptional: false},
+    addresses: {nested: 'array', isNullable: false, isOptional: false},
+    location: {nested: 'object', isNullable: false, isOptional: false},
 } as const satisfies ObjectTypeConfig<BigUserProfile>;
 
 
@@ -183,7 +185,7 @@ export const bigUserProfileForm: FormItems<
                     layout: 'row',
                     container: 'identity',
                     label: 'Name',
-                    items: ['acceptedTOS', 'lastName'],
+                    items: ['firstName', 'lastName'],
                 },
                 {
                     layout: 'row',
@@ -311,8 +313,7 @@ export const bigUserProfileForm: FormItems<
             ],
         },
     ],
-};
-
+} as const;
 // ---------------------------------------
 // DEFAULT VALUES
 // ---------------------------------------
